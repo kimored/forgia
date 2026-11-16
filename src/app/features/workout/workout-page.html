@@ -26,7 +26,7 @@
 } @else {
   <section class="card plan-head">
     <div class="ph-row">
-      <span class="muted small">{{ p.phase.name }} · settimana {{ p.phaseWeek }}</span>
+      @if (p.phase.id !== 'mio') { <span class="muted small">{{ p.phase.name }} · settimana {{ p.phaseWeek }}</span> }
       @if (p.deload) { <span class="badge warn">Scarico: metà serie</span> }
     </div>
     <div class="ph-row">

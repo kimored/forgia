@@ -3,7 +3,9 @@ import { Router, RouterLink } from '@angular/router';
 import { ExerciseLibraryService } from '../../core/data/exercise-library.service';
 import { ProgramService } from '../../core/data/program.service';
 import type { LibraryEntry } from '../../core/domain/exercise-library';
-import { exerciseImages, PROGRAM } from '../../core/domain/workout';
+import { exerciseImages } from '../../core/domain/workout';
+import { generateProgram, GOALS, LEVELS, type Goal, type Level } from '../../core/domain/program-generator';
+import { ProfileService } from '../../core/data/profile.service';
 import type { ExerciseInfo, ProgramExercise, WorkoutProgram, WorkoutTemplate } from '../../core/models/workout';
 import { BottomSheet } from '../../shared/ui/bottom-sheet';
 import { WorkoutTabs } from './workout-tabs';
@@ -28,6 +30,39 @@ export class ProgramEditorPage {
   protected readonly doc = signal<WorkoutProgram>(structuredClone(this.programs.program()));
   protected readonly phaseIndex = signal(0);
   protected readonly saved = signal(false);
+  /** Scelta iniziale (la creo io / creala per me), domande, oppure modifica delle schede. */
+  protected readonly mode = signal<'choose' | 'wizard' | 'edit'>(this.programs.isExample() ? 'choose' : 'edit');
+
+  // Domande della scheda automatica
+  protected readonly goals = GOALS;
+  protected readonly levels = LEVELS;
+  protected readonly goal = signal<Goal>('massa');
+  protected readonly days = signal(Math.min(5, Math.max(2, inject(ProfileService).effective().gymDays.length || 3)));
+  protected readonly level = signal<Level>('principiante');
+
+  protected generate(): void {
+    this.doc.set(generateProgram({ goal: this.goal(), days: this.days(), level: this.level() }));
+    this.phaseIndex.set(0);
+    this.mode.set('edit');
+  }
+
+  protected startManual(): void {
+    this.doc.set({
+      title: 'La mia scheda',
+      notes: [],
+      phases: [{ id: 'mio', name: 'La mia scheda', fromWeek: 1, rotation: ['A'], templates: [{ id: 'A', name: 'Giorno 1', exercises: [] }] }],
+    });
+    this.phaseIndex.set(0);
+    this.mode.set('edit');
+  }
+
+  protected readonly empty = computed(() => this.phase().templates.some((t) => !t.exercises.length));
+
+  protected num(v: string): number | null {
+    const n = parseInt(v, 10);
+    return Number.isFinite(n) && n > 0 ? n : null;
+  }
+
 
   constructor() {
     void this.library.load().catch(() => undefined);
@@ -51,72 +86,13 @@ export class ProgramEditorPage {
     return doc.phases[this.phaseIndex()] ?? doc.phases[0];
   }
 
-  // ---------- Programma ----------
-
-  protected startFromScratch(): void {
-    if (!confirm('Creare un programma nuovo da zero? Le modifiche non salvate andranno perse.')) return;
-    this.doc.set({
-      title: 'Il mio programma',
-      notes: [],
-      phases: [{ id: 'mio', name: 'Il mio programma', fromWeek: 1, rotation: ['A'], templates: [{ id: 'A', name: 'Scheda A', exercises: [] }] }],
-    });
-    this.phaseIndex.set(0);
-  }
-
-  protected startFromExample(): void {
-    this.doc.set(structuredClone(PROGRAM));
-    this.phaseIndex.set(0);
-  }
-
-  protected async useExample(): Promise<void> {
-    if (!confirm('Tornare al programma di esempio? Il tuo programma verrà sostituito.')) return;
-    await this.programs.useExample();
-    this.doc.set(structuredClone(PROGRAM));
-  }
-
-  protected setTitle(v: string): void {
-    this.mutate((d) => (d.title = v.trim() || d.title));
-  }
-
-  // ---------- Fase ----------
-
-  protected patchPhase(patch: { name?: string; fromWeek?: number; toWeek?: number | null }): void {
-    this.mutate((d) => {
-      const p = this.ph(d);
-      if (patch.name !== undefined) p.name = patch.name.trim() || p.name;
-      if (patch.fromWeek !== undefined && patch.fromWeek >= 1) p.fromWeek = patch.fromWeek;
-      if (patch.toWeek !== undefined) p.toWeek = patch.toWeek ?? undefined;
-    });
-  }
-
-  protected addPhase(): void {
-    this.mutate((d) => {
-      const last = d.phases.at(-1)!;
-      const from = (last.toWeek ?? last.fromWeek + 3) + 1;
-      if (!last.toWeek) last.toWeek = from - 1;
-      d.phases.push({ id: `fase-${Date.now().toString(36)}`, name: `Fase ${d.phases.length + 1}`, fromWeek: from, rotation: ['A'], templates: [{ id: 'A', name: 'Scheda A', exercises: [] }] });
-    });
-    this.phaseIndex.set(this.doc().phases.length - 1);
-  }
-
-  protected removePhase(): void {
-    if (this.doc().phases.length < 2 || !confirm('Eliminare questa fase?')) return;
-    this.mutate((d) => d.phases.splice(this.phaseIndex(), 1));
-    this.phaseIndex.set(0);
-  }
-
-  protected num(v: string): number | null {
-    const n = parseInt(v, 10);
-    return Number.isFinite(n) && n > 0 ? n : null;
-  }
-
   // ---------- Schede ----------
 
   protected addTemplate(): void {
     this.mutate((d) => {
       const p = this.ph(d);
       const id = [...LETTERS].find((l) => !p.templates.some((t) => t.id === l)) ?? `S${p.templates.length + 1}`;
-      p.templates.push({ id, name: `Scheda ${id}`, exercises: [] });
+      p.templates.push({ id, name: `Giorno ${p.templates.length + 1}`, exercises: [] });
     });
   }
 
@@ -221,19 +197,13 @@ export class ProgramEditorPage {
 
   // ---------- Salvataggio ----------
 
-  protected readonly problems = computed(() => {
-    const out: string[] = [];
-    for (const p of this.doc().phases) {
-      for (const t of p.templates) if (!t.exercises.length) out.push(`${p.name} · ${t.name}: nessun esercizio`);
-    }
-    return out;
-  });
-
   protected async save(): Promise<void> {
-    const doc = structuredClone(this.doc());
-    // L'ordine delle schede è la rotazione sui giorni di palestra.
-    for (const p of doc.phases) p.rotation = p.templates.map((t) => t.id);
-    await this.programs.save(doc);
+    const phase = structuredClone(this.phase());
+    // L'ordine dei giorni è la rotazione sui giorni di palestra; nessuna fase a settimane.
+    phase.fromWeek = 1;
+    delete phase.toWeek;
+    phase.rotation = phase.templates.map((t) => t.id);
+    await this.programs.save({ ...this.doc(), phases: [phase] });
     this.saved.set(true);
     setTimeout(() => void this.router.navigateByUrl('/allenamento'), 700);
   }

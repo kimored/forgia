@@ -1,93 +1,99 @@
-@let d = doc();
-@let p = phase();
-
 <app-workout-tabs />
 
-<section class="card intro">
-  <p class="muted">
-    Crea le tue schede con qualsiasi esercizio del catalogo.
-    Le schede si alternano nei tuoi giorni di palestra nell'ordine in cui sono qui.
-    @if (programs.isExample()) { Ora stai usando il programma di esempio. }
-  </p>
-  <div class="row">
-    <button type="button" class="btn" (click)="startFromExample()">Parti dall'esempio</button>
-    <button type="button" class="btn" (click)="startFromScratch()">Nuovo da zero</button>
-    @if (!programs.isExample()) { <button type="button" class="btn ghost" (click)="useExample()">Torna all'esempio</button> }
-  </div>
-  <label class="field"><span>Nome del programma</span>
-    <input type="text" [value]="d.title" (change)="setTitle($any($event.target).value)" /></label>
-</section>
-
-@if (d.phases.length > 1) {
-  <div class="chips" role="tablist">
-    @for (ph of d.phases; track ph.id; let i = $index) {
-      <button type="button" role="tab" class="chip" [class.on]="phaseIndex() === i" (click)="phaseIndex.set(i)">{{ ph.name }}</button>
-    }
-  </div>
-}
-
-<section class="card phase">
-  <div class="grid">
-    <label class="field"><span>Nome della fase</span>
-      <input type="text" [value]="p.name" (change)="patchPhase({ name: $any($event.target).value })" /></label>
-    <label class="field"><span>Dalla settimana</span>
-      <input type="number" min="1" [value]="p.fromWeek" (change)="patchPhase({ fromWeek: num($any($event.target).value) ?? p.fromWeek })" /></label>
-    <label class="field"><span>Alla settimana (vuoto = sempre)</span>
-      <input type="number" min="1" [value]="p.toWeek ?? ''" (change)="patchPhase({ toWeek: num($any($event.target).value) })" /></label>
-  </div>
-  <div class="row">
-    <button type="button" class="btn ghost" (click)="addPhase()">+ Fase</button>
-    @if (d.phases.length > 1) { <button type="button" class="btn ghost" (click)="removePhase()">Elimina fase</button> }
-  </div>
-  @if (p.weeks?.length) {
-    <p class="muted small">Gli esercizi senza serie usano quelle della fase per settimana ({{ p.weeks!.length }} settimane impostate).</p>
-  }
-</section>
-
-@for (t of templates(); track t.id; let ti = $index) {
-  <section class="card tpl">
-    <header>
-      <span class="badge primary">{{ ti + 1 }}ª seduta</span>
-      <input class="tname" type="text" [value]="t.name" aria-label="Nome della scheda" (change)="renameTemplate(t.id, $any($event.target).value)" />
-      <span class="tools">
-        <button type="button" class="icon-btn" aria-label="Sposta su" (click)="moveTemplate(t.id, -1)">↑</button>
-        <button type="button" class="icon-btn" aria-label="Sposta giù" (click)="moveTemplate(t.id, 1)">↓</button>
-        <button type="button" class="icon-btn" aria-label="Elimina scheda" (click)="removeTemplate(t.id)">✕</button>
-      </span>
-    </header>
-
-    <ol class="rows">
-      @for (r of t.rows; track r.i) {
-        <li>
-          <button type="button" class="ex" (click)="openInfo(t.id, r.i, r.info)" [attr.aria-label]="'Dettagli di ' + r.info.name">
-            <img [src]="thumb(r.info)" alt="" loading="lazy" />
-            <span class="ename">{{ r.info.name }}</span>
-          </button>
-          <div class="nums">
-            <label><span>serie</span><input type="number" inputmode="numeric" min="1" [value]="r.pe.sets ?? ''" placeholder="auto" (change)="setSets(t.id, r.i, $any($event.target).value)" /></label>
-            <label><span>rip</span><input type="text" inputmode="numeric" [value]="r.pe.reps" (change)="setReps(t.id, r.i, $any($event.target).value)" /></label>
-            <label><span>rec. s</span><input type="number" inputmode="numeric" min="10" step="15" [value]="r.pe.rest?.[1] ?? ''" placeholder="auto" (change)="setRest(t.id, r.i, $any($event.target).value)" /></label>
-          </div>
-          <span class="tools">
-            <button type="button" class="icon-btn" aria-label="Su" (click)="moveExercise(t.id, r.i, -1)">↑</button>
-            <button type="button" class="icon-btn" aria-label="Giù" (click)="moveExercise(t.id, r.i, 1)">↓</button>
-            <button type="button" class="icon-btn" aria-label="Togli" (click)="removeExercise(t.id, r.i)">✕</button>
-          </span>
-        </li>
+@switch (mode()) {
+  @case ('choose') {
+    <section class="choose">
+      <h2>Crea la tua scheda</h2>
+      <button type="button" class="big" (click)="startManual()">
+        <span class="emoji" aria-hidden="true">✍️</span>
+        <strong>La creo io</strong>
+        <span class="muted">Scegli tu gli esercizi dal catalogo</span>
+      </button>
+      <button type="button" class="big" (click)="mode.set('wizard')">
+        <span class="emoji" aria-hidden="true">✨</span>
+        <strong>Creala per me</strong>
+        <span class="muted">Rispondi a 3 domande e la preparo io</span>
+      </button>
+      @if (!programs.isExample()) {
+        <button type="button" class="btn ghost" (click)="mode.set('edit')">Annulla</button>
       }
-    </ol>
-    <button type="button" class="btn ghost add" (click)="openPicker(t.id)">+ Aggiungi esercizio</button>
-  </section>
-}
+    </section>
+  }
 
-<button type="button" class="btn add-tpl" (click)="addTemplate()">+ Nuova scheda</button>
+  @case ('wizard') {
+    <section class="wizard">
+      <h2>Che allenamento vuoi?</h2>
+      <div class="options">
+        @for (g of goals; track g.id) {
+          <button type="button" class="opt" [class.on]="goal() === g.id" (click)="goal.set(g.id)">
+            <strong>{{ g.label }}</strong>
+            <span class="muted">{{ g.hint }}</span>
+          </button>
+        }
+      </div>
 
-@if (problems().length) {
-  <ul class="problems">@for (x of problems(); track x) { <li>{{ x }}</li> }</ul>
+      <h2>Quante volte a settimana?</h2>
+      <div class="pills">
+        @for (n of [2, 3, 4, 5]; track n) {
+          <button type="button" [class.on]="days() === n" (click)="days.set(n)">{{ n }}</button>
+        }
+      </div>
+
+      @if (goal() !== 'riattivazione') {
+        <h2>Che livello hai?</h2>
+        <div class="pills">
+          @for (l of levels; track l.id) {
+            <button type="button" [class.on]="level() === l.id" (click)="level.set(l.id)">{{ l.label }}</button>
+          }
+        </div>
+      }
+
+      <div class="actions">
+        <button type="button" class="btn primary" (click)="generate()">Crea la scheda</button>
+        <button type="button" class="btn ghost" (click)="mode.set('choose')">Indietro</button>
+      </div>
+    </section>
+  }
+
+  @case ('edit') {
+    @for (t of templates(); track t.id; let ti = $index) {
+      <section class="card tpl">
+        <header>
+          <input class="tname" type="text" [value]="t.name" aria-label="Nome della scheda" (change)="renameTemplate(t.id, $any($event.target).value)" />
+          @if (templates().length > 1) {
+            <button type="button" class="icon-btn" aria-label="Elimina scheda" (click)="removeTemplate(t.id)">✕</button>
+          }
+        </header>
+
+        <ol class="rows">
+          @for (r of t.rows; track r.i) {
+            <li>
+              <button type="button" class="ex" (click)="openInfo(t.id, r.i, r.info)" [attr.aria-label]="'Dettagli di ' + r.info.name">
+                <img [src]="thumb(r.info)" alt="" loading="lazy" />
+                <span class="ename">{{ r.info.name }}</span>
+              </button>
+              <div class="nums">
+                <label><input type="number" inputmode="numeric" min="1" [value]="r.pe.sets ?? 3" aria-label="Serie" (change)="setSets(t.id, r.i, $any($event.target).value)" /><span>serie</span></label>
+                <span class="x">×</span>
+                <label><input type="text" inputmode="numeric" [value]="r.pe.reps" aria-label="Ripetizioni" (change)="setReps(t.id, r.i, $any($event.target).value)" /><span>rip</span></label>
+              </div>
+              <button type="button" class="icon-btn" aria-label="Togli esercizio" (click)="removeExercise(t.id, r.i)">✕</button>
+            </li>
+          }
+        </ol>
+        <button type="button" class="btn ghost add" (click)="openPicker(t.id)">+ Aggiungi esercizio</button>
+      </section>
+    }
+
+    <button type="button" class="btn ghost add-tpl" (click)="addTemplate()">+ Aggiungi un giorno</button>
+
+    <div class="save">
+      <button type="button" class="btn primary" [disabled]="empty()" (click)="save()">{{ saved() ? '✓ Salvata' : 'Salva la scheda' }}</button>
+      @if (empty()) { <p class="muted small">Ogni giorno deve avere almeno un esercizio.</p> }
+      <button type="button" class="link" (click)="mode.set('choose')">Ricomincia da capo</button>
+    </div>
+  }
 }
-<div class="save">
-  <button type="button" class="btn primary" [disabled]="problems().length > 0" (click)="save()">{{ saved() ? '✓ Salvato' : 'Salva il programma' }}</button>
-</div>
 
 <app-bottom-sheet [(open)]="pickerOpen" label="Scegli esercizio">
   @if (pickerOpen()) {
