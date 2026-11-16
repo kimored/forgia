@@ -39,7 +39,7 @@ export class Shell {
   constructor() {
     // Badge sull'icona dell'app installata, dove supportato (Android/Chrome, iOS 16.4+ installata).
     effect(() => {
-      const n = this.pantry.alerts().length;
+      const n = this.notifCount();
       const nav = navigator as Navigator & { setAppBadge?: (n: number) => Promise<void>; clearAppBadge?: () => Promise<void> };
       (n ? nav.setAppBadge?.(n) : nav.clearAppBadge?.())?.catch(() => {});
     });

@@ -47,7 +47,8 @@ export class ReminderService {
       weighedToday: this.progress.weights().some((w) => w.date === date),
       lastMeasure: this.progress.measurements().at(-1)?.date,
       habits: this.days.catalog().habits.map((h) => ({ id: h.id, label: h.label, done: !!habitsDone.done?.[h.id] })),
-      pantryAlerts: this.pantry.alerts().length,
+      // Dispensa sospesa (tolta dalle tab): niente avvisi finché non torna.
+      pantryAlerts: 0,
       workout: { planned: !!plan, started: !!this.workouts.sessionOn(date), time: profile.times['palestra'] },
       personal: profile.reminders
         .filter((r) => r.enabled)
