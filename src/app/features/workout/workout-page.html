@@ -26,12 +26,8 @@
 } @else {
   <section class="card plan-head">
     <div class="ph-row">
-      <div>
-        <span class="badge primary">{{ p.phase.name }}</span>
-        @if (p.deload) { <span class="badge warn">Settimana di scarico: metà serie</span> }
-        @if (phaseManual()) { <span class="badge">fase scelta a mano</span> }
-      </div>
-      <span class="muted small">settimana {{ p.phaseWeek }} della fase</span>
+      <span class="muted small">{{ p.phase.name }} · settimana {{ p.phaseWeek }}</span>
+      @if (p.deload) { <span class="badge warn">Scarico: metà serie</span> }
     </div>
     <div class="ph-row">
       <h2>{{ p.template.name }}</h2>

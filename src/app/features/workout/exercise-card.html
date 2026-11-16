@@ -16,10 +16,6 @@
           @if (p.rir) { · RIR {{ p.rir }} }
           · rec. {{ restLabel() }}
         </p>
-        <p class="muscles">
-          @for (m of p.info.primary; track m) { <span class="badge primary">{{ m }}</span> }
-          @for (m of p.info.secondary; track m) { <span class="badge">{{ m }}</span> }
-        </p>
       </div>
     </div>
   </header>
@@ -28,14 +24,6 @@
   @if (p.note) { <p class="note">{{ p.note }}</p> }
   @if (hint(); as h) { <p class="hint" [class.up]="h.increase">{{ h.increase ? '📈' : '🎯' }} {{ h.text }}</p> }
 
-  <button type="button" class="link" (click)="showTips.set(!showTips())" [attr.aria-expanded]="showTips()">
-    {{ showTips() ? 'Nascondi tecnica' : 'Come si esegue' }}
-  </button>
-  @if (showTips()) {
-    <ul class="tips">
-      @for (t of p.info.tips; track t) { <li>{{ t }}</li> }
-    </ul>
-  }
 
   @if (!compact()) {
     <ol class="sets">
@@ -43,22 +31,18 @@
         <li [class.done]="r.done">
           <span class="n num">{{ r.n }}</span>
           <div class="field">
-            <button type="button" class="step" [attr.aria-label]="'Meno ' + p.info.increment + ' kg'" (click)="step(r.n, 'kg', -p.info.increment, r.kg)">−</button>
             <label>
               <input type="text" inputmode="decimal" [value]="r.kg ?? ''" placeholder="kg" [attr.aria-label]="'Carico serie ' + r.n"
                      (change)="setValue(r.n, 'kg', $any($event.target).value)" />
               <span>kg</span>
             </label>
-            <button type="button" class="step" [attr.aria-label]="'Più ' + p.info.increment + ' kg'" (click)="step(r.n, 'kg', p.info.increment, r.kg)">+</button>
           </div>
           <div class="field">
-            <button type="button" class="step" aria-label="Una ripetizione in meno" (click)="step(r.n, 'reps', -1, r.reps)">−</button>
             <label>
               <input type="text" inputmode="numeric" [value]="r.reps" [attr.aria-label]="'Ripetizioni serie ' + r.n"
                      (change)="setValue(r.n, 'reps', $any($event.target).value)" />
               <span>rip</span>
             </label>
-            <button type="button" class="step" aria-label="Una ripetizione in più" (click)="step(r.n, 'reps', 1, r.reps)">+</button>
           </div>
           <button type="button" class="ok" [class.on]="r.done" [attr.aria-label]="'Serie ' + r.n + ' fatta'" (click)="confirm(r)">✓</button>
           @if (r.prev && !r.done) { <span class="prev num">prima: {{ r.prev.kg }} × {{ r.prev.reps }}</span> }
@@ -67,11 +51,18 @@
     </ol>
   }
 
-  <div class="actions">
-    <button type="button" class="btn ghost" (click)="history.emit(p.info.id)">📊 Storico</button>
-    <button type="button" class="btn ghost" (click)="detail.emit(p.info)">🔁 Varianti</button>
-    @for (a of p.alternatives; track a.id) {
-      <button type="button" class="btn ghost" (click)="swap.emit(a.id)">⇄ {{ a.name }}</button>
+  <div class="more">
+    <button type="button" class="more-btn" [attr.aria-expanded]="menuOpen()" (click)="menuOpen.set(!menuOpen())">
+      {{ menuOpen() ? 'Chiudi' : 'Altro…' }}
+    </button>
+    @if (menuOpen()) {
+      <div class="menu">
+        <button type="button" (click)="menuOpen.set(false); history.emit(p.info.id)">Storico</button>
+        <button type="button" (click)="menuOpen.set(false); detail.emit(p.info)">Tecnica e varianti</button>
+        @for (a of p.alternatives; track a.id) {
+          <button type="button" (click)="menuOpen.set(false); swap.emit(a.id)">Sostituisci con {{ a.name }}</button>
+        }
+      </div>
     }
   </div>
 </article>

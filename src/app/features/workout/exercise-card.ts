@@ -32,7 +32,7 @@ export class ExerciseCard {
   /** Le due immagini dell'esecuzione si alternano: un'animazione leggera senza video. */
   protected readonly frame = signal(0);
   protected readonly images = computed(() => exerciseImages(this.planned().info));
-  protected readonly showTips = signal(false);
+  protected readonly menuOpen = signal(false);
 
   constructor() {
     const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;

@@ -132,7 +132,7 @@ p {
 }
 .field {
   display: grid;
-  grid-template-columns: 36px 1fr 36px;
+  grid-template-columns: 1fr;
   align-items: center;
   border: 1px solid var(--border);
   border-radius: 12px;
@@ -221,7 +221,7 @@ p {
     grid-template-columns: 96px 1fr;
   }
   .field {
-    grid-template-columns: 30px 1fr 30px;
+    grid-template-columns: 1fr;
   }
 }
 
@@ -259,4 +259,37 @@ p {
   background: rgb(0 0 0 / 0.55);
   color: #fff;
   font-size: 0.9rem;
+}
+
+.more {
+  display: grid;
+  gap: 6px;
+  justify-items: start;
+}
+.more-btn {
+  border: 0;
+  background: transparent;
+  color: var(--primary);
+  font-weight: 700;
+  min-height: 36px;
+  padding: 0 4px;
+}
+.menu {
+  display: grid;
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  button {
+    min-height: 44px;
+    text-align: left;
+    padding: 0 14px;
+    border: 0;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-2);
+    font-weight: 600;
+    &:last-child {
+      border-bottom: 0;
+    }
+  }
 }
