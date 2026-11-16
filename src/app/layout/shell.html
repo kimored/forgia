@@ -14,6 +14,14 @@
       </a>
     }
     <span class="rail-spacer"></span>
+    <button type="button" class="rail-item bell" [class.has]="notifCount() > 0" [attr.aria-expanded]="notifOpen()"
+            [attr.aria-label]="'Notifiche' + (notifCount() ? ': ' + notifCount() : '')" (click)="notifOpen.set(!notifOpen())">
+      <span class="ico">
+        <app-icon name="bell" />
+        @if (notifCount()) { <span class="nav-badge">{{ notifCount() }}</span> }
+      </span>
+      <span>Notifiche</span>
+    </button>
     <a class="rail-item" routerLink="impostazioni" routerLinkActive="active" ariaCurrentWhenActive="page">
       <app-icon name="settings" />
       <span>Impostazioni</span>
@@ -23,37 +31,51 @@
   <div class="main">
     <header class="topbar">
       <span class="topbar-title">Forgia</span>
-      <a class="icon-btn" routerLink="impostazioni" aria-label="Impostazioni">
-        <app-icon name="settings" />
-      </a>
+      <div class="top-actions">
+        <button type="button" class="icon-btn bell" [class.has]="notifCount() > 0" [attr.aria-expanded]="notifOpen()"
+            [attr.aria-label]="'Notifiche' + (notifCount() ? ': ' + notifCount() : '')" (click)="notifOpen.set(!notifOpen())">
+      <span class="ico">
+        <app-icon name="bell" />
+        @if (notifCount()) { <span class="nav-badge">{{ notifCount() }}</span> }
+      </span>
+    </button>
+        <a class="icon-btn" routerLink="impostazioni" aria-label="Impostazioni">
+          <app-icon name="settings" />
+        </a>
+      </div>
     </header>
 
-    @if (backup.due()) {
-      <div class="banner" role="status">
-        <app-icon name="shield" />
-        <p>
-          <strong>Fai un backup dei tuoi dati.</strong>
-          <span class="muted">Su iPhone i dati locali possono essere cancellati: salvane una copia una volta al mese.</span>
-        </p>
-        <div class="banner-actions">
-          <button class="btn primary" type="button" (click)="backup.download()">Salva backup</button>
-          <button class="btn ghost" type="button" (click)="backup.snooze()">Più tardi</button>
-        </div>
-      </div>
-    }
-
-    @if (reminders.reminders().length) {
-      <ul class="reminders" aria-label="Promemoria di oggi">
-        @for (r of reminders.reminders(); track r.id) {
-          <li [class.warn]="r.level === 'warn'" animate.enter="rem-in" animate.leave="rem-out">
-            <a [routerLink]="r.link">
-              <span aria-hidden="true">{{ r.icon }}</span>
-              <span>{{ r.text }}</span>
-            </a>
-            <button type="button" class="icon-btn" aria-label="Nascondi promemoria" (click)="reminders.dismiss(r.id)">✕</button>
-          </li>
+    @if (notifOpen()) {
+      <div class="notif-backdrop" (click)="notifOpen.set(false)"></div>
+      <section class="notif-panel" role="dialog" aria-label="Notifiche" animate.enter="rem-in">
+        <h2>Notifiche</h2>
+        @if (!notifCount()) {
+          <p class="muted">Nessuna notifica. 👌</p>
         }
-      </ul>
+        <ul>
+          @if (backup.due()) {
+            <li class="warn">
+              <div class="txt">
+                <span aria-hidden="true">🛡️</span>
+                <span><strong>Fai un backup dei tuoi dati.</strong> Su iPhone i dati locali possono essere cancellati.</span>
+              </div>
+              <div class="acts">
+                <button class="btn primary" type="button" (click)="backup.download()">Salva backup</button>
+                <button class="btn ghost" type="button" (click)="backup.snooze()">Più tardi</button>
+              </div>
+            </li>
+          }
+          @for (r of reminders.reminders(); track r.id) {
+            <li [class.warn]="r.level === 'warn'">
+              <a class="txt" [routerLink]="r.link" (click)="notifOpen.set(false)">
+                <span aria-hidden="true">{{ r.icon }}</span>
+                <span>{{ r.text }}</span>
+              </a>
+              <button type="button" class="icon-btn" aria-label="Nascondi" (click)="reminders.dismiss(r.id)">✕</button>
+            </li>
+          }
+        </ul>
+      </section>
     }
 
     <main class="content">

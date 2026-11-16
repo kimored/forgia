@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { Icon, type IconName } from '../shared/ui/icon';
 import { BackupService } from '../core/data/backup.service';
@@ -28,6 +28,10 @@ export class Shell {
   protected readonly backup = inject(BackupService);
   private readonly pantry = inject(PantryStore);
   protected readonly reminders = inject(ReminderService);
+
+  /** Promemoria e backup stanno nel pannello della campanella, non più fissi sullo schermo. */
+  protected readonly notifOpen = signal(false);
+  protected readonly notifCount = computed(() => this.reminders.reminders().length + (this.backup.due() ? 1 : 0));
 
   /** Badge per tab (per ora: prodotti in esaurimento sulla Dispensa). */
   protected readonly badges = computed<Record<string, number>>(() => ({ dispensa: this.pantry.alerts().length }));
