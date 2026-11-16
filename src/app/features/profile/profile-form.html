@@ -92,6 +92,20 @@
           @if (startMonday() !== m.startDate) {
             <p class="hint">Il ciclo parte dal lunedì di quella settimana ({{ startMonday() }}).</p>
           }
+          @if (weekSlots().length > 1) {
+            <h3>Ordine delle settimane</h3>
+            <p class="hint">Se hai iniziato da un'altra settimana del piano, scegli quale fare per prima, seconda…</p>
+            <div class="grid3">
+              @for (s of weekSlots(); track s.pos) {
+                <label class="field">
+                  <span>{{ s.pos }}ª settimana</span>
+                  <select [value]="s.week" (change)="setWeek(s.pos, +$any($event.target).value)">
+                    @for (w of weekChoices(); track w) { <option [value]="w" [selected]="w === s.week">Settimana {{ w }} del piano</option> }
+                  </select>
+                </label>
+              }
+            </div>
+          }
           <h3>Composizione corporea <span class="muted">(facoltativa)</span></h3>
           <div class="grid3">
             <label class="field">

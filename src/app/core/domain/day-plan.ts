@@ -5,7 +5,7 @@ import type { Catalog } from './catalog';
 import { cyclePosition } from './cycle';
 import type { IsoDate } from './dates';
 
-export type DayProfile = Pick<Profile, 'startDate' | 'gymDays'> & { times: Record<string, string> };
+export type DayProfile = Pick<Profile, 'startDate' | 'gymDays' | 'weekOrder'> & { times: Record<string, string> };
 
 export interface ResolvedMeal {
   slot: MealSlot;
@@ -54,7 +54,9 @@ export function activeToggles(catalog: Catalog, options: DayOptions | undefined,
 
 /** Calcola il menu completo di una data: piano + opzioni del giorno + sostituzioni registrate. */
 export function resolveDay(catalog: Catalog, input: DayInput): ResolvedDay {
-  const { week, weekday, programWeek } = cyclePosition(input.date, input.profile.startDate, catalog.cycleLength);
+  const pos = cyclePosition(input.date, input.profile.startDate, catalog.cycleLength);
+  const { weekday, programWeek } = pos;
+  const week = planWeek(pos.week, input.profile.weekOrder, catalog.cycleLength);
   const gym = input.profile.gymDays.includes(weekday);
   const options = input.options ?? { date: input.date };
   const logBySlot = new Map((input.logs ?? []).map((l) => [l.slot, l]));
@@ -139,4 +141,10 @@ function adjust(meal: ResolvedMeal, gym: boolean, catalog: Catalog, extras: Rule
       meal.notes.push(`${r.label.replace(/^\P{L}+/u, '')}: +${r.add} g di ${catalog.food(target.food).name.toLowerCase()}.`);
     }
   }
+}
+
+/** Settimana del piano da usare nella posizione `pos` del ciclo, secondo l'ordine scelto. */
+export function planWeek(pos: CycleWeek, order: readonly number[] | undefined, cycleLength: number): CycleWeek {
+  const w = order?.[pos - 1];
+  return w && w >= 1 && w <= cycleLength ? w : pos;
 }

@@ -47,7 +47,7 @@ export class DayStore {
 
   private dayProfile() {
     const p = this.profiles.effective();
-    return { startDate: p.startDate, gymDays: p.gymDays, times: this.times() };
+    return { startDate: p.startDate, gymDays: p.gymDays, weekOrder: p.weekOrder, times: this.times() };
   }
 
   /** Resolver memoizzato: si ricrea quando cambiano piano, log, opzioni o profilo. */

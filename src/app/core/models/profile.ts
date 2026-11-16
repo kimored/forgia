@@ -41,6 +41,8 @@ export interface Profile {
   startWeightKg?: number;
   /** "YYYY-MM-DD": lunedì in cui inizia la settimana 1 del ciclo. */
   startDate: string;
+  /** Ordine delle settimane del piano nel ciclo (es. [2,1,3,4]); assente = 1,2,3… */
+  weekOrder?: number[];
   body?: BodyComposition;
   gymDays: Weekday[];
   /** Orari scelti dall'utente; se uno slot manca vale l'orario indicato dal piano. */
