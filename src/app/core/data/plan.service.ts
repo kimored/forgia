@@ -41,15 +41,23 @@ export class PlanService {
     this.custom.set(true);
   }
 
-  async importFile(file: Blob): Promise<PlanDocument> {
+  /** Legge e valida un file di piano senza attivarlo. */
+  async parseFile(file: Blob): Promise<PlanDocument> {
     let data: unknown;
     try {
       data = JSON.parse(await file.text());
     } catch {
       throw new PlanImportError(['Il file non è un JSON valido.']);
     }
-    await this.set(data as PlanDocument);
+    const errors = validatePlan(data);
+    if (errors.length) throw new PlanImportError(errors);
     return data as PlanDocument;
+  }
+
+  async importFile(file: Blob): Promise<PlanDocument> {
+    const doc = await this.parseFile(file);
+    await this.set(doc);
+    return doc;
   }
 
   async useExample(): Promise<void> {

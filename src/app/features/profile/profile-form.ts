@@ -3,7 +3,7 @@ import { DatePipe, DecimalPipe } from '@angular/common';
 import { ProfileService } from '../../core/data/profile.service';
 import type { Weekday } from '../../core/models/plan';
 import type { PersonalReminder, Profile, Sex } from '../../core/models/profile';
-import { PlanImportError, PlanService } from '../../core/data/plan.service';
+import { PlanService } from '../../core/data/plan.service';
 import { WEEKDAY_SHORT, mondayOf, parseIsoDate } from '../../core/domain/dates';
 import { parseScaleWords, SCALE_FIELD_LABELS, type ScaleField } from '../../core/domain/scale-ocr';
 import { OcrLoadError, OcrService } from '../../core/platform/ocr.service';
@@ -26,7 +26,9 @@ export class ProfileForm {
   protected readonly ocr = inject(OcrService);
 
   readonly mode = input<'wizard' | 'edit'>('edit');
-  readonly saved = output<void>();
+  /** importPlan: l'utente vuole importare subito il piano del nutrizionista. */
+  readonly saved = output<{ importPlan: boolean }>();
+  protected readonly importAfter = signal(true);
 
   protected readonly model = signal<Profile>(this.profiles.draft());
   protected readonly step = signal(0);
@@ -100,26 +102,12 @@ export class ProfileForm {
   ];
   protected readonly weekdays = WEEKDAY_SHORT.map((label, i) => ({ label, value: i as Weekday }));
   protected readonly plans = inject(PlanService);
-  protected readonly planMessage = signal<{ ok: boolean; text: string } | null>(null);
 
   /** Orari: un campo per ogni pasto del piano attivo, più la palestra. */
   protected readonly timeSlots = computed(() => [
     ...this.plans.catalog().slots.map((s) => ({ id: s.id, label: s.gymOnly ? `${s.label} (giorni palestra)` : s.label, def: s.time ?? '12:00' })),
     { id: 'palestra', label: 'Palestra (inizio)', def: '22:00' },
   ]);
-
-  protected async importPlan(input: HTMLInputElement): Promise<void> {
-    const file = input.files?.[0];
-    input.value = '';
-    if (!file) return;
-    try {
-      const doc = await this.plans.importFile(file);
-      this.planMessage.set({ ok: true, text: `Piano caricato: ${doc.meta.title}` });
-    } catch (e) {
-      const errors = e instanceof PlanImportError ? e.errors : [String(e)];
-      this.planMessage.set({ ok: false, text: errors.slice(0, 3).join(' ') });
-    }
-  }
 
   protected readonly sexes: { value: Sex; label: string }[] = [
     { value: 'M', label: 'Uomo' },
@@ -192,6 +180,6 @@ export class ProfileForm {
     this.saving.set(false);
     this.savedFlash.set(true);
     setTimeout(() => this.savedFlash.set(false), 1800);
-    this.saved.emit();
+    this.saved.emit({ importPlan: this.mode() === 'wizard' && this.importAfter() });
   }
 }

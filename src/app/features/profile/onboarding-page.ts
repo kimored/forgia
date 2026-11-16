@@ -13,7 +13,7 @@ import { ProfileForm } from './profile-form';
       <h1>Benvenuto in {{ name }}</h1>
       <p class="muted">{{ tagline }} · Configuriamo tutto in 5 passaggi.</p>
     </header>
-    <app-profile-form mode="wizard" (saved)="done()" />
+    <app-profile-form mode="wizard" (saved)="done($event.importPlan)" />
   `,
   styles: `
     :host {
@@ -34,7 +34,7 @@ export class OnboardingPage {
   protected readonly name = APP_NAME;
   protected readonly tagline = APP_TAGLINE;
 
-  protected done(): void {
-    void this.router.navigateByUrl('/oggi', { replaceUrl: true });
+  protected done(importPlan: boolean): void {
+    void this.router.navigateByUrl(importPlan ? '/impostazioni/piano/importa' : '/oggi', { replaceUrl: true });
   }
 }

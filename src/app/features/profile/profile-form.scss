@@ -246,3 +246,24 @@ input.ocr {
   font-size: 0.85rem;
   color: var(--text-2);
 }
+.choices {
+  display: grid;
+  gap: 8px;
+}
+.choice {
+  display: grid;
+  gap: 2px;
+  text-align: left;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--border);
+  background: var(--surface);
+  font: inherit;
+  .muted {
+    font-size: 0.85rem;
+  }
+  &.on {
+    border-color: var(--primary);
+    background: color-mix(in srgb, var(--primary) 8%, var(--surface));
+  }
+}

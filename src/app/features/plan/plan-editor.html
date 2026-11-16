@@ -1,0 +1,156 @@
+@let d = doc();
+
+<div class="tabs" role="tablist">
+  @for (t of [{ id: 'giorni', l: 'Giorni e pasti' }, { id: 'alimenti', l: 'Alimenti' }, { id: 'regole', l: 'Regole' }, { id: 'dati', l: 'Dati del piano' }]; track t.id) {
+    <button type="button" role="tab" [attr.aria-selected]="tab() === t.id" [class.on]="tab() === t.id" (click)="tab.set($any(t.id))">{{ t.l }}</button>
+  }
+</div>
+
+@switch (tab()) {
+  @case ('giorni') {
+    @if (weeks() > 1) {
+      <div class="chips">
+        @for (w of weekList(); track w) {
+          <button type="button" class="chip" [class.on]="week() === w" (click)="week.set(w)">Sett. {{ w }}</button>
+        }
+      </div>
+    }
+    <div class="chips days">
+      @for (wd of weekdays; track wd.value) {
+        <button type="button" class="chip" [class.on]="weekday() === wd.value" (click)="weekday.set(wd.value)">
+          {{ wd.label }}@if (filledDays()[wd.value]) {<span class="dot" aria-label="con pasti"></span>}
+        </button>
+      }
+    </div>
+
+    @if (dayEmpty() && otherDays().length) {
+      <div class="empty-day">
+        <span>Nessun pasto per questo giorno.</span>
+        <label>
+          Copia da
+          <select (change)="copyFrom($any($event.target).value)">
+            <option value="">— scegli un giorno —</option>
+            @for (o of otherDays(); track o.label) { <option [value]="o.week + '-' + o.weekday">{{ o.label }}</option> }
+          </select>
+        </label>
+      </div>
+    }
+
+    <datalist id="foods-list">
+      @for (f of d.foods; track f.id) { <option [value]="f.name"></option> }
+    </datalist>
+
+    @for (s of day(); track s.slot.id) {
+      <section class="slot card-lite">
+        <header>
+          <strong>{{ s.slot.emoji }} {{ s.slot.label }}</strong>
+          <label class="free"><input type="checkbox" [checked]="s.free" (change)="setFree(s.slot.id, $any($event.target).checked)" /> Libero</label>
+        </header>
+        @if (!s.free) {
+          @if (s.meal) {
+            <input class="title" type="text" aria-label="Nome del pasto" [value]="s.meal.title" (change)="setTitle(s.slot.id, $any($event.target).value)" />
+            @if (s.shared) { <p class="hint">Questo pasto compare in più giorni: modificandolo qui diventa un pasto solo di questo giorno.</p> }
+          }
+          <ul class="portions">
+            @for (p of s.portions; track p.i) {
+              <li [class.todo]="!p.food || (!p.qty && p.measure !== 'q.b.')">
+                <input class="food" type="text" list="foods-list" placeholder="Alimento" aria-label="Alimento"
+                       [value]="p.food?.name ?? ''" (change)="setFood(s.slot.id, p.i, $any($event.target).value)" />
+                <input class="measure" type="text" placeholder="misura" aria-label="Misura come scritta nel piano"
+                       [value]="p.measure ?? ''" (change)="patchPortion(s.slot.id, p.i, { measure: $any($event.target).value || undefined })" />
+                <span class="qty">
+                  <input type="text" inputmode="decimal" aria-label="Quantità" [value]="p.qty || ''" placeholder="0"
+                         (change)="setQty(s.slot.id, p.i, $any($event.target).value)" />
+                  <span class="unit">{{ p.food?.unit ?? 'g' }}</span>
+                </span>
+                <button type="button" class="icon-btn" aria-label="Togli" (click)="removePortion(s.slot.id, p.i)">✕</button>
+              </li>
+            }
+          </ul>
+          <button type="button" class="btn ghost add" (click)="addPortion(s.slot.id)">+ Alimento</button>
+        }
+      </section>
+    }
+  }
+
+  @case ('alimenti') {
+    <p class="hint">
+      I tag servono alle regole (es. "Legumi mai due giorni di fila"). Li ho proposti in automatico dal nome: controllali.
+    </p>
+    <ul class="foods">
+      @for (f of foods(); track f.id) {
+        <li class="card-lite">
+          <div class="food-head">
+            <input type="text" [value]="f.name" aria-label="Nome" (change)="patchFood(f.id, { name: $any($event.target).value.trim() || f.name })" />
+            <select [value]="f.unit" aria-label="Unità" (change)="setUnit(f.id, $any($event.target).value)">
+              <option value="g">g</option>
+              <option value="ml">ml</option>
+              <option value="pz">pezzi</option>
+            </select>
+          </div>
+          @if (householdList(f); as h) { <span class="hint">{{ h }}</span> }
+          <div class="tags">
+            @for (t of tagList; track t[0]) {
+              <button type="button" class="tag" [class.on]="f.tags?.includes(t[0])" (click)="toggleTag(f.id, t[0])">{{ t[1] }}</button>
+            }
+          </div>
+          <label class="free"><input type="checkbox" [checked]="!!f.untracked" (change)="patchFood(f.id, { untracked: $any($event.target).checked })" /> Non contare in dispensa (es. caffè, acqua, spezie)</label>
+        </li>
+      }
+    </ul>
+  }
+
+  @case ('regole') {
+    <p class="hint">Attiva solo le regole scritte dal tuo nutrizionista. L'app ti avviserà quando una variante non le rispetta.</p>
+    <ul class="rules">
+      @for (r of ruleState(); track r.key) {
+        <li class="card-lite">
+          <label class="free">
+            <input type="checkbox" [checked]="r.on" (change)="setRule(r.key, $any($event.target).checked, r.n)" />
+            {{ r.label.replace('…', '') }}
+          </label>
+          @if (r.on && r.kind !== 'no-consecutive') {
+            <input class="n" type="number" min="0" max="14" [value]="r.n" aria-label="Numero di volte"
+                   (change)="setRule(r.key, true, +$any($event.target).value)" />
+          }
+        </li>
+      }
+    </ul>
+  }
+
+  @case ('dati') {
+    <div class="grid">
+      <label class="field"><span>Titolo</span>
+        <input type="text" [value]="d.meta.title" (change)="patchMeta({ title: $any($event.target).value.trim() || d.meta.title })" /></label>
+      <label class="field"><span>Nutrizionista / dietologo</span>
+        <input type="text" [value]="d.meta.author ?? ''" (change)="patchMeta({ author: $any($event.target).value.trim() || undefined })" /></label>
+      <label class="field"><span>Calorie indicate dal piano</span>
+        <input type="text" inputmode="numeric" [value]="d.meta.kcal ?? ''" (change)="patchMeta({ kcal: numOrUndef($any($event.target).value) })" /></label>
+      <label class="field"><span>Proteine indicate (g)</span>
+        <input type="text" inputmode="numeric" [value]="d.meta.proteinG ?? ''" (change)="patchMeta({ proteinG: numOrUndef($any($event.target).value) })" /></label>
+    </div>
+    <label class="field"><span>Note del piano</span>
+      <textarea rows="3" [value]="d.meta.notes ?? ''" (change)="patchMeta({ notes: $any($event.target).value.trim() || undefined })"></textarea></label>
+
+    <h3>Pasti della giornata</h3>
+    <ul class="slots">
+      @for (s of d.slots; track s.id) {
+        <li class="card-lite">
+          <input type="text" [value]="s.label" aria-label="Nome del pasto" (change)="patchSlot(s.id, { label: $any($event.target).value.trim() || s.label })" />
+          <input type="time" [value]="s.time ?? ''" aria-label="Orario" (change)="patchSlot(s.id, { time: $any($event.target).value || undefined })" />
+          <label class="free"><input type="checkbox" [checked]="s.owner === 'other'" (change)="patchSlot(s.id, { owner: $any($event.target).checked ? 'other' : 'mine' })" /> Lo prepara qualcun altro</label>
+        </li>
+      }
+    </ul>
+  }
+}
+
+@if (errors().length) {
+  <ul class="errors" role="alert">
+    @for (e of errors(); track e) { <li>{{ e }}</li> }
+  </ul>
+}
+
+<div class="save">
+  <button type="button" class="btn primary" (click)="submit()">{{ saveLabel() }}</button>
+</div>

@@ -1,0 +1,104 @@
+<div class="head">
+  <a class="icon-btn" routerLink="/impostazioni" aria-label="Torna alle impostazioni"><app-icon name="back" /></a>
+  <h1>Importa il piano</h1>
+</div>
+
+@switch (state().step) {
+  @case ('pick') {
+    <section class="card intro">
+      <p>Carica il piano che ti ha dato il nutrizionista o dietologo: lo leggo sul telefono, senza inviarlo a nessuno, e poi lo rivedi prima di usarlo.</p>
+      <div class="sources">
+        <label class="source">
+          <span class="big" aria-hidden="true">📄</span>
+          <strong>PDF o Word</strong>
+          <span class="muted">Il più affidabile: il testo si legge esatto</span>
+          <input type="file" accept="application/pdf,.pdf,.docx" multiple hidden #docs (change)="onFiles(docs)" />
+        </label>
+        <label class="source">
+          <span class="big" aria-hidden="true">📷</span>
+          <strong>Foto o scansione</strong>
+          <span class="muted">Più pagine insieme, nell'ordine del piano</span>
+          <input type="file" accept="image/*" multiple hidden #photos (change)="onFiles(photos)" />
+        </label>
+        <button type="button" class="source" (click)="showPaste.set(!showPaste())">
+          <span class="big" aria-hidden="true">✍️</span>
+          <strong>Incolla il testo</strong>
+          <span class="muted">Da un'email o da un messaggio</span>
+        </button>
+        <label class="source">
+          <span class="big" aria-hidden="true">🗂️</span>
+          <strong>File di Forgia</strong>
+          <span class="muted">Un piano esportato (.json)</span>
+          <input type="file" accept="application/json,.json" hidden #json (change)="onFiles(json)" />
+        </label>
+      </div>
+      @if (showPaste()) {
+        <textarea rows="8" placeholder="Incolla qui il piano: giorni, pasti (Colazione, Pranzo…) e alimenti con le quantità" [value]="pasted()" (input)="pasted.set($any($event.target).value)"></textarea>
+        <button type="button" class="btn primary" [disabled]="!pasted().trim()" (click)="analyzePasted()">Analizza il testo</button>
+      }
+    </section>
+
+    <section class="card tips">
+      <h2>Per le foto: usa lo scanner del telefono</h2>
+      <p class="muted">Raddrizza la pagina e toglie le ombre: la lettura migliora molto.</p>
+      <ul>
+        <li><strong>iPhone</strong>: app File → ⋯ → <em>Scansiona documenti</em> (oppure Note → 📎 → Scansiona documenti), poi salva e scegli qui il PDF.</li>
+        <li><strong>Android</strong>: Google Drive → + → <em>Scansiona</em>, poi scegli qui il PDF.</li>
+        <li>Aggiungi anche la pagina della <strong>lista della spesa</strong>, se c'è: da lì prendo le conversioni in grammi (bicchiere, cucchiaio…) e i nomi corretti.</li>
+      </ul>
+    </section>
+  }
+
+  @case ('reading') {
+    <section class="card reading" role="status">
+      <strong>{{ reader.status() || 'Leggo il documento…' }}</strong>
+      <span class="bar"><span [style.width.%]="(reader.progress() ?? 0) * 100"></span></span>
+      <span class="muted">La prima volta scarico il motore di lettura (qualche MB), poi funziona anche offline.</span>
+    </section>
+  }
+
+  @case ('error') {
+    @if (state(); as s) {
+      @if (s.step === 'error') {
+        <section class="card error" role="alert">
+          <p>{{ s.message }}</p>
+          <button type="button" class="btn" (click)="restart()">Riprova</button>
+        </section>
+      }
+    }
+  }
+
+  @case ('review') {
+    @if (state(); as s) {
+      @if (s.step === 'review') {
+        @if (s.stats.items) {
+          <section class="card summary" [class.low]="accuracy() < 0.7">
+            <strong>Letti {{ s.stats.days }} giorni e {{ s.stats.items }} alimenti, {{ s.stats.withQty }} con la quantità ({{ accuracy() * 100 | number: '1.0-0' }}%).</strong>
+            @if (accuracy() < 0.7) {
+              <span>Lettura parziale: ti consiglio il PDF originale o una scansione con l'app del telefono. Intanto puoi completare qui sotto.</span>
+            } @else {
+              <span class="muted">Controlla giorno per giorno: i campi in giallo vanno completati.</span>
+            }
+            @if (s.issues.length) {
+              <details>
+                <summary>Da controllare ({{ s.issues.length }})</summary>
+                <ul>
+                  @for (i of s.issues; track i.text) { <li [class.warn]="i.level === 'warn'">{{ i.text }}</li> }
+                </ul>
+              </details>
+            }
+            @if (s.estimated.length) {
+              <details>
+                <summary>Grammi stimati da tabella ({{ s.estimated.length }})</summary>
+                <ul>
+                  @for (e of s.estimated; track e.food + e.measure) { <li>{{ e.food }}: 1 {{ e.measure }} ≈ {{ e.grams }} g</li> }
+                </ul>
+              </details>
+            }
+          </section>
+        }
+        <app-plan-editor [initial]="s.doc" (save)="save($event)" />
+      }
+    }
+  }
+}

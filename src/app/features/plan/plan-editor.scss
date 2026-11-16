@@ -1,0 +1,253 @@
+:host {
+  display: grid;
+  gap: 12px;
+}
+.tabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  overflow-x: auto;
+  button {
+    flex: 1 0 auto;
+    min-height: 40px;
+    padding: 0 14px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    font-weight: 700;
+    white-space: nowrap;
+    &.on {
+      background: var(--surface);
+      color: var(--primary);
+      box-shadow: var(--shadow);
+    }
+  }
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.chip {
+  min-height: 40px;
+  min-width: 48px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-weight: 600;
+  position: relative;
+  &.on {
+    background: var(--primary);
+    border-color: transparent;
+    color: var(--primary-contrast);
+  }
+  .dot {
+    position: absolute;
+    top: 4px;
+    right: 6px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.7;
+  }
+}
+.card-lite {
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+.empty-day {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  align-items: center;
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  background: var(--warn-soft);
+  color: var(--warn);
+  font-weight: 600;
+  label {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+}
+input,
+select,
+textarea {
+  min-height: 40px;
+  padding: 0 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  font-size: 1rem;
+  min-width: 0;
+}
+textarea {
+  padding: 8px 10px;
+  width: 100%;
+}
+.slot {
+  display: grid;
+  gap: 8px;
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .title {
+    font-weight: 700;
+  }
+}
+.free {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: var(--touch);
+  font-size: 0.9rem;
+  input {
+    min-height: auto;
+    width: 20px;
+    height: 20px;
+    accent-color: var(--primary);
+  }
+}
+.portions,
+.foods,
+.rules,
+.slots,
+.errors {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+.portions li {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) 5.5em auto;
+  gap: 6px;
+  align-items: center;
+  &.todo .qty input,
+  &.todo .food {
+    border-color: var(--warn);
+  }
+}
+@media (max-width: 520px) {
+  .portions li {
+    grid-template-columns: minmax(0, 1fr) 5.5em auto;
+    .food {
+      grid-column: 1 / -1;
+    }
+  }
+}
+.qty {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  input {
+    width: 100%;
+    text-align: right;
+  }
+  .unit {
+    font-size: 0.8rem;
+    color: var(--text-2);
+  }
+}
+.add {
+  justify-self: start;
+}
+.food-head {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px;
+}
+.foods li {
+  display: grid;
+  gap: 8px;
+}
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.tag {
+  min-height: 32px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: transparent;
+  font-size: 0.8rem;
+  &.on {
+    background: var(--primary-soft);
+    border-color: var(--primary);
+    color: var(--primary);
+    font-weight: 700;
+  }
+}
+.rules li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  .n {
+    width: 4.5em;
+    text-align: center;
+  }
+}
+.slots li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px;
+  .free {
+    grid-column: 1 / -1;
+  }
+}
+.grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+.field {
+  display: grid;
+  gap: 4px;
+  span {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-2);
+  }
+}
+h3 {
+  font-size: 0.95rem;
+  margin: 8px 0 0;
+}
+.hint {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-2);
+}
+.errors li {
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: var(--warn-soft);
+  color: var(--warn);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.save {
+  position: sticky;
+  bottom: calc(var(--safe-bottom) + 72px);
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 8px;
+}
+@media (min-width: 600px) {
+  .save {
+    bottom: calc(var(--safe-bottom) + 12px);
+  }
+}

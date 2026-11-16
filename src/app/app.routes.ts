@@ -44,6 +44,16 @@ export const routes: Routes = [
         loadComponent: () => import('./features/settings/settings-page').then((m) => m.SettingsPage),
       },
       {
+        path: 'impostazioni/piano/importa',
+        title: 'Importa il piano · Forgia',
+        loadComponent: () => import('./features/plan/plan-import-page').then((m) => m.PlanImportPage),
+      },
+      {
+        path: 'impostazioni/piano/modifica',
+        title: 'Modifica il piano · Forgia',
+        loadComponent: () => import('./features/plan/plan-edit-page').then((m) => m.PlanEditPage),
+      },
+      {
         path: 'impostazioni/profilo',
         title: 'I miei dati · Forgia',
         loadComponent: () => import('./features/profile/profile-page').then((m) => m.ProfilePage),

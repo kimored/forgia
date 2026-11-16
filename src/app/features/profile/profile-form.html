@@ -128,13 +128,19 @@
             }
             @if (meta.notes) { <span class="hint">{{ meta.notes }}</span> }
           </div>
-          <label class="btn">
-            📄 Carica il piano del nutrizionista (file Forgia .json)
-            <input type="file" accept="application/json,.json" hidden #planFile (change)="importPlan(planFile)" />
-          </label>
-          <p class="hint">Presto anche da PDF, Word, scansione o foto del piano. Puoi iniziare con il piano di esempio e cambiarlo quando vuoi da Impostazioni → Il mio piano.</p>
-          @if (planMessage(); as pm) {
-            <p [class.scan-ok]="pm.ok" [class.scan-err]="!pm.ok" role="status">{{ pm.text }}</p>
+          @if (mode() === 'wizard') {
+            <div class="choices" role="radiogroup" aria-label="Piano da usare">
+              <button type="button" role="radio" class="choice" [class.on]="importAfter()" [attr.aria-checked]="importAfter()" (click)="importAfter.set(true)">
+                <strong>📥 Importa il piano del nutrizionista</strong>
+                <span class="muted">PDF, Word, scansione o foto: subito dopo questa configurazione</span>
+              </button>
+              <button type="button" role="radio" class="choice" [class.on]="!importAfter()" [attr.aria-checked]="!importAfter()" (click)="importAfter.set(false)">
+                <strong>🧪 Inizia con il piano di esempio</strong>
+                <span class="muted">Per provare l'app; lo cambi quando vuoi da Impostazioni → Il mio piano</span>
+              </button>
+            </div>
+          } @else {
+            <p class="hint">Per cambiare piano: Impostazioni → Il mio piano.</p>
           }
           <p class="disclaimer">
             ⚕️ Forgia ti aiuta a <strong>seguire</strong> il piano che ti ha dato il tuo nutrizionista o dietologo:

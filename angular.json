@@ -43,6 +43,11 @@
                 "glob": "ita.traineddata.gz",
                 "input": "node_modules/@tesseract.js-data/ita/4.0.0_best_int",
                 "output": "ocr/lang"
+              },
+              {
+                "glob": "pdf.worker.min.mjs",
+                "input": "node_modules/pdfjs-dist/build",
+                "output": "ocr/pdf"
               }
             ],
             "styles": [
@@ -50,7 +55,18 @@
             ],
             "allowedCommonJsDependencies": [
               "tesseract.js",
-              "regenerator-runtime"
+              "regenerator-runtime",
+              "mammoth",
+              "bluebird",
+              "jszip",
+              "lop",
+              "underscore",
+              "dingbat-to-unicode",
+              "xmlbuilder",
+              "base64-js",
+              "@xmldom/xmldom",
+              "duck",
+              "option"
             ]
           },
           "configurations": {

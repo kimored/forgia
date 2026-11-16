@@ -64,6 +64,50 @@ export class OcrService {
       this.progress.set(null);
     }
   }
+
+  /**
+   * Legge una pagina di documento (foto, scansione o pagina PDF renderizzata): soglia
+   * adattiva contro le ombre e rimozione delle linee puntinate, poi righe con posizione.
+   */
+  async documentLines(source: Blob | HTMLCanvasElement): Promise<{ lines: OcrWord[]; width: number }> {
+    this.progress.set(0);
+    this.status.set('preparazione');
+    try {
+      const canvas = await prepareDocument(source);
+      const worker = await this.getWorker();
+      // PSM 4: una colonna di testo di dimensioni variabili (le righe seguono la curvatura).
+      await worker.setParameters({ tessedit_pageseg_mode: '4' as never });
+      const { data } = await worker.recognize(canvas, {}, { blocks: true });
+      await worker.setParameters({ tessedit_pageseg_mode: '3' as never });
+      const lines = (data.blocks ?? []).flatMap((b) => b.paragraphs.flatMap((p) => p.lines)).map((l) => ({ text: l.text.trim(), ...l.bbox }));
+      return { lines, width: canvas.width };
+    } finally {
+      this.progress.set(null);
+    }
+  }
+}
+
+const DOC_WIDTH = 1800;
+
+async function prepareDocument(source: Blob | HTMLCanvasElement): Promise<HTMLCanvasElement> {
+  const { adaptiveThreshold, removeDottedLines, toGray } = await import('../domain/image-prep');
+  const bitmap = source instanceof Blob ? await createImageBitmap(source) : source;
+  const scale = DOC_WIDTH / bitmap.width;
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.round(bitmap.width * scale);
+  canvas.height = Math.round(bitmap.height * scale);
+  const ctx = canvas.getContext('2d', { willReadFrequently: true })!;
+  ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  if ('close' in bitmap) bitmap.close();
+
+  const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const clean = removeDottedLines(adaptiveThreshold(toGray(img.data, canvas.width, canvas.height)));
+  for (let i = 0, j = 0; j < clean.data.length; i += 4, j++) {
+    img.data[i] = img.data[i + 1] = img.data[i + 2] = clean.data[j];
+    img.data[i + 3] = 255;
+  }
+  ctx.putImageData(img, 0, 0);
+  return canvas;
 }
 
 /**

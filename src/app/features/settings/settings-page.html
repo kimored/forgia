@@ -25,10 +25,8 @@
     <span class="muted">{{ plans.catalog().slots.length }} pasti al giorno · {{ plans.catalog().meals.size }} piatti · {{ plans.catalog().foods.size }} alimenti · {{ plans.catalog().rules.length }} regole</span>
   </div>
   <div class="row">
-    <label class="btn primary">
-      📄 Carica piano (.json)
-      <input type="file" accept="application/json,.json" hidden #planFile (change)="importPlan(planFile)" />
-    </label>
+    <a class="btn primary" routerLink="piano/importa">📥 Importa (PDF, Word, foto…)</a>
+    <a class="btn" routerLink="piano/modifica">✏️ Modifica</a>
     <button type="button" class="btn" (click)="plans.download()">Esporta</button>
     @if (!plans.isExample()) {
       <button type="button" class="btn ghost" (click)="useExample()">Usa il piano di esempio</button>
@@ -37,7 +35,6 @@
   @if (planMessage(); as pm) {
     <p class="msg" [class.err]="!pm.ok" role="status">{{ pm.text }}</p>
   }
-  <p class="muted small">Presto: importazione da PDF, Word, scansione o foto del piano del nutrizionista.</p>
 </section>
 
 <section class="card">
