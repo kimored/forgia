@@ -1,48 +1,459 @@
 [
-  { "id": "leg-press", "name": "Leg press", "db": "Leg_Press", "primary": ["Quadricipiti"], "secondary": ["Glutei", "Femorali", "Polpacci"], "compound": true, "increment": 5,
-    "tips": ["Piedi alla larghezza delle spalle, a metà pedana.", "Scendi finché le ginocchia sono a circa 90°, senza staccare la zona lombare dallo schienale.", "Spingi con i talloni e non bloccare le ginocchia in alto."] },
-  { "id": "chest-press", "name": "Chest press alla macchina", "db": "Machine_Bench_Press", "primary": ["Pettorali"], "secondary": ["Spalle", "Tricipiti"], "compound": true, "increment": 2.5,
-    "tips": ["Regola il sedile: le maniglie all'altezza del centro del petto.", "Scapole indietro e in basso, petto aperto.", "Spingi senza bloccare i gomiti; ritorno lento e controllato."] },
-  { "id": "panca-manubri", "name": "Panca piana con manubri", "db": "Dumbbell_Bench_Press", "primary": ["Pettorali"], "secondary": ["Spalle", "Tricipiti"], "compound": true, "increment": 1,
-    "tips": ["Scapole addotte e piedi ben piantati a terra.", "Gomiti a circa 45° dal busto, non aperti a 90°.", "Scendi finché i manubri sono all'altezza del petto, poi spingi convergendo leggermente."] },
-  { "id": "trazioni", "name": "Trazioni a corpo libero", "db": "Pullups", "primary": ["Dorsali"], "secondary": ["Bicipiti", "Dorso centrale"], "compound": true, "increment": 2.5,
-    "tips": ["Presa prona poco più larga delle spalle.", "Parti dalle braccia distese: prima abbassa le scapole, poi tira.", "Porta il mento sopra la sbarra senza slanci; discesa controllata."] },
-  { "id": "shoulder-press", "name": "Shoulder press alla macchina", "db": "Machine_Shoulder_Military_Press", "primary": ["Spalle"], "secondary": ["Tricipiti"], "compound": true, "increment": 2.5,
-    "tips": ["Schiena ben appoggiata allo schienale.", "Maniglie all'altezza delle spalle in partenza.", "Spingi verso l'alto senza inarcare la zona lombare."] },
-  { "id": "pulley-basso", "name": "Pulley basso", "db": "Seated_Cable_Rows", "primary": ["Dorso centrale"], "secondary": ["Dorsali", "Bicipiti", "Spalle"], "compound": true, "increment": 2.5,
-    "tips": ["Busto dritto, ginocchia leggermente piegate.", "Tira la maniglia verso l'ombelico portando indietro le scapole.", "Non dondolare con il busto per aiutarti."] },
-  { "id": "leg-curl", "name": "Leg curl", "db": "Seated_Leg_Curl", "primary": ["Femorali"], "secondary": [], "compound": false, "increment": 2.5,
-    "tips": ["Allinea il ginocchio con il perno della macchina.", "Fletti fino in fondo e tieni un istante.", "Ritorno lento: è metà del lavoro."] },
-  { "id": "curl-manubri", "name": "Curl con manubri", "db": "Dumbbell_Bicep_Curl", "primary": ["Bicipiti"], "secondary": ["Avambracci"], "compound": false, "increment": 1,
-    "tips": ["Gomiti fermi lungo i fianchi.", "Ruota il palmo verso l'alto mentre sali.", "Niente slanci con la schiena."] },
-  { "id": "pushdown", "name": "Pushdown ai cavi", "db": "Triceps_Pushdown", "primary": ["Tricipiti"], "secondary": [], "compound": false, "increment": 2.5,
-    "tips": ["Gomiti incollati ai fianchi.", "Estendi completamente in basso e contrai.", "Risali solo fino a 90°, senza alzare i gomiti."] },
-  { "id": "squat", "name": "Squat con bilanciere", "db": "Barbell_Squat", "primary": ["Quadricipiti"], "secondary": ["Glutei", "Femorali", "Lombari"], "compound": true, "increment": 2.5,
-    "tips": ["Bilanciere sui trapezi, piedi alla larghezza delle spalle, punte leggermente fuori.", "Petto alto e schiena neutra: scendi come per sederti, ginocchia in linea con le punte.", "Risali spingendo con tutto il piede, senza far cedere le ginocchia verso l'interno."] },
-  { "id": "panca-piana", "name": "Panca piana con bilanciere", "db": "Barbell_Bench_Press_-_Medium_Grip", "primary": ["Pettorali"], "secondary": ["Spalle", "Tricipiti"], "compound": true, "increment": 2.5,
-    "tips": ["Presa poco più larga delle spalle, scapole addotte.", "Il bilanciere scende a metà petto, gomiti a circa 45°.", "Usa sempre un compagno o i fermi di sicurezza con carichi alti."] },
-  { "id": "rematore", "name": "Rematore con bilanciere", "db": "Bent_Over_Barbell_Row", "primary": ["Dorso centrale"], "secondary": ["Dorsali", "Bicipiti", "Spalle"], "compound": true, "increment": 2.5,
-    "tips": ["Busto inclinato a circa 45°, schiena neutra.", "Tira il bilanciere verso l'ombelico.", "Niente strappi con la schiena: se serve, scala il carico."] },
-  { "id": "military-manubri", "name": "Military press con manubri", "db": "Dumbbell_Shoulder_Press", "primary": ["Spalle"], "secondary": ["Tricipiti"], "compound": true, "increment": 1,
-    "tips": ["Seduto con schienale quasi verticale.", "Parti con i manubri all'altezza delle orecchie.", "Spingi in alto senza inarcare la schiena."] },
-  { "id": "crunch-cavi", "name": "Crunch ai cavi", "db": "Cable_Crunch", "primary": ["Addominali"], "secondary": [], "compound": false, "increment": 2.5,
-    "tips": ["In ginocchio, corda vicino alla testa.", "Arrotola il busto portando i gomiti verso le cosce.", "Il movimento è degli addominali, non delle anche."] },
-  { "id": "stacco-rumeno", "name": "Stacco rumeno", "db": "Romanian_Deadlift", "primary": ["Femorali"], "secondary": ["Glutei", "Lombari"], "compound": true, "increment": 2.5,
-    "tips": ["Ginocchia appena flesse e ferme per tutta la ripetizione.", "Spingi indietro le anche tenendo il bilanciere vicino alle gambe.", "Scendi finché senti tirare i femorali, con la schiena sempre neutra."] },
-  { "id": "panca-inclinata-manubri", "name": "Panca inclinata con manubri", "db": "Incline_Dumbbell_Press", "primary": ["Pettorali (alti)"], "secondary": ["Spalle", "Tricipiti"], "compound": true, "increment": 1,
-    "tips": ["Schienale a 30–45°.", "Scapole addotte, gomiti a circa 45°.", "Spingi in alto e leggermente verso l'interno."] },
-  { "id": "alzate-laterali", "name": "Alzate laterali", "db": "Side_Lateral_Raise", "primary": ["Spalle (laterali)"], "secondary": [], "compound": false, "increment": 1,
-    "tips": ["Gomiti leggermente piegati.", "Sali fino all'altezza delle spalle, non oltre.", "Carico leggero e niente slanci."] },
-  { "id": "french-press", "name": "French press", "db": "Lying_Triceps_Press", "primary": ["Tricipiti"], "secondary": [], "compound": false, "increment": 1,
-    "tips": ["Sdraiato, braccia perpendicolari al pavimento.", "Piega solo i gomiti portando il bilanciere verso la fronte.", "Gomiti fermi e stretti."] },
-  { "id": "hack-squat", "name": "Hack squat", "db": "Hack_Squat", "primary": ["Quadricipiti"], "secondary": ["Glutei", "Femorali"], "compound": true, "increment": 5,
-    "tips": ["Schiena tutta appoggiata allo schienale.", "Piedi a metà pedana alla larghezza delle spalle.", "Scendi controllato fino a 90° o poco sotto."] },
-  { "id": "dip", "name": "Dip alle parallele", "db": "Dips_-_Chest_Version", "primary": ["Pettorali"], "secondary": ["Tricipiti", "Spalle"], "compound": true, "increment": 2.5,
-    "tips": ["Busto leggermente inclinato in avanti per il petto.", "Scendi finché le spalle sono all'altezza dei gomiti, non oltre.", "Se serve, usa la macchina assistita."] },
-  { "id": "croci-cavi", "name": "Croci ai cavi", "db": "Cable_Crossover", "primary": ["Pettorali"], "secondary": ["Spalle"], "compound": false, "increment": 1,
-    "tips": ["Gomiti leggermente piegati e fermi.", "Porta le mani a incontrarsi davanti al petto.", "Ritorno lento sentendo l'allungamento."] },
-  { "id": "curl-martello", "name": "Curl a martello", "db": "Hammer_Curls", "primary": ["Bicipiti", "Brachiale"], "secondary": ["Avambracci"], "compound": false, "increment": 1,
-    "tips": ["Presa neutra (palmi uno verso l'altro).", "Gomiti fermi lungo i fianchi.", "Sali e scendi senza slanci."] },
-  { "id": "polpacci", "name": "Calf raise (polpacci)", "db": "Standing_Calf_Raises", "primary": ["Polpacci"], "secondary": [], "compound": false, "increment": 5,
-    "tips": ["Avampiede sul bordo, talloni liberi.", "Sali sulle punte il più possibile e tieni un istante.", "Scendi fino a sentire l'allungamento."] }
+  {
+    "id": "leg-press",
+    "name": "Leg press",
+    "db": "Leg_Press",
+    "primary": [
+      "Quadricipiti"
+    ],
+    "secondary": [
+      "Glutei",
+      "Femorali",
+      "Polpacci"
+    ],
+    "compound": true,
+    "increment": 5,
+    "tips": [
+      "Piedi alla larghezza delle spalle, a metà pedana.",
+      "Scendi finché le ginocchia sono a circa 90°, senza staccare la zona lombare dallo schienale.",
+      "Spingi con i talloni e non bloccare le ginocchia in alto."
+    ]
+  },
+  {
+    "id": "chest-press",
+    "name": "Chest press alla macchina",
+    "db": "Machine_Bench_Press",
+    "primary": [
+      "Pettorali"
+    ],
+    "secondary": [
+      "Spalle",
+      "Tricipiti"
+    ],
+    "compound": true,
+    "increment": 2.5,
+    "tips": [
+      "Regola il sedile: le maniglie all'altezza del centro del petto.",
+      "Scapole indietro e in basso, petto aperto.",
+      "Spingi senza bloccare i gomiti; ritorno lento e controllato."
+    ]
+  },
+  {
+    "id": "panca-manubri",
+    "name": "Panca piana con manubri",
+    "db": "Dumbbell_Bench_Press",
+    "primary": [
+      "Pettorali"
+    ],
+    "secondary": [
+      "Spalle",
+      "Tricipiti"
+    ],
+    "compound": true,
+    "increment": 1,
+    "tips": [
+      "Scapole addotte e piedi ben piantati a terra.",
+      "Gomiti a circa 45° dal busto, non aperti a 90°.",
+      "Scendi finché i manubri sono all'altezza del petto, poi spingi convergendo leggermente."
+    ]
+  },
+  {
+    "id": "trazioni",
+    "name": "Trazioni a corpo libero",
+    "db": "Pullups",
+    "primary": [
+      "Dorsali"
+    ],
+    "secondary": [
+      "Bicipiti",
+      "Dorso centrale"
+    ],
+    "compound": true,
+    "increment": 2.5,
+    "tips": [
+      "Presa prona poco più larga delle spalle.",
+      "Parti dalle braccia distese: prima abbassa le scapole, poi tira.",
+      "Porta il mento sopra la sbarra senza slanci; discesa controllata."
+    ]
+  },
+  {
+    "id": "lat-machine",
+    "name": "Lat machine",
+    "db": "Wide-Grip_Lat_Pulldown",
+    "primary": [
+      "Dorsali"
+    ],
+    "secondary": [
+      "Bicipiti",
+      "Dorso centrale"
+    ],
+    "compound": true,
+    "increment": 2.5,
+    "tips": [
+      "Regola il rullo sulle cosce per non sollevarti.",
+      "Presa poco più larga delle spalle: tira la barra al petto alto, portando i gomiti verso i fianchi.",
+      "Petto alto e busto appena inclinato indietro; risali lento senza far saltare le spalle."
+    ]
+  },
+  {
+    "id": "trazioni-assistite",
+    "name": "Trazioni assistite",
+    "db": "Band_Assisted_Pull-Up",
+    "primary": [
+      "Dorsali"
+    ],
+    "secondary": [
+      "Bicipiti",
+      "Dorso centrale"
+    ],
+    "compound": true,
+    "increment": 2.5,
+    "tips": [
+      "Con elastico o macchina assistita: più aiuto = più facile.",
+      "Stessa tecnica delle trazioni: prima abbassa le scapole, poi tira il mento sopra la sbarra.",
+      "Riduci l'aiuto man mano che le ripetizioni salgono."
+    ]
+  },
+  {
+    "id": "shoulder-press",
+    "name": "Shoulder press alla macchina",
+    "db": "Machine_Shoulder_Military_Press",
+    "primary": [
+      "Spalle"
+    ],
+    "secondary": [
+      "Tricipiti"
+    ],
+    "compound": true,
+    "increment": 2.5,
+    "tips": [
+      "Schiena ben appoggiata allo schienale.",
+      "Maniglie all'altezza delle spalle in partenza.",
+      "Spingi verso l'alto senza inarcare la zona lombare."
+    ]
+  },
+  {
+    "id": "pulley-basso",
+    "name": "Pulley basso",
+    "db": "Seated_Cable_Rows",
+    "primary": [
+      "Dorso centrale"
+    ],
+    "secondary": [
+      "Dorsali",
+      "Bicipiti",
+      "Spalle"
+    ],
+    "compound": true,
+    "increment": 2.5,
+    "tips": [
+      "Busto dritto, ginocchia leggermente piegate.",
+      "Tira la maniglia verso l'ombelico portando indietro le scapole.",
+      "Non dondolare con il busto per aiutarti."
+    ]
+  },
+  {
+    "id": "leg-curl",
+    "name": "Leg curl",
+    "db": "Seated_Leg_Curl",
+    "primary": [
+      "Femorali"
+    ],
+    "secondary": [],
+    "compound": false,
+    "increment": 2.5,
+    "tips": [
+      "Allinea il ginocchio con il perno della macchina.",
+      "Fletti fino in fondo e tieni un istante.",
+      "Ritorno lento: è metà del lavoro."
+    ]
+  },
+  {
+    "id": "curl-manubri",
+    "name": "Curl con manubri",
+    "db": "Dumbbell_Bicep_Curl",
+    "primary": [
+      "Bicipiti"
+    ],
+    "secondary": [
+      "Avambracci"
+    ],
+    "compound": false,
+    "increment": 1,
+    "tips": [
+      "Gomiti fermi lungo i fianchi.",
+      "Ruota il palmo verso l'alto mentre sali.",
+      "Niente slanci con la schiena."
+    ]
+  },
+  {
+    "id": "pushdown",
+    "name": "Pushdown ai cavi",
+    "db": "Triceps_Pushdown",
+    "primary": [
+      "Tricipiti"
+    ],
+    "secondary": [],
+    "compound": false,
+    "increment": 2.5,
+    "tips": [
+      "Gomiti incollati ai fianchi.",
+      "Estendi completamente in basso e contrai.",
+      "Risali solo fino a 90°, senza alzare i gomiti."
+    ]
+  },
+  {
+    "id": "squat",
+    "name": "Squat con bilanciere",
+    "db": "Barbell_Squat",
+    "primary": [
+      "Quadricipiti"
+    ],
+    "secondary": [
+      "Glutei",
+      "Femorali",
+      "Lombari"
+    ],
+    "compound": true,
+    "increment": 2.5,
+    "tips": [
+      "Bilanciere sui trapezi, piedi alla larghezza delle spalle, punte leggermente fuori.",
+      "Petto alto e schiena neutra: scendi come per sederti, ginocchia in linea con le punte.",
+      "Risali spingendo con tutto il piede, senza far cedere le ginocchia verso l'interno."
+    ]
+  },
+  {
+    "id": "panca-piana",
+    "name": "Panca piana con bilanciere",
+    "db": "Barbell_Bench_Press_-_Medium_Grip",
+    "primary": [
+      "Pettorali"
+    ],
+    "secondary": [
+      "Spalle",
+      "Tricipiti"
+    ],
+    "compound": true,
+    "increment": 2.5,
+    "tips": [
+      "Presa poco più larga delle spalle, scapole addotte.",
+      "Il bilanciere scende a metà petto, gomiti a circa 45°.",
+      "Usa sempre un compagno o i fermi di sicurezza con carichi alti."
+    ]
+  },
+  {
+    "id": "rematore",
+    "name": "Rematore con bilanciere",
+    "db": "Bent_Over_Barbell_Row",
+    "primary": [
+      "Dorso centrale"
+    ],
+    "secondary": [
+      "Dorsali",
+      "Bicipiti",
+      "Spalle"
+    ],
+    "compound": true,
+    "increment": 2.5,
+    "tips": [
+      "Busto inclinato a circa 45°, schiena neutra.",
+      "Tira il bilanciere verso l'ombelico.",
+      "Niente strappi con la schiena: se serve, scala il carico."
+    ]
+  },
+  {
+    "id": "military-manubri",
+    "name": "Military press con manubri",
+    "db": "Dumbbell_Shoulder_Press",
+    "primary": [
+      "Spalle"
+    ],
+    "secondary": [
+      "Tricipiti"
+    ],
+    "compound": true,
+    "increment": 1,
+    "tips": [
+      "Seduto con schienale quasi verticale.",
+      "Parti con i manubri all'altezza delle orecchie.",
+      "Spingi in alto senza inarcare la schiena."
+    ]
+  },
+  {
+    "id": "crunch-cavi",
+    "name": "Crunch ai cavi",
+    "db": "Cable_Crunch",
+    "primary": [
+      "Addominali"
+    ],
+    "secondary": [],
+    "compound": false,
+    "increment": 2.5,
+    "tips": [
+      "In ginocchio, corda vicino alla testa.",
+      "Arrotola il busto portando i gomiti verso le cosce.",
+      "Il movimento è degli addominali, non delle anche."
+    ]
+  },
+  {
+    "id": "stacco-rumeno",
+    "name": "Stacco rumeno",
+    "db": "Romanian_Deadlift",
+    "primary": [
+      "Femorali"
+    ],
+    "secondary": [
+      "Glutei",
+      "Lombari"
+    ],
+    "compound": true,
+    "increment": 2.5,
+    "tips": [
+      "Ginocchia appena flesse e ferme per tutta la ripetizione.",
+      "Spingi indietro le anche tenendo il bilanciere vicino alle gambe.",
+      "Scendi finché senti tirare i femorali, con la schiena sempre neutra."
+    ]
+  },
+  {
+    "id": "panca-inclinata-manubri",
+    "name": "Panca inclinata con manubri",
+    "db": "Incline_Dumbbell_Press",
+    "primary": [
+      "Pettorali (alti)"
+    ],
+    "secondary": [
+      "Spalle",
+      "Tricipiti"
+    ],
+    "compound": true,
+    "increment": 1,
+    "tips": [
+      "Schienale a 30–45°.",
+      "Scapole addotte, gomiti a circa 45°.",
+      "Spingi in alto e leggermente verso l'interno."
+    ]
+  },
+  {
+    "id": "alzate-laterali",
+    "name": "Alzate laterali",
+    "db": "Side_Lateral_Raise",
+    "primary": [
+      "Spalle (laterali)"
+    ],
+    "secondary": [],
+    "compound": false,
+    "increment": 1,
+    "tips": [
+      "Gomiti leggermente piegati.",
+      "Sali fino all'altezza delle spalle, non oltre.",
+      "Carico leggero e niente slanci."
+    ]
+  },
+  {
+    "id": "french-press",
+    "name": "French press",
+    "db": "Lying_Triceps_Press",
+    "primary": [
+      "Tricipiti"
+    ],
+    "secondary": [],
+    "compound": false,
+    "increment": 1,
+    "tips": [
+      "Sdraiato, braccia perpendicolari al pavimento.",
+      "Piega solo i gomiti portando il bilanciere verso la fronte.",
+      "Gomiti fermi e stretti."
+    ]
+  },
+  {
+    "id": "hack-squat",
+    "name": "Hack squat",
+    "db": "Hack_Squat",
+    "primary": [
+      "Quadricipiti"
+    ],
+    "secondary": [
+      "Glutei",
+      "Femorali"
+    ],
+    "compound": true,
+    "increment": 5,
+    "tips": [
+      "Schiena tutta appoggiata allo schienale.",
+      "Piedi a metà pedana alla larghezza delle spalle.",
+      "Scendi controllato fino a 90° o poco sotto."
+    ]
+  },
+  {
+    "id": "dip",
+    "name": "Dip alle parallele",
+    "db": "Dips_-_Chest_Version",
+    "primary": [
+      "Pettorali"
+    ],
+    "secondary": [
+      "Tricipiti",
+      "Spalle"
+    ],
+    "compound": true,
+    "increment": 2.5,
+    "tips": [
+      "Busto leggermente inclinato in avanti per il petto.",
+      "Scendi finché le spalle sono all'altezza dei gomiti, non oltre.",
+      "Se serve, usa la macchina assistita."
+    ]
+  },
+  {
+    "id": "croci-cavi",
+    "name": "Croci ai cavi",
+    "db": "Cable_Crossover",
+    "primary": [
+      "Pettorali"
+    ],
+    "secondary": [
+      "Spalle"
+    ],
+    "compound": false,
+    "increment": 1,
+    "tips": [
+      "Gomiti leggermente piegati e fermi.",
+      "Porta le mani a incontrarsi davanti al petto.",
+      "Ritorno lento sentendo l'allungamento."
+    ]
+  },
+  {
+    "id": "curl-martello",
+    "name": "Curl a martello",
+    "db": "Hammer_Curls",
+    "primary": [
+      "Bicipiti",
+      "Brachiale"
+    ],
+    "secondary": [
+      "Avambracci"
+    ],
+    "compound": false,
+    "increment": 1,
+    "tips": [
+      "Presa neutra (palmi uno verso l'altro).",
+      "Gomiti fermi lungo i fianchi.",
+      "Sali e scendi senza slanci."
+    ]
+  },
+  {
+    "id": "polpacci",
+    "name": "Calf raise (polpacci)",
+    "db": "Standing_Calf_Raises",
+    "primary": [
+      "Polpacci"
+    ],
+    "secondary": [],
+    "compound": false,
+    "increment": 5,
+    "tips": [
+      "Avampiede sul bordo, talloni liberi.",
+      "Sali sulle punte il più possibile e tieni un istante.",
+      "Scendi fino a sentire l'allungamento."
+    ]
+  }
 ]

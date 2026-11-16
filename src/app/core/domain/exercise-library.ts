@@ -1,4 +1,5 @@
 import type { ExerciseInfo } from '../models/workout';
+import { italianExerciseName, movementOf, type Movement } from './exercise-names';
 
 /**
  * Catalogo completo di free-exercise-db (public/data/exercise-library.json, caricato solo
@@ -76,10 +77,13 @@ function incrementFor(equipment: string | null): number {
 
 /** Voce del catalogo → esercizio usabile nell'app (con il nome italiano se è uno dei nostri). */
 export function toInfo(e: LibraryEntry, curated?: ExerciseInfo): ExerciseInfo {
-  if (curated) return { ...curated, equipment: e.equipment ?? undefined, level: e.level, instructions: e.instructions };
+  const movement = movementOf(e.name) ?? undefined;
+  if (curated) return { ...curated, originalName: e.name, movement, equipment: e.equipment ?? undefined, level: e.level, instructions: e.instructions };
   return {
     id: e.id,
-    name: e.name,
+    name: italianExerciseName(e.name) ?? e.name,
+    originalName: e.name,
+    movement,
     db: e.id,
     primary: e.primary.map((m) => it(MUSCLES_IT, m)),
     secondary: e.secondary.map((m) => it(MUSCLES_IT, m)),
@@ -120,33 +124,51 @@ export function filterLibrary(entries: LibraryEntry[], f: LibraryFilter, italian
     if (f.category && e.category !== f.category) return false;
     if (!words.length) return true;
     const hay = norm(
-      [e.name, italianName(e.id) ?? '', ...e.primary.map((m) => it(MUSCLES_IT, m)), it(EQUIPMENT_IT, e.equipment ?? 'other'), ...e.primary].join(' '),
+      [e.name, italianName(e.id) ?? italianExerciseName(e.name) ?? '', ...e.primary.map((m) => it(MUSCLES_IT, m)), it(EQUIPMENT_IT, e.equipment ?? 'other'), ...e.primary].join(' '),
     );
     return words.every((w) => hay.includes(w));
   });
 }
 
+export interface VariantGroups {
+  /** Stesso movimento (es. per le trazioni: lat machine, trazioni assistite o zavorrate). */
+  same: LibraryEntry[];
+  /** Stessi muscoli principali ma movimento diverso (es. rematori per le trazioni). */
+  related: LibraryEntry[];
+  movement: Movement | null;
+}
+
 /**
- * Varianti di un esercizio: stessi muscoli principali e stesso tipo di movimento
- * (spinta/trazione, multi/monoarticolare). Prima quelle con lo stesso attrezzo e livello.
+ * Varianti di un esercizio: stessi muscoli principali, divise per tipo di movimento.
+ * Nessuna preferenza per livello (si filtra nell'interfaccia) e nessun limite.
  */
-export function variantsOf(target: LibraryEntry, entries: LibraryEntry[], limit = 12): LibraryEntry[] {
+export function variantGroups(target: LibraryEntry, entries: LibraryEntry[]): VariantGroups {
   const primary = new Set(target.primary);
-  return entries
+  const sec = new Set(target.secondary);
+  const movement = movementOf(target.name);
+  const scored = entries
     .filter((e) => e.id !== target.id && e.category === target.category && e.primary.some((m) => primary.has(m)))
     .map((e) => {
+      const mv = movementOf(e.name);
       let score = 0;
       if (e.primary.length === target.primary.length && e.primary.every((m) => primary.has(m))) score += 3;
       if (e.force && e.force === target.force) score += 2;
       if (e.mechanic && e.mechanic === target.mechanic) score += 2;
       if (e.equipment === target.equipment) score += 1;
-      if (e.level === target.level) score += 0.5;
-      const sec = new Set(target.secondary);
       score += e.secondary.filter((m) => sec.has(m)).length * 0.25;
-      return { e, score };
+      return { e, score, same: !!movement && mv === movement };
     })
-    .filter((x) => x.score >= 4)
-    .sort((a, b) => b.score - a.score || a.e.name.localeCompare(b.e.name))
-    .slice(0, limit)
-    .map((x) => x.e);
+    .sort((a, b) => b.score - a.score || a.e.name.localeCompare(b.e.name));
+  return {
+    movement,
+    // Stesso movimento: basta condividere i muscoli. Movimento diverso: deve somigliare davvero.
+    same: scored.filter((x) => x.same).map((x) => x.e),
+    related: scored.filter((x) => !x.same && x.score >= 5).map((x) => x.e),
+  };
+}
+
+/** Varianti in un unico elenco (prima lo stesso movimento). */
+export function variantsOf(target: LibraryEntry, entries: LibraryEntry[]): LibraryEntry[] {
+  const g = variantGroups(target, entries);
+  return [...g.same, ...g.related];
 }

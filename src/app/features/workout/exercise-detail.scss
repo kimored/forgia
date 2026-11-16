@@ -144,3 +144,63 @@ details summary {
   padding: 0 10px;
   font-size: 0.85rem;
 }
+.orig {
+  margin: -8px 0 0;
+  font-size: 0.8rem;
+  color: var(--text-2);
+}
+.variant .orig {
+  margin: 0;
+  font-size: 0.72rem;
+}
+h4 {
+  margin: 12px 0 6px;
+  font-size: 0.85rem;
+  color: var(--text-2);
+}
+.levels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  button {
+    min-height: 36px;
+    padding: 0 10px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    font-size: 0.82rem;
+    font-weight: 600;
+    &.on {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+  }
+}
+.lv {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 0 6px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  &.beginner {
+    background: color-mix(in srgb, var(--ok) 16%, transparent);
+    color: var(--ok);
+  }
+  &.intermediate {
+    background: var(--warn-soft);
+    color: var(--warn);
+  }
+  &.expert {
+    background: color-mix(in srgb, var(--danger) 14%, transparent);
+    color: var(--danger);
+  }
+}
+.more {
+  margin-top: 6px;
+  min-height: 36px;
+}
+.small {
+  font-size: 0.85rem;
+}

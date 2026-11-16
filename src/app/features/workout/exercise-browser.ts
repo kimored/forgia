@@ -10,7 +10,7 @@ const PAGE = 40;
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="filters">
-      <input type="search" placeholder="Cerca (es. panca, squat, curl…)" aria-label="Cerca esercizio"
+      <input type="search" placeholder="Cerca (es. lat machine, panca, rematore…)" aria-label="Cerca esercizio"
              [value]="text()" (input)="text.set($any($event.target).value); limit.set(PAGE)" />
       <div class="selects">
         <select aria-label="Muscolo" [value]="muscle()" (change)="muscle.set($any($event.target).value); limit.set(PAGE)">
@@ -38,6 +38,7 @@ const PAGE = 40;
             <button type="button" class="item" (click)="open.emit(e)">
               <img [src]="'exercise-lib/' + e.id + '/0.webp'" alt="" loading="lazy" width="160" height="107" />
               <span class="name">{{ library.italianName(e.id) ?? e.name }}</span>
+              @if (library.italianName(e.id)) { <span class="orig">{{ e.name }}</span> }
               <span class="muted meta">{{ muscleIt(e.primary[0]) }} · {{ equipIt(e.equipment) }}</span>
             </button>
           </li>
@@ -61,6 +62,7 @@ const PAGE = 40;
     img { width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: contain; background: #fff; border-radius: 8px; }
     .name { font-weight: 700; font-size: 0.88rem; line-height: 1.2; }
     .meta { font-size: 0.75rem; }
+    .orig { font-size: 0.7rem; color: var(--text-2); line-height: 1.2; }
     .more { justify-self: center; }
   `,
 })

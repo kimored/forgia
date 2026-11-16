@@ -19,6 +19,10 @@ export interface ExerciseInfo {
   images?: string[];
   /** Viene dal catalogo completo (non dai 23 esercizi curati). */
   library?: boolean;
+  /** Nome originale (inglese) nel database. */
+  originalName?: string;
+  /** Tipo di movimento (tirata verticale, spinta orizzontale…). */
+  movement?: string;
 }
 
 /** Recupero in secondi [min, max]. */

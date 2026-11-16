@@ -1,5 +1,6 @@
 import { Injectable, computed, signal } from '@angular/core';
-import { toInfo, variantsOf, type LibraryEntry } from '../domain/exercise-library';
+import { toInfo, variantGroups, type LibraryEntry } from '../domain/exercise-library';
+import { italianExerciseName } from '../domain/exercise-names';
 import { EXERCISES } from '../domain/workout';
 import type { ExerciseInfo } from '../models/workout';
 
@@ -42,7 +43,13 @@ export class ExerciseLibraryService {
     return this.byId().get(info.db);
   }
 
-  italianName = (dbId: string): string | undefined => curatedByDb.get(dbId)?.name;
+  /** Nome da mostrare: quello dei nostri esercizi, altrimenti la traduzione a regole. */
+  italianName = (dbId: string): string | undefined => {
+    const curated = curatedByDb.get(dbId)?.name;
+    if (curated) return curated;
+    const entry = this.byId().get(dbId);
+    return entry ? (italianExerciseName(entry.name) ?? undefined) : undefined;
+  };
 
   /** Esercizio da mostrare per una voce del catalogo (con nome italiano se è dei nostri). */
   info(entry: LibraryEntry): ExerciseInfo {
@@ -50,8 +57,10 @@ export class ExerciseLibraryService {
     return curated ? toInfo(entry, curated) : toInfo(entry);
   }
 
-  variants(info: ExerciseInfo): ExerciseInfo[] {
+  variants(info: ExerciseInfo): { same: ExerciseInfo[]; related: ExerciseInfo[]; movement: string | null } {
     const entry = this.entryFor(info);
-    return entry ? variantsOf(entry, this.all()).map((e) => this.info(e)) : [];
+    if (!entry) return { same: [], related: [], movement: null };
+    const g = variantGroups(entry, this.all());
+    return { movement: g.movement, same: g.same.map((e) => this.info(e)), related: g.related.map((e) => this.info(e)) };
   }
 }

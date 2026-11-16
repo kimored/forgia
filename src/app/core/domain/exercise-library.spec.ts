@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { existsSync, readFileSync } from 'node:fs';
 import type { WorkoutProgram } from '../models/workout';
-import { filterLibrary, toInfo, variantsOf, type LibraryEntry } from './exercise-library';
+import { filterLibrary, toInfo, variantGroups, variantsOf, type LibraryEntry } from './exercise-library';
 import { EXERCISES, exerciseImages, plannedSession } from './workout';
 
 const LIB: LibraryEntry[] = JSON.parse(readFileSync('public/data/exercise-library.json', 'utf8'));
@@ -77,7 +77,38 @@ describe('programma personale', () => {
     const thu = plannedSession('2026-11-19', input, program, lookup)!;
     expect(mon.template.name).toBe('Spinta');
     expect(mon.exercises[0]).toMatchObject({ sets: 5, reps: '5', rest: [180, 180] });
-    expect(mon.exercises[0].info.name).toBe('Barbell Squat');
+    expect(mon.exercises[0].info.name).toBe('Squat con bilanciere');
+    expect(mon.exercises[0].info.originalName).toBe('Barbell Squat');
     expect(thu.template.name).toBe('Trazione');
+  });
+});
+
+describe('varianti per movimento (trazioni)', () => {
+  const g = variantGroups(entry('Pullups'), LIB);
+  const same = g.same.map((e) => e.id);
+  const related = g.related.map((e) => e.id);
+
+  it('stesso movimento: lat machine, trazioni assistite e zavorrate, di ogni livello', () => {
+    expect(g.movement).toBe('tirata-verticale');
+    expect(same).toContain('Wide-Grip_Lat_Pulldown');
+    expect(same).toContain('Close-Grip_Front_Lat_Pulldown');
+    expect(same).toContain('Band_Assisted_Pull-Up');
+    expect(same).toContain('Weighted_Pull_Ups');
+    const levels = new Set(g.same.map((e) => e.level));
+    expect(levels.has('beginner') && levels.has('intermediate')).toBe(true);
+  });
+
+  it('i rematori stanno tra "stessi muscoli, movimento diverso"', () => {
+    expect(same).not.toContain('Kneeling_High_Pulley_Row');
+    expect(related).toContain('Kneeling_High_Pulley_Row');
+  });
+
+  it('niente taglio a 12: tutte le varianti trovate', () => {
+    expect(g.same.length + g.related.length).toBeGreaterThan(12);
+  });
+
+  it('si trova cercando "lat machine"', () => {
+    const ids = filterLibrary(LIB, { text: 'lat machine' }, italian).map((e) => e.id);
+    expect(ids).toContain('Wide-Grip_Lat_Pulldown');
   });
 });

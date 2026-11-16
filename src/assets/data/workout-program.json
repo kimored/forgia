@@ -14,33 +14,116 @@
       "fromWeek": 1,
       "toWeek": 4,
       "duration": "45–55 min",
-      "rotation": ["fb"],
+      "rotation": [
+        "fb"
+      ],
       "weeks": [
-        { "weeks": [1], "sets": 2, "rir": "4–5", "rest": [60, 90] },
-        { "weeks": [2], "sets": 2, "rir": "3–4", "rest": [60, 90] },
-        { "weeks": [3], "sets": 3, "rir": "3", "rest": [90, 90] },
-        { "weeks": [4], "sets": 3, "rir": "2", "rest": [90, 90] }
+        {
+          "weeks": [
+            1
+          ],
+          "sets": 2,
+          "rir": "4–5",
+          "rest": [
+            60,
+            90
+          ]
+        },
+        {
+          "weeks": [
+            2
+          ],
+          "sets": 2,
+          "rir": "3–4",
+          "rest": [
+            60,
+            90
+          ]
+        },
+        {
+          "weeks": [
+            3
+          ],
+          "sets": 3,
+          "rir": "3",
+          "rest": [
+            90,
+            90
+          ]
+        },
+        {
+          "weeks": [
+            4
+          ],
+          "sets": 3,
+          "rir": "2",
+          "rest": [
+            90,
+            90
+          ]
+        }
       ],
       "templates": [
         {
           "id": "fb",
           "name": "Full body",
           "exercises": [
-            { "exercise": "leg-press", "reps": "12-15" },
-            { "exercise": "chest-press", "reps": "12-15", "alternatives": ["panca-manubri"] },
+            {
+              "exercise": "leg-press",
+              "reps": "12-15"
+            },
+            {
+              "exercise": "chest-press",
+              "reps": "12-15",
+              "alternatives": [
+                "panca-manubri"
+              ]
+            },
             {
               "exercise": "trazioni",
               "reps": "4",
               "sets": 4,
-              "rest": [120, 120],
-              "byWeek": [{ "weeks": [3, 4], "reps": "5" }],
-              "note": "Poi +1 ripetizione a settimana fino a 3×10–12, quindi zavorra (+2,5–5 kg) e si riparte da 3×6."
+              "rest": [
+                120,
+                120
+              ],
+              "byWeek": [
+                {
+                  "weeks": [
+                    3,
+                    4
+                  ],
+                  "reps": "5"
+                }
+              ],
+              "note": "Poi +1 ripetizione a settimana fino a 3×10–12, quindi zavorra (+2,5–5 kg) e si riparte da 3×6.",
+              "alternatives": [
+                "trazioni-assistite",
+                "lat-machine"
+              ]
             },
-            { "exercise": "shoulder-press", "reps": "12-15" },
-            { "exercise": "pulley-basso", "reps": "12-15" },
-            { "exercise": "leg-curl", "reps": "12-15" },
-            { "exercise": "curl-manubri", "reps": "12-15", "superset": "braccia" },
-            { "exercise": "pushdown", "reps": "12-15", "superset": "braccia" }
+            {
+              "exercise": "shoulder-press",
+              "reps": "12-15"
+            },
+            {
+              "exercise": "pulley-basso",
+              "reps": "12-15"
+            },
+            {
+              "exercise": "leg-curl",
+              "reps": "12-15"
+            },
+            {
+              "exercise": "curl-manubri",
+              "reps": "12-15",
+              "superset": "braccia"
+            },
+            {
+              "exercise": "pushdown",
+              "reps": "12-15",
+              "superset": "braccia"
+            }
           ]
         }
       ]
@@ -50,44 +133,210 @@
       "name": "Fase 2 · Full body A/B/C",
       "fromWeek": 5,
       "duration": "60–75 min (50–55 con le superserie)",
-      "rotation": ["A", "B", "C"],
+      "rotation": [
+        "A",
+        "B",
+        "C"
+      ],
       "deloadEvery": 8,
       "templates": [
         {
           "id": "A",
           "name": "Full body A",
           "exercises": [
-            { "exercise": "squat", "sets": 4, "reps": "6-8", "rest": [120, 180] },
-            { "exercise": "panca-piana", "sets": 4, "reps": "6-8", "rest": [120, 180] },
-            { "exercise": "rematore", "sets": 3, "reps": "8-10", "rest": [120, 180] },
-            { "exercise": "military-manubri", "sets": 3, "reps": "8-10", "rest": [120, 180] },
-            { "exercise": "curl-manubri", "sets": 3, "reps": "10-12", "rest": [60, 90] },
-            { "exercise": "crunch-cavi", "sets": 3, "reps": "12-15", "rest": [60, 90] }
+            {
+              "exercise": "squat",
+              "sets": 4,
+              "reps": "6-8",
+              "rest": [
+                120,
+                180
+              ]
+            },
+            {
+              "exercise": "panca-piana",
+              "sets": 4,
+              "reps": "6-8",
+              "rest": [
+                120,
+                180
+              ]
+            },
+            {
+              "exercise": "rematore",
+              "sets": 3,
+              "reps": "8-10",
+              "rest": [
+                120,
+                180
+              ]
+            },
+            {
+              "exercise": "military-manubri",
+              "sets": 3,
+              "reps": "8-10",
+              "rest": [
+                120,
+                180
+              ]
+            },
+            {
+              "exercise": "curl-manubri",
+              "sets": 3,
+              "reps": "10-12",
+              "rest": [
+                60,
+                90
+              ]
+            },
+            {
+              "exercise": "crunch-cavi",
+              "sets": 3,
+              "reps": "12-15",
+              "rest": [
+                60,
+                90
+              ]
+            }
           ]
         },
         {
           "id": "B",
           "name": "Full body B",
           "exercises": [
-            { "exercise": "stacco-rumeno", "sets": 4, "reps": "8", "rest": [120, 180] },
-            { "exercise": "trazioni", "sets": 4, "reps": "8-10", "rest": [120, 180] },
-            { "exercise": "panca-inclinata-manubri", "sets": 3, "reps": "8-10", "rest": [120, 180] },
-            { "exercise": "leg-press", "sets": 3, "reps": "10-12", "rest": [120, 180] },
-            { "exercise": "alzate-laterali", "sets": 3, "reps": "12-15", "rest": [60, 90] },
-            { "exercise": "pushdown", "sets": 3, "reps": "10-12", "rest": [60, 90], "alternatives": ["french-press"] }
+            {
+              "exercise": "stacco-rumeno",
+              "sets": 4,
+              "reps": "8",
+              "rest": [
+                120,
+                180
+              ]
+            },
+            {
+              "exercise": "trazioni",
+              "sets": 4,
+              "reps": "8-10",
+              "rest": [
+                120,
+                180
+              ],
+              "alternatives": [
+                "trazioni-assistite",
+                "lat-machine"
+              ]
+            },
+            {
+              "exercise": "panca-inclinata-manubri",
+              "sets": 3,
+              "reps": "8-10",
+              "rest": [
+                120,
+                180
+              ]
+            },
+            {
+              "exercise": "leg-press",
+              "sets": 3,
+              "reps": "10-12",
+              "rest": [
+                120,
+                180
+              ]
+            },
+            {
+              "exercise": "alzate-laterali",
+              "sets": 3,
+              "reps": "12-15",
+              "rest": [
+                60,
+                90
+              ]
+            },
+            {
+              "exercise": "pushdown",
+              "sets": 3,
+              "reps": "10-12",
+              "rest": [
+                60,
+                90
+              ],
+              "alternatives": [
+                "french-press"
+              ]
+            }
           ]
         },
         {
           "id": "C",
           "name": "Full body C",
           "exercises": [
-            { "exercise": "panca-manubri", "sets": 4, "reps": "8-10", "rest": [120, 180] },
-            { "exercise": "hack-squat", "sets": 3, "reps": "8-10", "rest": [120, 180] },
-            { "exercise": "pulley-basso", "sets": 3, "reps": "10-12", "rest": [60, 90] },
-            { "exercise": "leg-curl", "sets": 3, "reps": "10-12", "rest": [60, 90] },
-            { "exercise": "dip", "sets": 3, "reps": "10-12", "rest": [60, 90], "alternatives": ["croci-cavi"] },
-            { "exercise": "curl-martello", "sets": 3, "reps": "10-12", "rest": [60, 90] },
-            { "exercise": "polpacci", "sets": 3, "reps": "12-15", "rest": [60, 90] }
+            {
+              "exercise": "panca-manubri",
+              "sets": 4,
+              "reps": "8-10",
+              "rest": [
+                120,
+                180
+              ]
+            },
+            {
+              "exercise": "hack-squat",
+              "sets": 3,
+              "reps": "8-10",
+              "rest": [
+                120,
+                180
+              ]
+            },
+            {
+              "exercise": "pulley-basso",
+              "sets": 3,
+              "reps": "10-12",
+              "rest": [
+                60,
+                90
+              ]
+            },
+            {
+              "exercise": "leg-curl",
+              "sets": 3,
+              "reps": "10-12",
+              "rest": [
+                60,
+                90
+              ]
+            },
+            {
+              "exercise": "dip",
+              "sets": 3,
+              "reps": "10-12",
+              "rest": [
+                60,
+                90
+              ],
+              "alternatives": [
+                "croci-cavi"
+              ]
+            },
+            {
+              "exercise": "curl-martello",
+              "sets": 3,
+              "reps": "10-12",
+              "rest": [
+                60,
+                90
+              ]
+            },
+            {
+              "exercise": "polpacci",
+              "sets": 3,
+              "reps": "12-15",
+              "rest": [
+                60,
+                90
+              ]
+            }
           ]
         }
       ]

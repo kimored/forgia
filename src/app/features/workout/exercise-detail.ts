@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, input, output, signal } from '@angular/core';
 import { ExerciseLibraryService } from '../../core/data/exercise-library.service';
 import { CATEGORY_IT, EQUIPMENT_IT, LEVEL_IT } from '../../core/domain/exercise-library';
+import { MOVEMENT_IT, type Movement } from '../../core/domain/exercise-names';
 import { exerciseImages } from '../../core/domain/workout';
 import type { ExerciseInfo } from '../../core/models/workout';
 
@@ -12,6 +13,7 @@ import type { ExerciseInfo } from '../../core/models/workout';
     @let e = info();
     <div class="detail">
       <h2>{{ e.name }}</h2>
+      @if (e.originalName && e.originalName !== e.name) { <p class="orig">{{ e.originalName }}</p> }
 
       <div class="media" [class.split]="mode() === 'frames'">
         @if (mode() === 'anim') {
@@ -60,25 +62,44 @@ import type { ExerciseInfo } from '../../core/models/workout';
         <h3>Varianti</h3>
         @if (!library.loaded()) {
           <p class="muted">Carico il catalogo…</p>
-        } @else if (variants().length) {
-          <ul class="variants">
-            @for (v of variants(); track v.id) {
-              <li>
-                <button type="button" class="variant" (click)="openVariant(v)">
-                  <img [src]="thumb(v)" alt="" loading="lazy" />
-                  <span>
-                    <strong>{{ v.name }}</strong>
-                    <span class="muted">{{ v.equipment ? eq(v.equipment) : '' }}{{ v.level ? ' · ' + lvl(v.level) : '' }}</span>
-                  </span>
-                </button>
-                @if (variantLabel()) {
-                  <button type="button" class="btn ghost use" (click)="choose.emit(v.id)">{{ variantLabel() }}</button>
-                }
-              </li>
-            }
-          </ul>
         } @else {
-          <p class="muted">Nessuna variante simile nel catalogo.</p>
+          <div class="levels" role="radiogroup" aria-label="Livello">
+            @for (l of levels; track l.id) {
+              <button type="button" role="radio" [attr.aria-checked]="level() === l.id" [class.on]="level() === l.id" (click)="level.set(l.id)">
+                {{ l.label }} <span class="num">{{ count(l.id) }}</span>
+              </button>
+            }
+          </div>
+          @for (g of groups(); track g.key) {
+            <h4>{{ g.title }} <span class="muted">({{ g.items.length }})</span></h4>
+            @if (g.items.length) {
+              <ul class="variants">
+                @for (v of g.shown; track v.id) {
+                  <li>
+                    <button type="button" class="variant" (click)="openVariant(v)">
+                      <img [src]="thumb(v)" alt="" loading="lazy" />
+                      <span>
+                        <strong>{{ v.name }}</strong>
+                        @if (v.originalName && v.originalName !== v.name) { <span class="orig">{{ v.originalName }}</span> }
+                        <span class="muted">
+                          {{ v.equipment ? eq(v.equipment) : '' }}
+                          @if (v.level) { <span class="lv" [class]="'lv ' + v.level">{{ lvl(v.level) }}</span> }
+                        </span>
+                      </span>
+                    </button>
+                    @if (variantLabel()) {
+                      <button type="button" class="btn ghost use" (click)="choose.emit(v.id)">{{ variantLabel() }}</button>
+                    }
+                  </li>
+                }
+              </ul>
+              @if (g.items.length > g.shown.length) {
+                <button type="button" class="btn ghost more" (click)="expand(g.key)">Mostra tutte ({{ g.items.length }})</button>
+              }
+            } @else {
+              <p class="muted small">Nessuna con questo filtro.</p>
+            }
+          }
         }
       </section>
     </div>
@@ -101,6 +122,39 @@ export class ExerciseDetail {
   protected readonly frame = signal(0);
   protected readonly images = computed(() => exerciseImages(this.info()));
   protected readonly variants = computed(() => this.library.variants(this.info()));
+  protected readonly level = signal<'all' | 'beginner' | 'intermediate' | 'expert'>('all');
+  private readonly expanded = signal(new Set<string>());
+  protected readonly levels = [
+    { id: 'all' as const, label: 'Tutti' },
+    { id: 'beginner' as const, label: 'Principiante' },
+    { id: 'intermediate' as const, label: 'Intermedio' },
+    { id: 'expert' as const, label: 'Esperto' },
+  ];
+
+  protected count(level: string): number {
+    const v = this.variants();
+    const all = [...v.same, ...v.related];
+    return level === 'all' ? all.length : all.filter((x) => x.level === level).length;
+  }
+
+  /** Varianti raggruppate per movimento, filtrate per livello; 8 per gruppo finché non si espande. */
+  protected readonly groups = computed(() => {
+    const v = this.variants();
+    const lv = this.level();
+    const open = this.expanded();
+    const pick = (list: ExerciseInfo[]) => (lv === 'all' ? list : list.filter((x) => x.level === lv));
+    const mv = v.movement ? MOVEMENT_IT[v.movement as Movement] : null;
+    return [
+      { key: 'same', title: mv ? `Stesso movimento · ${mv}` : 'Stesso movimento', items: pick(v.same) },
+      { key: 'related', title: 'Stessi muscoli, movimento diverso', items: pick(v.related) },
+    ]
+      .filter((g) => g.key === 'same' || g.items.length || v.related.length)
+      .map((g) => ({ ...g, shown: open.has(g.key) ? g.items : g.items.slice(0, 8) }));
+  });
+
+  protected expand(key: string): void {
+    this.expanded.update((s) => new Set(s).add(key));
+  }
 
   constructor() {
     void this.library.load().catch(() => undefined);
@@ -127,6 +181,7 @@ export class ExerciseDetail {
   }
 
   protected openVariant(v: ExerciseInfo): void {
+    this.expanded.set(new Set());
     this.navigate.emit(v);
   }
 }
