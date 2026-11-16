@@ -100,6 +100,27 @@
   </label>
 </section>
 
+<section class="card">
+  <h2>Notifiche e promemoria</h2>
+  <p class="muted small-top">All'apertura dell'app trovi sempre i promemoria del giorno (pesata, pasti da segnare, dispensa…) e il badge sull'icona.</p>
+  <label class="toggle-row">
+    <span>
+      <strong>Notifiche dei pasti e del recupero</strong>
+      <span class="muted">
+        @switch (notifications.permission()) {
+          @case ('denied') { Bloccate dal browser: riattivale dalle impostazioni del telefono. }
+          @case ('unsupported') { Non disponibili qui@if (install.isIos()) {: su iPhone installa prima l'app nella schermata Home (iOS 16.4+)}. }
+          @default { Arrivano mentre l'app è aperta o appena chiusa. }
+        }
+      </span>
+    </span>
+    <input type="checkbox" role="switch" [checked]="app.settings().notifications && notifications.permission() === 'granted'"
+           [disabled]="notifications.permission() === 'unsupported' || notifications.permission() === 'denied'"
+           (change)="toggleNotifications($any($event.target).checked)" />
+  </label>
+  <p class="muted small">Senza un server le notifiche non possono arrivare ad app chiusa da tempo: per i promemoria affidabili usa il banner all'apertura. Le notifiche push complete arriveranno con un piccolo server gratuito (in programma).</p>
+</section>
+
 @if (!install.standalone()) {
   <section class="card">
     <h2>Installa l'app</h2>

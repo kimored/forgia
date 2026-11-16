@@ -12,10 +12,12 @@ export interface AppSettings {
   workoutPhase?: string;
   /** Suono e vibrazione a fine recupero. */
   restAlert: boolean;
+  /** Notifiche locali (pasti, promemoria, fine recupero) mentre l'app è aperta. */
+  notifications: boolean;
 }
 
 const KEY = 'settings';
-const DEFAULTS: AppSettings = { pantryAutoDeduct: true, alertDays: 3, otherLabel: 'Per chi cucina', restAlert: true };
+const DEFAULTS: AppSettings = { pantryAutoDeduct: true, alertDays: 3, otherLabel: 'Per chi cucina', restAlert: true, notifications: false };
 
 @Injectable({ providedIn: 'root' })
 export class SettingsService {

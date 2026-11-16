@@ -42,6 +42,20 @@
       </div>
     }
 
+    @if (reminders.reminders().length) {
+      <ul class="reminders" aria-label="Promemoria di oggi">
+        @for (r of reminders.reminders(); track r.id) {
+          <li [class.warn]="r.level === 'warn'" animate.enter="rem-in" animate.leave="rem-out">
+            <a [routerLink]="r.link">
+              <span aria-hidden="true">{{ r.icon }}</span>
+              <span>{{ r.text }}</span>
+            </a>
+            <button type="button" class="icon-btn" aria-label="Nascondi promemoria" (click)="reminders.dismiss(r.id)">✕</button>
+          </li>
+        }
+      </ul>
+    }
+
     <main class="content">
       <router-outlet />
     </main>

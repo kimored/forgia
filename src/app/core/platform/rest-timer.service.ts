@@ -1,5 +1,6 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { SettingsService } from '../data/settings.service';
+import { NotificationService } from './notification.service';
 
 /**
  * Timer di recupero tra le serie. Si basa sull'orario di fine (non su un contatore),
@@ -9,6 +10,7 @@ import { SettingsService } from '../data/settings.service';
 @Injectable({ providedIn: 'root' })
 export class RestTimerService {
   private readonly settings = inject(SettingsService);
+  private readonly notifications = inject(NotificationService);
   private endAt = 0;
   private tick: ReturnType<typeof setInterval> | null = null;
   private audio: AudioContext | null = null;
@@ -65,6 +67,10 @@ export class RestTimerService {
     if (!this.settings.settings().restAlert) return;
     navigator.vibrate?.([200, 100, 200, 100, 300]);
     this.beep();
+    // Con lo schermo su un'altra app, una notifica (se l'utente le ha attivate).
+    if (document.hidden && this.settings.settings().notifications) {
+      void this.notifications.notify('Recupero finito', this.label() || 'Vai con la prossima serie!', 'rest');
+    }
   }
 
   private unlockAudio(): void {

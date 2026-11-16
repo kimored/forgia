@@ -3,6 +3,7 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { Icon, type IconName } from '../shared/ui/icon';
 import { BackupService } from '../core/data/backup.service';
 import { PantryStore } from '../core/data/pantry.store';
+import { ReminderService } from '../core/data/reminder.service';
 
 interface NavItem {
   path: string;
@@ -26,6 +27,7 @@ interface NavItem {
 export class Shell {
   protected readonly backup = inject(BackupService);
   private readonly pantry = inject(PantryStore);
+  protected readonly reminders = inject(ReminderService);
 
   /** Badge per tab (per ora: prodotti in esaurimento sulla Dispensa). */
   protected readonly badges = computed<Record<string, number>>(() => ({ dispensa: this.pantry.alerts().length }));

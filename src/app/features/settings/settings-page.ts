@@ -8,6 +8,7 @@ import { BackupService } from '../../core/data/backup.service';
 import { SettingsService } from '../../core/data/settings.service';
 import { PlanImportError, PlanService } from '../../core/data/plan.service';
 import { Icon } from '../../shared/ui/icon';
+import { NotificationService } from '../../core/platform/notification.service';
 import { PROGRAM } from '../../core/domain/workout';
 
 @Component({
@@ -24,6 +25,16 @@ export class SettingsPage {
   protected readonly backup = inject(BackupService);
   protected readonly app = inject(SettingsService);
   protected readonly phases = PROGRAM.phases;
+  protected readonly notifications = inject(NotificationService);
+
+  protected async toggleNotifications(on: boolean): Promise<void> {
+    if (on && this.notifications.permission() !== 'granted') {
+      const p = await this.notifications.request();
+      if (p !== 'granted') return void this.app.update({ notifications: false });
+    }
+    await this.app.update({ notifications: on });
+    if (on) void this.notifications.notify('Notifiche attive', 'Ti avviserò per i pasti e a fine recupero.', 'test');
+  }
   protected readonly plans = inject(PlanService);
   protected readonly planMessage = signal<{ ok: boolean; text: string } | null>(null);
   protected readonly hasOtherPart = computed(() => this.plans.catalog().slots.some((s) => s.owner === 'other'));
