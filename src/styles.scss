@@ -1,31 +1,32 @@
 /* ===== Design tokens ===== */
 :root {
-  color-scheme: light;
-  --bg: #f6f7f6;
-  --surface: #ffffff;
-  --surface-2: #eef1ef;
-  --text: #15201c;
-  --text-2: #5b6b65;
-  --border: #dde3e0;
-  --primary: #0f766e;
+  /* Tema unico: nero con accenti rossi. */
+  color-scheme: dark;
+  --bg: #0a0a0b;
+  --surface: #121214;
+  --surface-2: #1b1b1e;
+  --text: #f4f4f5;
+  --text-2: #a1a1aa;
+  --border: #3a1518;
+  --primary: #e5222f;
   --primary-contrast: #ffffff;
-  --primary-soft: #d5f0ec;
-  --warn: #b45309;
-  --warn-soft: #fef3c7;
-  --danger: #b91c1c;
-  --ok: #15803d;
+  --primary-soft: #2a0d10;
+  --warn: #f59e0b;
+  --warn-soft: #2b1d06;
+  --danger: #ff4d5a;
+  --ok: #22c55e;
 
-  /* colori per categoria di pasto */
-  --c-colazione: #f59e0b;
-  --c-spuntino: #10b981;
-  --c-pranzo: #3b82f6;
-  --c-cena: #8b5cf6;
-  --c-post: #ef4444;
-  --c-integratori: #64748b;
+  /* colori per categoria di pasto: toni del rosso e neutri */
+  --c-colazione: #ff8a65;
+  --c-spuntino: #f87171;
+  --c-pranzo: #e5222f;
+  --c-cena: #b91c1c;
+  --c-post: #ff4d5a;
+  --c-integratori: #71717a;
 
-  --radius: 18px;
-  --radius-sm: 12px;
-  --shadow: 0 1px 2px rgb(0 0 0 / 0.05), 0 4px 16px rgb(0 0 0 / 0.06);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow: none;
   --touch: 44px;
   --content-max: 1200px;
 
@@ -39,29 +40,6 @@
 
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
 }
-
-@mixin dark-tokens {
-  color-scheme: dark;
-  --bg: #0e1412;
-  --surface: #17201d;
-  --surface-2: #1f2a26;
-  --text: #e8efec;
-  --text-2: #9fb0a9;
-  --border: #2a3632;
-  --primary: #2dd4bf;
-  --primary-contrast: #042f2b;
-  --primary-soft: #123b36;
-  --warn: #fbbf24;
-  --warn-soft: #3a2d0c;
-  --danger: #f87171;
-  --ok: #4ade80;
-  --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 4px 16px rgb(0 0 0 / 0.3);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) { @include dark-tokens; }
-}
-:root[data-theme='dark'] { @include dark-tokens; }
 
 @media (prefers-reduced-motion: reduce) {
   :root { --dur: 0ms; }

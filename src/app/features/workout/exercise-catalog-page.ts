@@ -1,23 +1,18 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { ExerciseLibraryService } from '../../core/data/exercise-library.service';
 import type { LibraryEntry } from '../../core/domain/exercise-library';
 import type { ExerciseInfo } from '../../core/models/workout';
 import { BottomSheet } from '../../shared/ui/bottom-sheet';
-import { Icon } from '../../shared/ui/icon';
+import { WorkoutTabs } from './workout-tabs';
 import { ExerciseBrowser } from './exercise-browser';
 import { ExerciseDetail } from './exercise-detail';
 
 @Component({
   selector: 'app-exercise-catalog-page',
-  imports: [ExerciseBrowser, ExerciseDetail, BottomSheet, RouterLink, Icon],
+  imports: [ExerciseBrowser, ExerciseDetail, BottomSheet, WorkoutTabs],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="head">
-      <a class="icon-btn" routerLink="/allenamento" aria-label="Torna all'allenamento"><app-icon name="back" /></a>
-      <h1>Esercizi</h1>
-    </div>
-    <p class="muted">Tutti gli esercizi del database (in inglese i nomi originali). Tocca per vedere esecuzione, muscoli e varianti; per usarli crea le tue schede in <a routerLink="/allenamento/programma">Il mio programma</a>.</p>
+    <app-workout-tabs />
     <app-exercise-browser (open)="show($event)" />
 
     <app-bottom-sheet [(open)]="open" label="Dettaglio esercizio">

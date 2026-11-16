@@ -6,7 +6,7 @@ import type { LibraryEntry } from '../../core/domain/exercise-library';
 import { exerciseImages, PROGRAM } from '../../core/domain/workout';
 import type { ExerciseInfo, ProgramExercise, WorkoutProgram, WorkoutTemplate } from '../../core/models/workout';
 import { BottomSheet } from '../../shared/ui/bottom-sheet';
-import { Icon } from '../../shared/ui/icon';
+import { WorkoutTabs } from './workout-tabs';
 import { ExerciseBrowser } from './exercise-browser';
 import { ExerciseDetail } from './exercise-detail';
 
@@ -15,7 +15,7 @@ const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 /** Editor del programma di allenamento personale. */
 @Component({
   selector: 'app-program-editor-page',
-  imports: [RouterLink, Icon, BottomSheet, ExerciseBrowser, ExerciseDetail],
+  imports: [WorkoutTabs, BottomSheet, ExerciseBrowser, ExerciseDetail],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './program-editor-page.html',
   styleUrl: './program-editor-page.scss',

@@ -1,14 +1,11 @@
 @let d = doc();
 @let p = phase();
 
-<div class="head">
-  <a class="icon-btn" routerLink="/allenamento" aria-label="Torna all'allenamento"><app-icon name="back" /></a>
-  <h1>Il mio programma</h1>
-</div>
+<app-workout-tabs />
 
 <section class="card intro">
   <p class="muted">
-    Crea le tue schede con qualsiasi esercizio del <a routerLink="/allenamento/esercizi">catalogo</a>.
+    Crea le tue schede con qualsiasi esercizio del catalogo.
     Le schede si alternano nei tuoi giorni di palestra nell'ordine in cui sono qui.
     @if (programs.isExample()) { Ora stai usando il programma di esempio. }
   </p>

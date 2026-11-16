@@ -38,18 +38,6 @@
 </section>
 
 <section class="card">
-  <h2>Tema</h2>
-  <div class="segmented" role="radiogroup" aria-label="Tema">
-    @for (t of themes; track t.value) {
-      <button type="button" role="radio" [attr.aria-checked]="theme.pref() === t.value"
-              [class.on]="theme.pref() === t.value" (click)="theme.pref.set(t.value)">
-        {{ t.label }}
-      </button>
-    }
-  </div>
-</section>
-
-<section class="card">
   <h2>Dispensa</h2>
   <label class="toggle-row">
     <span>

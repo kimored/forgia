@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { ThemeService, type ThemePref } from '../../core/platform/theme.service';
 import { InstallService } from '../../core/platform/install.service';
 import { StorageService } from '../../core/platform/storage.service';
 import { BackupService } from '../../core/data/backup.service';
@@ -19,7 +18,6 @@ import { ProgramService } from '../../core/data/program.service';
   styleUrl: './settings-page.scss',
 })
 export class SettingsPage {
-  protected readonly theme = inject(ThemeService);
   protected readonly install = inject(InstallService);
   protected readonly storage = inject(StorageService);
   protected readonly backup = inject(BackupService);
@@ -64,11 +62,6 @@ export class SettingsPage {
     if (n >= 1 && n <= 30) void this.app.update({ alertDays: n });
   }
 
-  protected readonly themes: { value: ThemePref; label: string }[] = [
-    { value: 'auto', label: 'Automatico' },
-    { value: 'light', label: 'Chiaro' },
-    { value: 'dark', label: 'Scuro' },
-  ];
   protected readonly importMessage = signal<{ ok: boolean; text: string } | null>(null);
 
   protected async onImport(input: HTMLInputElement): Promise<void> {

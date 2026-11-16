@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, signal } from '@angular/core';
+import { WorkoutTabs } from './workout-tabs';
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { SettingsService } from '../../core/data/settings.service';
@@ -20,7 +21,7 @@ interface WakeLockSentinelLike {
 
 @Component({
   selector: 'app-workout-page',
-  imports: [DatePipe, RouterLink, ExerciseCard, BottomSheet, LineChart, ExerciseDetail],
+  imports: [DatePipe, RouterLink, WorkoutTabs, ExerciseCard, BottomSheet, LineChart, ExerciseDetail],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './workout-page.html',
   styleUrl: './workout-page.scss',
