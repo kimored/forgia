@@ -72,8 +72,8 @@ describe('parseScaleWords (layout Feelfit)', () => {
 
 describe('helper', () => {
   it('parseValue', () => {
-    expect(parseValue('73,2 kg')).toBe(73.2);
-    expect(parseValue('1715kcal')).toBe(1715);
+    expect(parseValue('80,5 kg')).toBe(80.5);
+    expect(parseValue('1890kcal')).toBe(1890);
     expect(parseValue('+2 kg')).toBeNull();
     expect(parseValue('kg')).toBeNull();
   });
