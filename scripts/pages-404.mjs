@@ -1,5 +1,5 @@
 // GitHub Pages: serve 404.html per i path sconosciuti → lo rendiamo uguale a index.html
-// così il routing di Angular funziona anche ricaricando /app-dieta-palestra/oggi.
+// così il routing di Angular funziona anche ricaricando /forgia/oggi.
 import { copyFileSync, writeFileSync } from 'node:fs';
 
 const dist = 'dist/app-dieta-palestra/browser';

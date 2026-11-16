@@ -16,7 +16,7 @@ sul dispositivo; finiscono solo nell'export JSON di backup.
 npm install
 npm start            # http://localhost:4200
 npm run test:ci      # test unitari (Vitest)
-npm run build:pages  # build per GitHub Pages (base-href /app-dieta-palestra/ + 404.html)
+npm run build:pages  # build per GitHub Pages (base-href /forgia/ + 404.html)
 npm run icons        # rigenera le icone PNG da public/icons/icon.svg
 ```
 
@@ -25,13 +25,13 @@ Il service worker è attivo solo nella build di produzione.
 ## Deploy su GitHub Pages
 
 Il workflow `.github/workflows/deploy.yml` esegue test e build e pubblica a ogni push su `main`.
-Configurazione una tantum sul repo `app-dieta-palestra`:
+Configurazione una tantum sul repo `forgia`:
 
 1. **Settings → Pages → Build and deployment → Source: GitHub Actions**.
 2. Il repo deve essere pubblico (Pages gratuito), oppure serve un piano a pagamento.
 3. Nessun secret richiesto.
 
-L'app sarà su `https://<utente>.github.io/app-dieta-palestra/`.
+L'app sarà su `https://<utente>.github.io/forgia/`.
 Se cambi nome al repo, aggiorna `--base-href` nello script `build:pages`.
 
 ## Installazione

@@ -7,7 +7,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "build:pages": "ng build --base-href /app-dieta-palestra/ && node scripts/pages-404.mjs",
+    "build:pages": "ng build --base-href /forgia/ && node scripts/pages-404.mjs",
     "icons": "node scripts/icons.mjs",
     "test:ci": "ng test --watch=false"
   },
