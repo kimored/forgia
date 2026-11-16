@@ -70,7 +70,7 @@ interface Phrase extends OcrWord {
   h: number;
 }
 
-/** Unisce le parole vicine sulla stessa riga in frasi ("Grasso" + "corporeo", "73.2" + "kg"). */
+/** Unisce le parole vicine sulla stessa riga in frasi ("Grasso" + "corporeo", "80.5" + "kg"). */
 export function groupPhrases(words: OcrWord[]): Phrase[] {
   const sorted = words
     .filter((w) => w.text.trim())
