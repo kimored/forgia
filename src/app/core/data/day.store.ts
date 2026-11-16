@@ -6,7 +6,10 @@ import { catalog } from '../domain/catalog';
 import { addDays, type IsoDate } from '../domain/dates';
 import { resolveDay, type ResolvedDay } from '../domain/day-plan';
 import { variantsFor, type DayResolver, type Variant } from '../domain/rules';
+import { CREATINE_G, mealConsumption } from '../domain/pantry';
 import { db } from './db';
+import { adjustStock } from './pantry.repo';
+import { SettingsService } from './settings.service';
 import { ProfileService } from './profile.service';
 
 /**
@@ -16,6 +19,7 @@ import { ProfileService } from './profile.service';
 @Injectable({ providedIn: 'root' })
 export class DayStore {
   private readonly profiles = inject(ProfileService);
+  private readonly settings = inject(SettingsService);
 
   private readonly logs = signal<MealLog[]>([]);
   private readonly options = signal<DayOptions[]>([]);
@@ -73,13 +77,37 @@ export class DayStore {
 
   // ---------- Pasti ----------
 
+  private get autoDeduct(): boolean {
+    return this.settings.settings().pantryAutoDeduct;
+  }
+
+  /** Il pasto risolto come sarebbe con una certa sostituzione (undefined = previsto). */
+  private mealWith(date: IsoDate, slot: MealSlot, optionId: string | undefined) {
+    const others = (this.logsByDate().get(date) ?? []).filter((l) => l.slot !== slot);
+    const logs: MealLog[] = optionId ? [...others, { date, slot, status: 'todo', optionId, at: '' }] : others;
+    const day = resolveDay(catalog, {
+      date,
+      profile: this.profiles.effective(),
+      logs,
+      options: this.optionsByDate().get(date),
+    });
+    return day.meals.find((m) => m.slot === slot);
+  }
+
+  private async consume(date: IsoDate, slot: MealSlot, optionId: string | undefined, sign: 1 | -1): Promise<void> {
+    const meal = this.mealWith(date, slot, optionId);
+    if (meal && !meal.free) await adjustStock(mealConsumption(meal), sign);
+  }
+
   async setStatus(date: IsoDate, slot: MealSlot, status: MealStatus): Promise<void> {
     const current = await db.mealLogs.get([date, slot]);
-    if (status === 'todo' && !current?.optionId) {
-      await db.mealLogs.delete([date, slot]);
-      return;
-    }
-    await db.mealLogs.put({ date, slot, status, optionId: current?.optionId, at: new Date().toISOString() });
+    if (status === 'todo' && !current?.optionId) await db.mealLogs.delete([date, slot]);
+    else await db.mealLogs.put({ date, slot, status, optionId: current?.optionId, at: new Date().toISOString() });
+
+    // Scalo automatico: un pasto che diventa fatto consuma la dispensa, e viceversa.
+    const wasDone = current?.status === 'done';
+    const isDone = status === 'done';
+    if (this.autoDeduct && wasDone !== isDone) await this.consume(date, slot, current?.optionId, isDone ? -1 : 1);
   }
 
   async toggleDone(date: IsoDate, slot: MealSlot): Promise<void> {
@@ -92,16 +120,22 @@ export class DayStore {
     const planned = this.day(date).meals.find((m) => m.slot === slot)?.planned?.id;
     const current = await db.mealLogs.get([date, slot]);
     const status = current?.status ?? 'todo';
-    if (optionId === planned) {
-      if (status === 'todo') await db.mealLogs.delete([date, slot]);
-      else await db.mealLogs.put({ date, slot, status, at: new Date().toISOString() });
-      return;
+    const next = optionId === planned ? undefined : optionId;
+
+    if (!next && status === 'todo') await db.mealLogs.delete([date, slot]);
+    else await db.mealLogs.put({ date, slot, status, optionId: next, at: new Date().toISOString() });
+
+    // Pasto già fatto: si restituisce il vecchio e si scala il nuovo.
+    if (this.autoDeduct && status === 'done') {
+      await this.consume(date, slot, current?.optionId, 1);
+      await this.consume(date, slot, next, -1);
     }
-    await db.mealLogs.put({ date, slot, status, optionId, at: new Date().toISOString() });
   }
 
   async resetToPlan(date: IsoDate, slot: MealSlot): Promise<void> {
+    const current = await db.mealLogs.get([date, slot]);
     await db.mealLogs.delete([date, slot]);
+    if (this.autoDeduct && current?.status === 'done') await this.consume(date, slot, current.optionId, 1);
   }
 
   // ---------- Opzioni del giorno ----------
@@ -120,8 +154,13 @@ export class DayStore {
     });
   }
 
-  toggleCreatine(date: IsoDate): Promise<void> {
-    return this.patchHabits(date, (h) => ({ ...h, creatine: !h.creatine }));
+  async toggleCreatine(date: IsoDate): Promise<void> {
+    const taken = !this.habits(date).creatine;
+    await this.patchHabits(date, (h) => ({ ...h, creatine: taken }));
+    // Nei giorni palestra la creatina è già nello shake post-allenamento.
+    if (this.autoDeduct && !this.day(date).gym) {
+      await adjustStock([{ productId: 'creatina', qty: CREATINE_G }], taken ? -1 : 1);
+    }
   }
 
   addWater(date: IsoDate, ml: number): Promise<void> {

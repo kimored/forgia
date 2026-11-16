@@ -1,0 +1,105 @@
+@let prod = p();
+@let f = forecast();
+
+<header>
+  <h2>{{ prod.name }}</h2>
+  @if (prod.brand) { <span class="muted">{{ prod.brand }}</span> }
+</header>
+
+<section class="stock">
+  <button type="button" class="round" aria-label="Diminuisci" (click)="store.adjust(prod.id, -step())">−</button>
+  <label class="qty">
+    <span class="sr-only">Quantità in casa ({{ prod.unit }})</span>
+    <input type="number" inputmode="decimal" [value]="qty()" (change)="setQty($any($event.target).value)" />
+    <span class="unit">{{ prod.unit === 'pz' ? 'pz' : prod.unit }}</span>
+  </label>
+  <button type="button" class="round" aria-label="Aumenta" (click)="store.adjust(prod.id, step())">+</button>
+</section>
+@if (f && f.dailyAvg > 0) {
+  <p class="forecast" [class.alert]="f.daysLeft !== null && f.daysLeft < 3">
+    Consumo medio {{ fmtQty(f.dailyAvg, prod.unit) }}/giorno ·
+    @if (f.daysLeft === null) { scorta per oltre 3 mesi }
+    @else if (f.daysLeft === 0) { <strong>finisce oggi</strong> }
+    @else { finisce tra <strong>{{ f.daysLeft }} {{ f.daysLeft === 1 ? 'giorno' : 'giorni' }}</strong> ({{ f.runOut | date: 'EEE d MMM' }}) }
+  </p>
+}
+
+<section class="card-lite">
+  <h3>Ho ricomprato</h3>
+  @if (prod.formats.length > 1) {
+    <div class="chips">
+      @for (fm of prod.formats; track fm.id) {
+        <button type="button" class="chip" [class.on]="format().id === fm.id" (click)="formatId.set(fm.id)">{{ fm.label }}</button>
+      }
+    </div>
+  }
+  <div class="row">
+    <div class="stepper">
+      <button type="button" class="round sm" aria-label="Una confezione in meno" (click)="packs.set(Math.max(1, packs() - 1))">−</button>
+      <span class="num">{{ packs() }} × {{ format().label }}</span>
+      <button type="button" class="round sm" aria-label="Una confezione in più" (click)="packs.set(packs() + 1)">+</button>
+    </div>
+  </div>
+  <div class="chips">
+    @for (s of stores; track s.id) {
+      <button type="button" class="chip" [class.on]="buyStore() === s.id" (click)="buyStore.set(buyStore() === s.id ? null : s.id)">{{ s.name }}</button>
+    }
+  </div>
+  <div class="row">
+    <label class="price">
+      <span>Prezzo a confezione</span>
+      <input type="text" inputmode="decimal" placeholder="es. 3,20" [value]="priceText()" (input)="setPrice($any($event.target).value)" />
+    </label>
+    <label class="offer"><input type="checkbox" [checked]="offer()" (change)="offer.set($any($event.target).checked)" /> In offerta</label>
+  </div>
+
+  @if (comparison(); as c) {
+    <p class="compare" [class.good]="c.isBest" [class.bad]="!c.isBest">
+      @if (c.isBest) {
+        ✅ Prezzo più basso registrato
+        @if (c.diff < 0) { · {{ eur(abs(c.diff)) }} in meno che da {{ storeName(c.best.store) }} }
+      } @else {
+        🔺 Da {{ storeName(c.best.store) }} lo paghi {{ eur(c.best.price) }}: {{ eur(c.diff) }} in meno
+        ({{ c.diffPct | number: '1.0-0' }}%@if (c.ageDays) {, {{ c.ageDays }} giorni fa})
+      }
+    </p>
+  }
+  @if (!buyStore() || price() === null) {
+    <p class="hint">Scegli negozio e prezzo per salvarlo nello storico (facoltativo).</p>
+  }
+
+  <button type="button" class="btn primary" (click)="restock()">
+    {{ added() ? '✓ Aggiunto' : '+ Aggiungi in dispensa' }}
+  </button>
+</section>
+
+<section>
+  <h3>Prezzi per negozio <span class="muted">({{ unitLabel() }})</span></h3>
+  @if (byStore().length) {
+    <ul class="stores">
+      @for (s of byStore(); track s.store) {
+        <li [class.best]="s.best">
+          <span>{{ s.name }} @if (s.best) { <span class="badge primary">più conveniente</span> }</span>
+          <span class="num">{{ eur(s.price) }} <span class="muted">· {{ eur(s.unitPrice) }} · {{ s.date | date: 'd MMM' }}</span></span>
+        </li>
+      }
+    </ul>
+  } @else {
+    <p class="hint">Nessun prezzo registrato. Riferimento: {{ eur(prod.formats[0].price) }} per {{ prod.formats[0].label }}.</p>
+  }
+
+  @if (history().length) {
+    <details>
+      <summary>Storico ({{ history().length }})</summary>
+      <ul class="history">
+        @for (h of history(); track h.id) {
+          <li>
+            <span>{{ h.date | date: 'd MMM y' }} · {{ h.storeName }} @if (h.offer) { <span class="badge warn">offerta</span> }</span>
+            <span class="num">{{ eur(h.price) }} <span class="muted">{{ h.formatLabel }}</span></span>
+            <button type="button" class="icon-btn" aria-label="Elimina prezzo" (click)="store.deletePrice(h.id!)">✕</button>
+          </li>
+        }
+      </ul>
+    </details>
+  }
+</section>

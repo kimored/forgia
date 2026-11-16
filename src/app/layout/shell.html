@@ -6,7 +6,10 @@
     </div>
     @for (item of nav; track item.path) {
       <a class="rail-item" [routerLink]="item.path" routerLinkActive="active" ariaCurrentWhenActive="page">
-        <app-icon [name]="item.icon" />
+        <span class="ico">
+          <app-icon [name]="item.icon" />
+          @if (badges()[item.path]) { <span class="nav-badge" [attr.aria-label]="badges()[item.path] + ' avvisi'">{{ badges()[item.path] }}</span> }
+        </span>
         <span>{{ item.label }}</span>
       </a>
     }
@@ -47,7 +50,10 @@
   <nav class="tabbar" aria-label="Navigazione principale">
     @for (item of nav; track item.path) {
       <a class="tab" [routerLink]="item.path" routerLinkActive="active" ariaCurrentWhenActive="page">
-        <app-icon [name]="item.icon" />
+        <span class="ico">
+          <app-icon [name]="item.icon" />
+          @if (badges()[item.path]) { <span class="nav-badge" [attr.aria-label]="badges()[item.path] + ' avvisi'">{{ badges()[item.path] }}</span> }
+        </span>
         <span>{{ item.label }}</span>
       </a>
     }

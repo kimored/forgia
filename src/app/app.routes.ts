@@ -32,7 +32,11 @@ export const routes: Routes = [
         loadComponent: () => import('./features/week/week-page').then((m) => m.WeekPage),
       },
       { path: 'allenamento', title: 'Allenamento · Forgia', loadComponent: placeholder, data: { title: 'Allenamento' } },
-      { path: 'dispensa', title: 'Dispensa · Forgia', loadComponent: placeholder, data: { title: 'Dispensa' } },
+      {
+        path: 'dispensa',
+        title: 'Dispensa · Forgia',
+        loadComponent: () => import('./features/pantry/pantry-page').then((m) => m.PantryPage),
+      },
       { path: 'progressi', title: 'Progressi · Forgia', loadComponent: placeholder, data: { title: 'Progressi' } },
       {
         path: 'impostazioni',

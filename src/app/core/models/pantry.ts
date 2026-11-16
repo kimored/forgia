@@ -64,6 +64,8 @@ export interface ShoppingItem {
   /** Quantità che manca (nell'unità del prodotto). */
   missing: number;
   checked: boolean;
+  /** Prezzo pagato per confezione, se inserito durante la spesa. */
+  price?: number;
 }
 
 export interface ShoppingList {

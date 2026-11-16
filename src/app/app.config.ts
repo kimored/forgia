@@ -13,6 +13,7 @@ import { provideServiceWorker } from '@angular/service-worker';
 import { routes } from './app.routes';
 import { BackupService } from './core/data/backup.service';
 import { ProfileService } from './core/data/profile.service';
+import { SettingsService } from './core/data/settings.service';
 import { InstallService } from './core/platform/install.service';
 import { StorageService } from './core/platform/storage.service';
 import { ThemeService } from './core/platform/theme.service';
@@ -41,8 +42,10 @@ export const appConfig: ApplicationConfig = {
       // Non blocca l'avvio: persistenza e controllo backup girano in background.
       void inject(StorageService).init();
       void inject(BackupService).init();
-      // Il profilo serve alla guardia delle route: si attende (lettura locale, pochi ms).
-      await inject(ProfileService).load();
+      // Profilo (guardia delle route) e impostazioni si attendono: lettura locale, pochi ms.
+      const profile = inject(ProfileService);
+      const settings = inject(SettingsService);
+      await Promise.all([profile.load(), settings.load()]);
     }),
   ],
 };

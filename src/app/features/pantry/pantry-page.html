@@ -1,0 +1,136 @@
+<header class="head">
+  <h1>Dispensa</h1>
+  <div class="segmented" role="tablist" aria-label="Sezione">
+    <button type="button" role="tab" [attr.aria-selected]="tab() === 'dispensa'" [class.on]="tab() === 'dispensa'" (click)="tab.set('dispensa')">
+      In casa
+      @if (store.alerts().length) { <span class="count">{{ store.alerts().length }}</span> }
+    </button>
+    <button type="button" role="tab" [attr.aria-selected]="tab() === 'spesa'" [class.on]="tab() === 'spesa'" (click)="tab.set('spesa')">
+      Lista spesa
+    </button>
+  </div>
+</header>
+
+@if (tab() === 'dispensa') {
+  <div class="filters" role="group" aria-label="Filtra">
+    @for (f of [{ id: 'tutti', label: 'Tutti' }, { id: 'mine', label: 'La mia parte' }, { id: 'nonna', label: 'Per la nonna' }]; track f.id) {
+      <button type="button" class="chip" [class.on]="filter() === f.id" (click)="filter.set($any(f.id))">{{ f.label }}</button>
+    }
+  </div>
+
+  @if (store.alerts().length) {
+    <p class="alert-banner">
+      ⚠️ {{ store.alerts().length }} {{ store.alerts().length === 1 ? 'prodotto finisce' : 'prodotti finiscono' }}
+      entro {{ alertDays() }} giorni.
+      <button type="button" class="link" (click)="tab.set('spesa')">Vai alla lista spesa →</button>
+    </p>
+  }
+
+  <ul class="products">
+    @for (r of rows(); track r.p.id) {
+      <li class="card product" [class.alert]="r.alert" [class.idle]="!r.used">
+        <button type="button" class="info" (click)="openProduct(r.p.id)">
+          <strong>{{ r.p.name }}</strong>
+          <span class="muted small">
+            {{ r.daily }}
+            @if (r.used && !r.known) {
+              · <span class="todo">quantità da inserire</span>
+            } @else if (r.used) {
+              ·
+              @if (r.daysLeft === null) { oltre 3 mesi }
+              @else if (r.daysLeft === 0) { <span class="danger">finito / finisce oggi</span> }
+              @else { <span [class.danger]="r.alert">finisce {{ r.runOut | date: 'EEE d' }} ({{ r.daysLeft }} g)</span> }
+            }
+          </span>
+        </button>
+        <div class="qty-ctrl">
+          <button type="button" class="round" [attr.aria-label]="'Meno ' + r.p.name" (click)="store.adjust(r.p.id, -r.step)" [disabled]="!r.qty">−</button>
+          <span class="qty num">{{ r.qtyLabel }}</span>
+          <button type="button" class="round" [attr.aria-label]="'Più ' + r.p.name" (click)="store.adjust(r.p.id, r.step)">+</button>
+        </div>
+      </li>
+    }
+  </ul>
+}
+
+@if (tab() === 'spesa') {
+  @if (list(); as l) {
+    <section class="card list-head">
+      <div>
+        <strong>Spesa per {{ l.days }} giorni</strong>
+        <span class="muted small">creata {{ l.createdAt | date: 'EEE d MMM, HH:mm' }} · {{ progress()?.done }}/{{ progress()?.total }} presi</span>
+      </div>
+      <div class="actions">
+        <button type="button" class="btn" (click)="share(l)">Condividi</button>
+        <button type="button" class="btn ghost" (click)="discard(l)">Elimina</button>
+      </div>
+    </section>
+
+    @if (storeTotals().length) {
+      <section class="card totals">
+        <h3>Stima per supermercato</h3>
+        <ul>
+          @for (s of storeTotals(); track s.id; let first = $first) {
+            <li [class.best]="first && storeTotals().length > 1">
+              <span>{{ s.name }} @if (first && storeTotals().length > 1) { <span class="badge primary">conviene</span> }</span>
+              <span class="num">{{ eur(s.total) }}</span>
+            </li>
+          }
+        </ul>
+        <p class="muted small">Ultimi prezzi pagati in ogni negozio; dove mancano, il prezzo di riferimento.</p>
+      </section>
+    }
+
+    @for (s of sections(); track s.owner) {
+      <section class="section">
+        <h2>{{ s.title }} <span class="num muted">≈ {{ eur(s.total) }}@if (s.unknown) { + {{ s.unknown }} senza prezzo }</span></h2>
+        <ul class="items">
+          @for (r of s.items; track trackItem($index, r)) {
+            <li class="card item" [class.checked]="r.item.checked">
+              <app-check [checked]="r.item.checked" [label]="'Preso: ' + r.name" (toggle)="toggleItem(l, r.index)" />
+              <div class="item-info">
+                <strong>{{ r.name }}</strong>
+                <span class="muted small">{{ r.packsLabel }} · mancano {{ r.missingLabel }}</span>
+              </div>
+              <label class="paid">
+                <span class="sr-only">Prezzo pagato per {{ r.name }}</span>
+                <input type="text" inputmode="decimal" [placeholder]="r.estimate !== null ? eur(r.estimate) : '€'"
+                       [value]="r.item.price !== undefined ? (r.item.price * r.item.packs).toFixed(2).replace('.', ',') : ''"
+                       (change)="setItemPrice(l, r.index, $any($event.target).value)" />
+              </label>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+
+    <section class="card closing">
+      @if (!closing()) {
+        <button type="button" class="btn primary" [disabled]="!progress()?.done" (click)="closing.set(true)">Ho finito la spesa</button>
+        <p class="muted small">Gli articoli spuntati entrano in dispensa; i prezzi che hai scritto vanno nello storico.</p>
+      } @else {
+        <h3>Dove hai fatto la spesa?</h3>
+        <div class="chips">
+          @for (st of stores; track st.id) {
+            <button type="button" class="chip" [class.on]="closeStore() === st.id" (click)="closeStore.set(st.id)">{{ st.name }}</button>
+          }
+        </div>
+        <div class="actions">
+          <button type="button" class="btn primary" [disabled]="!closeStore()" (click)="close(l)">Carica in dispensa</button>
+          <button type="button" class="btn ghost" (click)="closing.set(false)">Annulla</button>
+        </div>
+      }
+    </section>
+  } @else {
+    <section class="card empty">
+      <p>Calcolo cosa manca per i prossimi <strong>{{ shoppingDays }} giorni</strong> dal piano, tenendo conto di cosa hai in casa.</p>
+      <button type="button" class="btn primary" (click)="store.generateList()">Genera lista spesa</button>
+    </section>
+  }
+}
+
+<app-bottom-sheet [(open)]="sheetOpen" label="Dettaglio prodotto">
+  @if (sheetOpen() && openId(); as id) {
+    <app-product-sheet [productId]="id" />
+  }
+</app-bottom-sheet>

@@ -5,6 +5,7 @@ import { ThemeService, type ThemePref } from '../../core/platform/theme.service'
 import { InstallService } from '../../core/platform/install.service';
 import { StorageService } from '../../core/platform/storage.service';
 import { BackupService } from '../../core/data/backup.service';
+import { SettingsService } from '../../core/data/settings.service';
 import { Icon } from '../../shared/ui/icon';
 
 @Component({
@@ -19,6 +20,12 @@ export class SettingsPage {
   protected readonly install = inject(InstallService);
   protected readonly storage = inject(StorageService);
   protected readonly backup = inject(BackupService);
+  protected readonly app = inject(SettingsService);
+
+  protected setAlertDays(value: string): void {
+    const n = parseInt(value, 10);
+    if (n >= 1 && n <= 30) void this.app.update({ alertDays: n });
+  }
 
   protected readonly themes: { value: ThemePref; label: string }[] = [
     { value: 'auto', label: 'Automatico' },

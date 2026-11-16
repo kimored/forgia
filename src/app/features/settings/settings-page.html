@@ -20,6 +20,26 @@
   </div>
 </section>
 
+<section class="card">
+  <h2>Dispensa</h2>
+  <label class="toggle-row">
+    <span>
+      <strong>Scala la dispensa dai pasti fatti</strong>
+      <span class="muted">Quando segni un pasto come fatto, le quantità vengono tolte in automatico.</span>
+    </span>
+    <input type="checkbox" role="switch" [checked]="app.settings().pantryAutoDeduct"
+           (change)="app.update({ pantryAutoDeduct: $any($event.target).checked })" />
+  </label>
+  <label class="toggle-row">
+    <span>
+      <strong>Avvisami quando un prodotto finisce entro</strong>
+      <span class="muted">giorni</span>
+    </span>
+    <input class="days" type="number" inputmode="numeric" min="1" max="30" [value]="app.settings().alertDays"
+           (change)="setAlertDays($any($event.target).value)" />
+  </label>
+</section>
+
 @if (!install.standalone()) {
   <section class="card">
     <h2>Installa l'app</h2>

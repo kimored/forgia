@@ -229,3 +229,23 @@ export function comparePrice(
     ageDays: best.date ? daysBetween(best.date, today) : 0,
   };
 }
+
+/** A chi serve un prodotto, in base agli slot dei pasti che lo usano (statico, dal catalogo). */
+export function productOwners(meals: Iterable<{ slots: string[]; portions: Portion[] }>): Map<string, Set<Owner>> {
+  const out = new Map<string, Set<Owner>>();
+  for (const m of meals) {
+    for (const slot of m.slots) {
+      const owner: Owner = (NONNA_SLOTS as readonly string[]).includes(slot) ? 'nonna' : 'mine';
+      for (const p of m.portions) {
+        const prod = productForFood(p.food);
+        if (!prod) continue;
+        const set = out.get(prod.id) ?? new Set<Owner>();
+        set.add(owner);
+        out.set(prod.id, set);
+      }
+    }
+  }
+  // La creatina dei giorni di riposo non è in nessun pasto.
+  out.set('creatina', new Set(['mine']));
+  return out;
+}
