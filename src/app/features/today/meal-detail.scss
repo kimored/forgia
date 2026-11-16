@@ -1,0 +1,139 @@
+:host {
+  display: block;
+}
+.detail {
+  display: grid;
+  gap: 14px;
+}
+header {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+.time {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--tint);
+}
+.slot {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--tint);
+}
+h2 {
+  font-size: 1.25rem;
+}
+.portions {
+  list-style: none;
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  display: grid;
+  gap: 6px;
+  li {
+    display: grid;
+    grid-template-columns: 4.6em 1fr;
+    gap: 8px;
+  }
+}
+.qty {
+  font-weight: 800;
+  font-size: 1.1rem;
+}
+.notes {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 0.9rem;
+  color: var(--text-2);
+  display: grid;
+  gap: 4px;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  .btn.on {
+    background: var(--surface-2);
+  }
+}
+.variants-title {
+  font-size: 1rem;
+  margin-top: 4px;
+}
+.groups {
+  display: grid;
+  gap: 14px;
+}
+h4 {
+  margin: 0 0 6px;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-2);
+}
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.variant {
+  width: 100%;
+  min-height: var(--touch);
+  text-align: left;
+  display: grid;
+  gap: 4px;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  transition:
+    transform 240ms var(--ease-spring),
+    border-color 200ms,
+    background 200ms;
+  &:active {
+    transform: scale(0.98);
+  }
+  &.planned {
+    border-style: dashed;
+    border-color: var(--tint);
+  }
+  &.current {
+    border: 2px solid var(--tint);
+    background: color-mix(in srgb, var(--tint) 8%, var(--surface));
+    animation: confirm 420ms var(--ease-spring);
+  }
+}
+.v-title {
+  font-weight: 700;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+.tick {
+  color: var(--tint);
+  font-weight: 900;
+}
+.v-line {
+  font-size: 0.85rem;
+}
+.warnings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 2px;
+  .badge {
+    font-weight: 600;
+    min-height: 24px;
+    white-space: normal;
+  }
+}
+@keyframes confirm {
+  40% {
+    transform: scale(1.025);
+  }
+}

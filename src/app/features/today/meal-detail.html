@@ -1,0 +1,71 @@
+@let m = meal();
+<div class="detail" [style.--tint]="meta().color">
+  <header>
+    <span class="time num">{{ m.time }}</span>
+    <div>
+      <span class="slot">{{ meta().label }}</span>
+      <h2>{{ m.free ? 'Pasto libero' : m.option!.title }}</h2>
+    </div>
+  </header>
+
+  @if (!m.free) {
+    <ul class="portions">
+      @for (p of portions(); track $index) {
+        <li>
+          <span class="qty num">{{ p.qty }}</span>
+          <span>{{ p.name }}@if (p.note) {<span class="muted"> · {{ p.note }}</span>}</span>
+        </li>
+      }
+    </ul>
+  }
+
+  @if (m.notes.length || fruits()) {
+    <ul class="notes">
+      @for (n of m.notes; track n) { <li>{{ n }}</li> }
+      @if (fruits(); as f) { <li>Frutta di stagione: {{ f }}.</li> }
+    </ul>
+  }
+
+  <div class="actions">
+    <button type="button" class="btn" [class.primary]="status() === 'done'" (click)="toggle.emit()">
+      {{ status() === 'done' ? '✓ Fatto' : 'Segna come fatto' }}
+    </button>
+    <button type="button" class="btn" [class.on]="status() === 'skipped'" (click)="skip.emit()">
+      {{ status() === 'skipped' ? 'Saltato' : 'Salta' }}
+    </button>
+    @if (replaced()) {
+      <button type="button" class="btn ghost" (click)="reset.emit()">Torna al previsto</button>
+    }
+  </div>
+
+  <h3 class="variants-title">Varianti</h3>
+  <div class="stagger groups">
+    @for (g of groups(); track g.label) {
+      <section [style.--i]="g.items[0].i">
+        <h4>{{ g.label }}</h4>
+        <ul>
+          @for (it of g.items; track it.v.option.id) {
+            @let current = it.v.option.id === m.option?.id;
+            <li [style.--i]="it.i">
+              <button type="button" class="variant" [class.current]="current" [class.planned]="it.v.group === 'previsto'"
+                      [attr.aria-pressed]="current" (click)="pick.emit(it.v.option.id)">
+                <span class="v-title">
+                  {{ it.v.option.title }}
+                  @if (current) { <span class="tick" aria-label="selezionato">✓</span> }
+                </span>
+                <span class="v-line muted">{{ it.line }}</span>
+                @if (it.v.warnings.length) {
+                  <span class="warnings">
+                    @for (w of it.v.warnings; track w.text) {
+                      <span class="badge" [class.warn]="w.level === 'warn'">{{ w.level === 'warn' ? '⚠️' : 'ℹ️' }} {{ w.text }}</span>
+                    }
+                  </span>
+                }
+              </button>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+  </div>
+</div>

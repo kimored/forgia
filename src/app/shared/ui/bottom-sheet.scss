@@ -1,0 +1,73 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgb(0 0 0 / 0.4);
+}
+.sheet {
+  position: fixed;
+  z-index: 51;
+  left: 50%;
+  bottom: 0;
+  width: min(100%, 640px);
+  max-height: calc(100dvh - var(--safe-top) - 24px);
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border-radius: 24px 24px 0 0;
+  box-shadow: 0 -8px 40px rgb(0 0 0 / 0.25);
+  outline: none;
+  transition: translate 320ms var(--ease-spring);
+  &.dragging {
+    transition: none;
+  }
+}
+.grab {
+  flex: none;
+  display: grid;
+  place-items: center;
+  height: 28px;
+  cursor: grab;
+  touch-action: none;
+  span {
+    width: 40px;
+    height: 5px;
+    border-radius: 3px;
+    background: var(--border);
+  }
+}
+.body {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 calc(var(--safe-right) + 16px) calc(var(--safe-bottom) + 20px) calc(var(--safe-left) + 16px);
+}
+
+.fade-in {
+  animation: fade 220ms ease-out;
+}
+.fade-out {
+  animation: fade 200ms ease-in reverse forwards;
+}
+.sheet-in {
+  animation: sheet-up 480ms var(--ease-spring);
+}
+.sheet-out {
+  animation: sheet-down 220ms ease-in forwards;
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes sheet-up {
+  from {
+    translate: 0 100%;
+  }
+}
+@keyframes sheet-down {
+  to {
+    translate: 0 100%;
+  }
+}

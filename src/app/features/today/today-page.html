@@ -1,0 +1,149 @@
+@let d = day();
+
+<header class="day-head">
+  <div class="date-row">
+    <button type="button" class="icon-btn" aria-label="Giorno precedente" (click)="go(-1)">‹</button>
+    <div class="date">
+      <h1>{{ jsDate() | date: 'EEEE d MMMM' }}</h1>
+      <div class="badges">
+        <span class="badge primary">Settimana {{ d.week }} di 4</span>
+        @if (d.gym) { <span class="badge gym">🏋️ Palestra</span> }
+        @if (hasFree()) { <span class="badge free">Libero</span> }
+      </div>
+    </div>
+    <button type="button" class="icon-btn" aria-label="Giorno successivo" (click)="go(1)">›</button>
+  </div>
+  @if (!isToday()) {
+    <button type="button" class="btn today-btn" (click)="goToday()">Torna a oggi</button>
+  }
+</header>
+
+<div class="layout" [class.wide]="wide()">
+  <div class="main-col" (pointerdown)="swipeStart($event)" (pointerup)="swipeEnd($event)" (pointercancel)="swipeEnd($event)">
+    @for (key of [date()]; track key) {
+      <div class="day-content" [class.from-next]="direction() === 'next'" [class.from-prev]="direction() === 'prev'">
+        @if (tips().length) {
+          <section class="card tips">
+            <h2>Regola del giorno</h2>
+            <ul>
+              @for (t of tips(); track t) { <li>{{ t }}</li> }
+            </ul>
+            @if (d.weekday === 5) {
+              <button type="button" class="btn toggle" [class.primary]="d.options.sushiSwap" (click)="toggleSushi()">
+                🍣 Sushi a pranzo{{ d.options.sushiSwap ? ': attivo' : '' }}
+              </button>
+            } @else if (!d.gym) {
+              <button type="button" class="btn toggle" [class.primary]="d.options.cardioExtra" (click)="toggleCardio()">
+                🏃 Cardio extra{{ d.options.cardioExtra ? ': attivo' : '' }}
+              </button>
+            }
+          </section>
+        }
+
+        <ol class="timeline">
+          @for (e of entries(); track e.kind + e.time + $index) {
+            <li [class]="'entry ' + e.kind">
+              <span class="time num">{{ e.time }}</span>
+              <span class="dot" aria-hidden="true"></span>
+              <div class="slot-body">
+                @switch (e.kind) {
+                  @case ('meal') {
+                    <app-meal-card [meal]="e.meal" [selected]="wide() && selectedSlot() === e.meal.slot"
+                                   (open)="openMeal(e.meal.slot)" (menu)="openMenu(e.meal.slot)" (toggle)="toggle(e.meal.slot)" />
+                  }
+                  @case ('gym') {
+                    <div class="card gym-card">
+                      <span class="emoji" aria-hidden="true">🏋️</span>
+                      <div>
+                        <strong>Palestra</strong>
+                        <span class="muted num">{{ e.time }} – {{ e.end }}</span>
+                      </div>
+                    </div>
+                  }
+                  @case ('reminder') {
+                    <div class="card reminder-card" [class.done]="e.done">
+                      <span>{{ e.reminder.text }}</span>
+                      <app-check [checked]="e.done" [label]="'Segna come fatto: ' + e.reminder.text"
+                                 (toggle)="store.toggleReminder(date(), e.reminder.id)" />
+                    </div>
+                  }
+                }
+              </div>
+            </li>
+          }
+        </ol>
+
+        <section class="card habits">
+          <div class="habit">
+            <div>
+              <strong>Creatina 5 g</strong>
+              <span class="muted">
+                {{ d.gym ? 'Nello shake post-allenamento' : 'Nello yogurt o in acqua' }}
+                @if (creatineStreak() > 1) { · 🔥 {{ creatineStreak() }} giorni di fila }
+              </span>
+            </div>
+            <app-check [checked]="!!habits().creatine" label="Creatina presa" (toggle)="store.toggleCreatine(date())" />
+          </div>
+
+          <div class="habit water">
+            <div>
+              <strong>Acqua</strong>
+              <span class="muted num">{{ water().ml / 1000 | number: '1.0-2' }} / {{ water().target / 1000 | number: '1.0-1' }} L</span>
+            </div>
+            <div class="water-ctrl">
+              <button type="button" class="icon-btn" aria-label="Togli un bicchiere" (click)="water_(-1)" [disabled]="!water().ml">−</button>
+              <button type="button" class="btn primary" aria-label="Aggiungi un bicchiere da 250 ml" (click)="water_(1)">+ 250 ml</button>
+            </div>
+          </div>
+          <div class="glasses" role="group" aria-label="Bicchieri d'acqua">
+            @for (i of range(water().glasses); track i) {
+              <button type="button" class="glass" [class.full]="i < water().filled"
+                      [attr.aria-label]="'Bicchiere ' + (i + 1)" (click)="setGlasses(i + 1)"></button>
+            }
+          </div>
+        </section>
+      </div>
+    }
+  </div>
+
+  @if (wide()) {
+    <aside class="side">
+      @if (selectedMeal(); as m) {
+        <div class="card side-card">
+          @for (key of [m.slot + date()]; track key) {
+            <app-meal-detail [meal]="m" [variants]="variants()" [date]="date()"
+                             (pick)="pick($event)" (toggle)="toggle(m.slot)" (skip)="skip(m.slot)" (reset)="reset(m.slot)" />
+          }
+        </div>
+      }
+    </aside>
+  }
+</div>
+
+<app-bottom-sheet [(open)]="sheetOpen" label="Varianti del pasto">
+  @if (sheetOpen() && selectedMeal(); as m) {
+    <app-meal-detail [meal]="m" [variants]="variants()" [date]="date()"
+                     (pick)="pick($event)" (toggle)="toggle(m.slot)" (skip)="skip(m.slot)" (reset)="reset(m.slot)" />
+  }
+</app-bottom-sheet>
+
+<app-bottom-sheet [(open)]="menuOpen" label="Azioni sul pasto">
+  @if (menuMeal(); as m) {
+    <div class="menu">
+      <h2>{{ slotLabel(m.slot) }} · {{ m.time }}</h2>
+      <button type="button" class="btn" (click)="menuAction('done')">✓ Fatto</button>
+      <button type="button" class="btn" (click)="menuAction('skip')">Saltato</button>
+      <button type="button" class="btn" (click)="menuAction('replace')">Sostituito…</button>
+      @if (m.log?.optionId) {
+        <button type="button" class="btn" (click)="menuAction('reset')">Torna al previsto</button>
+      }
+      @if (m.log && m.log.status !== 'todo') {
+        <button type="button" class="btn ghost" (click)="menuAction('clear')">Annulla stato</button>
+      }
+    </div>
+  }
+</app-bottom-sheet>
+
+@if (toast(); as t) {
+  <div class="toast" role="status" animate.enter="toast-in" animate.leave="toast-out">✓ {{ t }}</div>
+}

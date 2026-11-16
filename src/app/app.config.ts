@@ -23,7 +23,14 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     { provide: LOCALE_ID, useValue: 'it-IT' },
-    provideRouter(routes, withComponentInputBinding(), withViewTransitions()),
+    provideRouter(routes, withComponentInputBinding(), withViewTransitions({
+        skipInitialTransition: true,
+        // In background (tab nascosta) il browser annulla le transizioni: niente errori in console.
+        onViewTransitionCreated: ({ transition }) => {
+          if (document.hidden) transition.skipTransition();
+          transition.ready.catch(() => {});
+        },
+      })),
     provideServiceWorker('ngsw-worker.js', {
       enabled: !isDevMode(),
       registrationStrategy: 'registerWhenStable:30000',
