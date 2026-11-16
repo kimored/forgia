@@ -50,6 +50,11 @@ export const routes: Routes = [
         loadComponent: () => import('./features/pantry/pantry-page').then((m) => m.PantryPage),
       },
       {
+        path: 'dispensa/acquisti',
+        title: 'Acquisti · Forgia',
+        loadComponent: () => import('./features/pantry/purchases-page').then((m) => m.PurchasesPage),
+      },
+      {
         path: 'progressi',
         title: 'Progressi · Forgia',
         loadComponent: () => import('./features/progress/progress-page').then((m) => m.ProgressPage),

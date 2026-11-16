@@ -163,3 +163,24 @@ describe('prezzi', () => {
     expect(c.ageDays).toBe(14);
   });
 });
+
+describe('prodotti di base e confezioni', () => {
+  it('olio, pasta e riso non si contano; yogurt e muesli sì', async () => {
+    const byId = new Map(products.map((p) => [p.id, p]));
+    for (const id of ['olio', 'pasta', 'riso', 'passata']) expect(byId.get(id)?.tracked, id).toBe(false);
+    for (const id of ['yogurt-greco', 'muesli', 'latte']) expect(byId.get(id)?.tracked, id).toBe(true);
+  });
+
+  it("l'utente può riattivare un prodotto di base", () => {
+    const p = productsFor(catalog, new Map([['olio', { productId: 'olio', tracked: true }]])).find((x) => x.id === 'olio')!;
+    expect(p.tracked).toBe(true);
+  });
+
+  it('converte la scorta in confezioni, arrotondando al mezzo', async () => {
+    const { packsOf } = await import('./pantry');
+    const f = { id: 'c', label: '500 g', qty: 500, price: null };
+    expect(packsOf(1000, f)).toBe(2);
+    expect(packsOf(700, f)).toBe(1.5);
+    expect(packsOf(0, f)).toBe(0);
+  });
+});

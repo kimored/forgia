@@ -25,6 +25,8 @@ export interface Product {
   /** Il primo formato è quello di default per la lista spesa. */
   formats: ProductFormat[];
   aliases?: string[];
+  /** Seguito in dispensa e in lista spesa (i prodotti di base di default no). */
+  tracked: boolean;
 }
 
 /** Dati utente (IndexedDB). */
@@ -34,6 +36,8 @@ export interface ProductSettings {
   productId: string;
   brand?: string;
   formats?: ProductFormat[];
+  /** Scelta dell'utente: seguirlo o no in dispensa (assente = default del prodotto). */
+  tracked?: boolean;
 }
 
 export interface PantryItem {
@@ -50,6 +54,8 @@ export interface PriceEntry {
   date: string;
   /** Prezzo pagato per una confezione. */
   price: number;
+  /** Confezioni comprate (per la spesa totale); assente = 1. */
+  packs?: number;
   offer?: boolean;
   source: 'manuale' | 'spesa' | 'scontrino';
 }

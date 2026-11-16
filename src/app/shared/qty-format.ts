@@ -19,3 +19,11 @@ export function stepFor(unit: Unit, packQty: number): number {
   if (unit === 'pz') return 1;
   return Math.max(10, Math.round(packQty / 10 / 10) * 10);
 }
+
+/** 2 → "2 conf.", 1.5 → "1½ conf.", 0 → "0". Per i pezzi singoli "3 pz". */
+export function formatPacks(packs: number, unitIsPiece = false): string {
+  const whole = Math.floor(packs);
+  const half = packs - whole >= 0.5 ? '½' : '';
+  const n = whole || !half ? `${whole}${half}` : '½';
+  return packs === 0 ? '0' : `${n} ${unitIsPiece ? 'pz' : 'conf.'}`;
+}

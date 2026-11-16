@@ -64,6 +64,8 @@ export interface Food {
   aliases?: string[];
   /** Non si conta in dispensa (acqua, brodo fatto in casa, sale…). */
   untracked?: boolean;
+  /** Prodotto di base (olio, pasta, riso…): di default non si segue in dispensa. */
+  staple?: boolean;
 }
 
 export interface Portion {

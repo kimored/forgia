@@ -6,6 +6,7 @@ import {
   defaultFormat,
   forecast,
   latestByStore,
+  packsOf,
   productsFor,
   referencePrice,
   shoppingList,
@@ -36,6 +37,8 @@ export class PantryStore {
   readonly products = computed<Product[]>(() =>
     productsFor(this.days.catalog(), new Map(this.settingsRows().map((s) => [s.productId, s]))),
   );
+  /** Prodotti seguiti in dispensa e in lista spesa. */
+  readonly tracked = computed(() => this.products().filter((p) => p.tracked));
   private readonly byId = computed(() => new Map(this.products().map((p) => [p.id, p])));
 
   product(id: string): Product | undefined {
@@ -58,7 +61,7 @@ export class PantryStore {
     const date = this.date();
     return {
       catalog: this.days.catalog(),
-      products: this.products(),
+      products: this.tracked(),
       resolve: this.days.resolver(),
       from: date,
       stock: this.stock(),
@@ -70,6 +73,30 @@ export class PantryStore {
   /** Personalizza marca e confezioni di un prodotto. */
   async saveProductSettings(settings: ProductSettings): Promise<void> {
     await db.productSettings.put(settings);
+  }
+
+  /** Segui o smetti di seguire un prodotto in dispensa. */
+  async setTracked(productId: string, tracked: boolean): Promise<void> {
+    const current = this.settingsRows().find((s) => s.productId === productId);
+    await db.productSettings.put({ ...current, productId, tracked });
+  }
+
+  /** Scorta in confezioni (formato di default). */
+  packs(productId: string): number {
+    const p = this.product(productId);
+    return p ? packsOf(this.stock().get(productId) ?? 0, defaultFormat(p)) : 0;
+  }
+
+  /** Imposta la scorta in numero di confezioni. */
+  setPacks(productId: string, packs: number): Promise<void> {
+    const p = this.product(productId);
+    return p ? setStock(productId, Math.max(0, packs) * defaultFormat(p).qty) : Promise.resolve();
+  }
+
+  /** +1 / −1 confezione. */
+  adjustPacks(productId: string, delta: number): Promise<void> {
+    const n = this.packs(productId);
+    return this.setPacks(productId, delta > 0 ? Math.floor(n) + 1 : Math.max(0, Math.ceil(n) - 1));
   }
 
   readonly forecasts = computed(() => new Map(forecast(this.forecastInput()).map((f) => [f.productId, f])));
@@ -110,13 +137,21 @@ export class PantryStore {
     if (!p) return;
     const format = p.formats.find((f) => f.id === formatId) ?? defaultFormat(p);
     await adjustStock([{ productId, qty: format.qty * packs }], 1);
-    if (paid) await this.addPrice({ productId, formatId: format.id, ...paid, date: today(), source: 'spesa' });
+    if (paid) await this.addPrice({ productId, formatId: format.id, ...paid, packs, date: today(), source: 'spesa' });
   }
 
   // ---------- Prezzi ----------
 
   async addPrice(entry: Omit<PriceEntry, 'id'>): Promise<void> {
     await db.prices.add(entry);
+  }
+
+  /** Registra un acquisto dalla schermata Acquisti; se richiesto lo carica anche in dispensa. */
+  async recordPurchase(entry: Omit<PriceEntry, 'id' | 'source'>, toPantry: boolean): Promise<void> {
+    await this.addPrice({ ...entry, source: 'manuale' });
+    const p = this.product(entry.productId);
+    const f = p?.formats.find((x) => x.id === entry.formatId);
+    if (toPantry && p && f) await adjustStock([{ productId: p.id, qty: f.qty * (entry.packs ?? 1) }], 1);
   }
 
   deletePrice(id: number): Promise<void> {
@@ -161,7 +196,7 @@ export class PantryStore {
     );
     for (const i of bought) {
       if (i.price !== undefined) {
-        await this.addPrice({ productId: i.productId, formatId: i.formatId, store, date, price: i.price, source: 'spesa' });
+        await this.addPrice({ productId: i.productId, formatId: i.formatId, store, date, price: i.price, packs: i.packs, source: 'spesa' });
       }
     }
     await db.shoppingLists.update(list.id!, { closedAt: new Date().toISOString() });

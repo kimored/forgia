@@ -1,5 +1,8 @@
 <header class="head">
-  <h1>Dispensa</h1>
+  <div class="title-row">
+    <h1>Dispensa</h1>
+    <a routerLink="/dispensa/acquisti" class="btn ghost">🧾 Acquisti e prezzi</a>
+  </div>
   <div class="segmented" role="tablist" aria-label="Sezione">
     <button type="button" role="tab" [attr.aria-selected]="tab() === 'dispensa'" [class.on]="tab() === 'dispensa'" (click)="tab.set('dispensa')">
       In casa
@@ -34,10 +37,12 @@
         <button type="button" class="info" (click)="openProduct(r.p.id)">
           <strong>{{ r.p.name }}</strong>
           <span class="muted small">
-            {{ r.daily }}
-            @if (r.used && !r.known) {
-              · <span class="todo">quantità da inserire</span>
-            } @else if (r.used) {
+            {{ r.format }}
+            @if (!r.used) {
+              · non in uso ora
+            } @else if (!r.known) {
+              · <span class="todo">quante ne hai?</span>
+            } @else {
               ·
               @if (r.daysLeft === null) { oltre 3 mesi }
               @else if (r.daysLeft === 0) { <span class="danger">finito / finisce oggi</span> }
@@ -46,13 +51,25 @@
           </span>
         </button>
         <div class="qty-ctrl">
-          <button type="button" class="round" [attr.aria-label]="'Meno ' + r.p.name" (click)="store.adjust(r.p.id, -r.step)" [disabled]="!r.qty">−</button>
+          <button type="button" class="round" [attr.aria-label]="'Meno ' + r.p.name" (click)="store.adjustPacks(r.p.id, -1)" [disabled]="!r.qty">−</button>
           <span class="qty num">{{ r.qtyLabel }}</span>
-          <button type="button" class="round" [attr.aria-label]="'Più ' + r.p.name" (click)="store.adjust(r.p.id, r.step)">+</button>
+          <button type="button" class="round" [attr.aria-label]="'Più ' + r.p.name" (click)="store.adjustPacks(r.p.id, 1)">+</button>
         </div>
       </li>
     }
   </ul>
+
+  @if (hidden().length) {
+    <details class="hidden-products">
+      <summary>Prodotti di base non contati ({{ hidden().length }})</summary>
+      <p class="muted small">Olio, pasta, riso e simili: non li conto e non finiscono in lista spesa. Toccane uno per seguirlo.</p>
+      <div class="chips">
+        @for (p of hidden(); track p.id) {
+          <button type="button" class="chip" (click)="store.setTracked(p.id, true)">+ {{ p.name }}</button>
+        }
+      </div>
+    </details>
+  }
 }
 
 @if (tab() === 'spesa') {
@@ -92,7 +109,7 @@
               <app-check [checked]="r.item.checked" [label]="'Preso: ' + r.name" (toggle)="toggleItem(l, r.index)" />
               <div class="item-info">
                 <strong>{{ r.name }}</strong>
-                <span class="muted small">{{ r.packsLabel }} · mancano {{ r.missingLabel }}</span>
+                <span class="muted small">{{ r.packsLabel }}@if (r.formatLabel) { · {{ r.formatLabel }} }</span>
               </div>
               <label class="paid">
                 <span class="sr-only">Prezzo pagato per {{ r.name }}</span>

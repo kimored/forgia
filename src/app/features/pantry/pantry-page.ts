@@ -4,7 +4,8 @@ import { PantryStore, SHOPPING_DAYS } from '../../core/data/pantry.store';
 import { SettingsService } from '../../core/data/settings.service';
 import { defaultFormat, productOwners } from '../../core/domain/pantry';
 import { STORES, type Owner, type ShoppingItem, type ShoppingList, type Store } from '../../core/models/pantry';
-import { formatEur, formatQty, stepFor } from '../../shared/qty-format';
+import { formatEur, formatPacks } from '../../shared/qty-format';
+import { RouterLink } from '@angular/router';
 import { BottomSheet } from '../../shared/ui/bottom-sheet';
 import { CheckButton } from '../../shared/ui/check-button';
 import { ProductSheet } from './product-sheet';
@@ -15,7 +16,7 @@ type Filter = 'tutti' | Owner;
 
 @Component({
   selector: 'app-pantry-page',
-  imports: [DatePipe, BottomSheet, ProductSheet, CheckButton],
+  imports: [DatePipe, BottomSheet, ProductSheet, CheckButton, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './pantry-page.html',
   styleUrl: './pantry-page.scss',
@@ -44,29 +45,34 @@ export class PantryPage {
     const n = this.alertDays();
     const owners = this.owners();
     return this.store
-      .products()
+      .tracked()
       .filter((p) => f === 'tutti' || owners.get(p.id)?.has(f))
       .map((p) => {
         const fc = forecasts.get(p.id);
         const qty = stock.get(p.id) ?? 0;
+        const packs = this.store.packs(p.id);
+        const piece = p.unit === 'pz' && defaultFormat(p).qty === 1;
         const used = !!fc && fc.dailyAvg > 0;
         const known = stock.has(p.id);
         const alert = known && used && fc!.daysLeft !== null && fc!.daysLeft < n;
         return {
           p,
           qty,
-          qtyLabel: formatQty(qty, p.unit),
-          daily: used ? `${formatQty(fc!.dailyAvg, p.unit)}/giorno` : 'non in uso ora',
+          packs,
+          qtyLabel: formatPacks(packs, piece),
+          format: defaultFormat(p).label,
           daysLeft: fc?.daysLeft ?? null,
           runOut: fc?.runOut ?? null,
           used,
           known,
           alert,
-          step: stepFor(p.unit, defaultFormat(p).qty),
         };
       })
       .sort((a, b) => Number(b.alert) - Number(a.alert) || Number(b.used) - Number(a.used) || (a.daysLeft ?? 999) - (b.daysLeft ?? 999));
   });
+
+  /** Prodotti di base non seguiti (olio, pasta…): si possono riattivare. */
+  protected readonly hidden = computed(() => this.store.products().filter((p) => !p.tracked));
 
   protected openProduct(id: string): void {
     this.openId.set(id);
@@ -85,12 +91,13 @@ export class PantryPage {
     const rows = l.items.map((item, index) => {
       const p = this.store.product(item.productId);
       const f = p ? (p.formats.find((x) => x.id === item.formatId) ?? defaultFormat(p)) : null;
+      const piece = p?.unit === 'pz' && f?.qty === 1;
       return {
         item,
         index,
         name: p?.name ?? item.productId,
-        packsLabel: `${item.packs} × ${f?.label ?? ''}`,
-        missingLabel: formatQty(item.missing, p?.unit ?? 'g'),
+        packsLabel: formatPacks(item.packs, piece),
+        formatLabel: piece ? '' : (f?.label ?? ''),
         estimate: item.price !== undefined ? item.price * item.packs : this.store.estimate(item),
       };
     });

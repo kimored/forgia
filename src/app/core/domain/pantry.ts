@@ -20,9 +20,22 @@ export function defaultFormatFor(food: Pick<Food, 'unit'>): ProductFormat {
     : { id: 'conf', label: '500 g', qty: 500, price: null };
 }
 
+/** Prodotti di base che non vale la pena contare: si ricomprano quando finiscono. */
+const STAPLE = /^(pasta|riso|pastina|tagliolini|spaghetti|penne|fusilli|passata|pelati|polpa di pomodoro|olio|sale|aceto|farina|zucchero|pepe|spezie)\b/i;
+
+export function isStaple(food: Pick<Food, 'name' | 'staple'>): boolean {
+  return food.staple ?? STAPLE.test(food.name.trim());
+}
+
 export function productFromFood(food: Food, settings?: ProductSettings): Product {
   const formats = settings?.formats?.length ? settings.formats : food.formats?.length ? food.formats : [defaultFormatFor(food)];
-  return { id: food.id, name: food.name, brand: settings?.brand ?? food.brand, unit: food.unit, formats, aliases: food.aliases };
+  const tracked = settings?.tracked ?? !isStaple(food);
+  return { id: food.id, name: food.name, brand: settings?.brand ?? food.brand, unit: food.unit, formats, aliases: food.aliases, tracked };
+}
+
+/** Confezioni corrispondenti a una quantità, arrotondate al mezzo. */
+export function packsOf(qty: number, format: ProductFormat): number {
+  return format.qty > 0 ? Math.round((qty / format.qty) * 2) / 2 : 0;
 }
 
 /** Prodotti della dispensa per un piano. */

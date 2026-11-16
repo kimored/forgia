@@ -87,22 +87,6 @@
             </div>
           }
 
-          <div class="habit water">
-            <div>
-              <strong>Acqua</strong>
-              <span class="muted num">{{ water().ml / 1000 | number: '1.0-2' }} / {{ water().target / 1000 | number: '1.0-1' }} L</span>
-            </div>
-            <div class="water-ctrl">
-              <button type="button" class="icon-btn" aria-label="Togli un bicchiere" (click)="water_(-1)" [disabled]="!water().ml">−</button>
-              <button type="button" class="btn primary" aria-label="Aggiungi un bicchiere da 250 ml" (click)="water_(1)">+ 250 ml</button>
-            </div>
-          </div>
-          <div class="glasses" role="group" aria-label="Bicchieri d'acqua">
-            @for (i of range(water().glasses); track i) {
-              <button type="button" class="glass" [class.full]="i < water().filled"
-                      [attr.aria-label]="'Bicchiere ' + (i + 1)" (click)="setGlasses(i + 1)"></button>
-            }
-          </div>
         </section>
       </div>
     }

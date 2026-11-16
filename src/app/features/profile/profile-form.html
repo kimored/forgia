@@ -159,11 +159,6 @@
               }
             </div>
           </div>
-          <label class="field">
-            <span>Acqua al giorno (ml)</span>
-            <input type="number" inputmode="numeric" step="250" [value]="m.waterTargetMl"
-                   (input)="patch({ waterTargetMl: num($any($event.target).value) ?? m.waterTargetMl })" />
-          </label>
         }
 
         @case ('orari') {

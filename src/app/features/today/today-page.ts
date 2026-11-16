@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { DayStore } from '../../core/data/day.store';
 import { ProfileService } from '../../core/data/profile.service';
 import { addDays, parseIsoDate, today, type IsoDate } from '../../core/domain/dates';
@@ -19,12 +19,11 @@ type Entry =
   | { kind: 'gym'; time: string; end: string }
   | { kind: 'reminder'; time: string; reminder: PersonalReminder; done: boolean };
 
-const GLASS_ML = 250;
 const SWIPE_MIN_PX = 70;
 
 @Component({
   selector: 'app-today-page',
-  imports: [DatePipe, DecimalPipe, MealCard, MealDetail, BottomSheet, CheckButton],
+  imports: [DatePipe, MealCard, MealDetail, BottomSheet, CheckButton],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './today-page.html',
   styleUrl: './today-page.scss',
@@ -95,13 +94,6 @@ export class TodayPage {
     if (day.gym) list.push({ kind: 'gym', time: p.times['palestra'] ?? '22:00', end: p.gymEnd });
     // A parità di orario la palestra viene prima del post-allenamento.
     return list.sort((a, b) => a.time.localeCompare(b.time) || (a.kind === 'gym' ? -1 : 1));
-  });
-
-  protected readonly water = computed(() => {
-    const ml = this.habits().waterMl ?? 0;
-    const target = this.profile().waterTargetMl;
-    const glasses = Math.ceil(target / GLASS_ML);
-    return { ml, target, glasses, filled: Math.min(glasses, Math.floor(ml / GLASS_ML)) };
   });
 
   // ---------- Selezione e varianti ----------
@@ -201,15 +193,6 @@ export class TodayPage {
     void this.store.toggleOption(this.date(), id);
   }
 
-  protected water_(delta: number): void {
-    void this.store.addWater(this.date(), delta * GLASS_ML);
-  }
-
-  protected setGlasses(n: number): void {
-    const target = n * GLASS_ML;
-    void this.store.addWater(this.date(), target === this.water().ml ? -GLASS_ML : target - this.water().ml);
-  }
-
   // ---------- Navigazione tra i giorni ----------
 
   protected go(delta: number): void {
@@ -240,5 +223,4 @@ export class TodayPage {
     if (Math.abs(dx) > SWIPE_MIN_PX && Math.abs(dx) > Math.abs(dy) * 1.5) this.go(dx < 0 ? 1 : -1);
   }
 
-  protected readonly range = (n: number) => Array.from({ length: n }, (_, i) => i);
 }

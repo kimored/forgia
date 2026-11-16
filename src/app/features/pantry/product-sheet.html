@@ -6,23 +6,30 @@
   @if (prod.brand) { <span class="muted">{{ prod.brand }}</span> }
 </header>
 
+@if (prod.tracked) {
 <section class="stock">
-  <button type="button" class="round" aria-label="Diminuisci" (click)="store.adjust(prod.id, -step())">−</button>
+  <button type="button" class="round" aria-label="Una confezione in meno" (click)="store.adjustPacks(prod.id, -1)">−</button>
   <label class="qty">
-    <span class="sr-only">Quantità in casa ({{ prod.unit }})</span>
-    <input type="number" inputmode="decimal" [value]="qty()" (change)="setQty($any($event.target).value)" />
-    <span class="unit">{{ prod.unit === 'pz' ? 'pz' : prod.unit }}</span>
+    <span class="sr-only">Confezioni in casa</span>
+    <input type="number" inputmode="decimal" step="0.5" min="0" [value]="stockPacks()" (change)="setPacks($any($event.target).value)" />
+    <span class="unit">{{ piece() ? 'pz' : 'conf.' }}</span>
   </label>
-  <button type="button" class="round" aria-label="Aumenta" (click)="store.adjust(prod.id, step())">+</button>
+  <button type="button" class="round" aria-label="Una confezione in più" (click)="store.adjustPacks(prod.id, 1)">+</button>
 </section>
-@if (f && f.dailyAvg > 0) {
+@if (!piece()) { <p class="hint center">Confezione da {{ defaultLabel() }}</p> }
+}
+@if (prod.tracked && f && f.dailyAvg > 0) {
   <p class="forecast" [class.alert]="f.daysLeft !== null && f.daysLeft < 3">
-    Consumo medio {{ fmtQty(f.dailyAvg, prod.unit) }}/giorno ·
     @if (f.daysLeft === null) { scorta per oltre 3 mesi }
     @else if (f.daysLeft === 0) { <strong>finisce oggi</strong> }
     @else { finisce tra <strong>{{ f.daysLeft }} {{ f.daysLeft === 1 ? 'giorno' : 'giorni' }}</strong> ({{ f.runOut | date: 'EEE d MMM' }}) }
   </p>
 }
+
+<label class="track">
+  <input type="checkbox" [checked]="prod.tracked" (change)="store.setTracked(prod.id, $any($event.target).checked)" />
+  Conta in dispensa e lista spesa
+</label>
 
 <section class="card-lite">
   <h3>Ho ricomprato</h3>

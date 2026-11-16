@@ -199,3 +199,14 @@ details {
   overflow: hidden;
   clip-path: inset(50%);
 }
+.track {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  font-weight: 600;
+}
+.center {
+  text-align: center;
+  margin-top: -6px;
+}

@@ -264,3 +264,29 @@ h3 {
   color: var(--primary);
   font-weight: 600;
 }
+.title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  .btn {
+    min-height: 40px;
+    font-size: 0.88rem;
+  }
+}
+.hidden-products {
+  margin-top: 12px;
+  summary {
+    cursor: pointer;
+    font-weight: 600;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+}

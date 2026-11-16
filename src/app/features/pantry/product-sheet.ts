@@ -4,7 +4,7 @@ import { PantryStore } from '../../core/data/pantry.store';
 import { comparePrice, defaultFormat, latestByStore, unitLabel } from '../../core/domain/pantry';
 import { today } from '../../core/domain/dates';
 import { STORES, type Store } from '../../core/models/pantry';
-import { formatEur, formatQty, stepFor } from '../../shared/qty-format';
+import { formatEur } from '../../shared/qty-format';
 
 /** Dettaglio di un prodotto: scorta, "ho ricomprato" con prezzo, storico prezzi per negozio. */
 @Component({
@@ -19,13 +19,13 @@ export class ProductSheet {
   readonly productId = input.required<string>();
 
   protected readonly stores = STORES;
-  protected readonly fmtQty = formatQty;
   protected readonly eur = formatEur;
 
   protected readonly p = computed(() => this.store.product(this.productId())!);
-  protected readonly qty = computed(() => this.store.stock().get(this.productId()) ?? 0);
+  protected readonly stockPacks = computed(() => (this.store.stock(), this.store.packs(this.productId())));
+  protected readonly piece = computed(() => this.p().unit === 'pz' && defaultFormat(this.p()).qty === 1);
+  protected readonly defaultLabel = computed(() => defaultFormat(this.p()).label);
   protected readonly forecast = computed(() => this.store.forecasts().get(this.productId()));
-  protected readonly step = computed(() => stepFor(this.p().unit, defaultFormat(this.p()).qty));
   protected readonly unitLabel = computed(() => unitLabel(this.p()));
 
   // "Ho ricomprato"
@@ -73,9 +73,9 @@ export class ProductSheet {
     })),
   );
 
-  protected setQty(value: string): void {
+  protected setPacks(value: string): void {
     const n = parseFloat(value.replace(',', '.'));
-    if (Number.isFinite(n)) void this.store.setQty(this.productId(), n);
+    if (Number.isFinite(n)) void this.store.setPacks(this.productId(), n);
   }
 
   protected setPrice(value: string): void {
