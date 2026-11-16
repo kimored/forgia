@@ -1,0 +1,157 @@
+@let m = model();
+
+@if (mode() === 'wizard') {
+  <div class="progress" aria-hidden="true">
+    @for (s of sections; track s.id; let i = $index) {
+      <span [class.on]="i <= step()"></span>
+    }
+  </div>
+}
+
+<form (submit)="$event.preventDefault(); mode() === 'wizard' ? next() : submit()">
+  @for (s of visible(); track s.id) {
+    <section class="card section">
+      <h2>{{ s.title }}</h2>
+
+      @switch (s.id) {
+        @case ('tu') {
+          <label class="field">
+            <span>Nome *</span>
+            <input type="text" autocomplete="given-name" required [value]="m.name"
+                   (input)="patch({ name: $any($event.target).value })" />
+          </label>
+          <div class="grid3">
+            <label class="field">
+              <span>Età</span>
+              <input type="number" inputmode="numeric" min="10" max="100" [value]="m.age ?? ''"
+                     (input)="patch({ age: num($any($event.target).value) })" />
+            </label>
+            <label class="field">
+              <span>Altezza (cm)</span>
+              <input type="number" inputmode="numeric" min="100" max="230" [value]="m.heightCm ?? ''"
+                     (input)="patch({ heightCm: num($any($event.target).value) })" />
+            </label>
+            <div class="field">
+              <span>Sesso</span>
+              <div class="chips">
+                @for (x of sexes; track x.value) {
+                  <button type="button" class="chip" [class.on]="m.sex === x.value"
+                          [attr.aria-pressed]="m.sex === x.value" (click)="patch({ sex: x.value })">{{ x.label }}</button>
+                }
+              </div>
+            </div>
+          </div>
+          <p class="hint">I tuoi dati restano solo su questo dispositivo e nei backup che esporti tu.</p>
+        }
+
+        @case ('inizio') {
+          <div class="grid2">
+            <label class="field">
+              <span>Peso iniziale (kg)</span>
+              <input type="number" inputmode="decimal" step="0.1" [value]="m.startWeightKg ?? ''"
+                     (input)="patch({ startWeightKg: num($any($event.target).value) })" />
+            </label>
+            <label class="field">
+              <span>Inizio del piano</span>
+              <input type="date" [value]="m.startDate" (change)="patch({ startDate: $any($event.target).value || m.startDate })" />
+            </label>
+          </div>
+          @if (startMonday() !== m.startDate) {
+            <p class="hint">Il ciclo parte dal lunedì di quella settimana ({{ startMonday() }}).</p>
+          }
+          <h3>Composizione corporea <span class="muted">(facoltativa)</span></h3>
+          <div class="grid3">
+            <label class="field">
+              <span>Grasso %</span>
+              <input type="number" inputmode="decimal" step="0.1" [value]="m.body?.fatPct ?? ''"
+                     (input)="setBody('fatPct', $any($event.target).value)" />
+            </label>
+            <label class="field">
+              <span>Massa muscolare (kg)</span>
+              <input type="number" inputmode="decimal" step="0.1" [value]="m.body?.muscleKg ?? ''"
+                     (input)="setBody('muscleKg', $any($event.target).value)" />
+            </label>
+            <label class="field">
+              <span>BMR (kcal)</span>
+              <input type="number" inputmode="numeric" [value]="m.body?.bmrKcal ?? ''"
+                     (input)="setBody('bmrKcal', $any($event.target).value)" />
+            </label>
+          </div>
+          <p class="hint">Le bilance a impedenza sono imprecise: conta il trend.</p>
+        }
+
+        @case ('obiettivi') {
+          <div class="grid3">
+            <label class="field">
+              <span>Calorie al giorno</span>
+              <input type="number" inputmode="numeric" step="50" [value]="m.targets.kcal"
+                     (input)="setTarget('kcal', $any($event.target).value)" />
+            </label>
+            <label class="field">
+              <span>Proteine (g)</span>
+              <input type="number" inputmode="numeric" step="5" [value]="m.targets.proteinG"
+                     (input)="setTarget('proteinG', $any($event.target).value)" />
+            </label>
+            <label class="field">
+              <span>Acqua (ml)</span>
+              <input type="number" inputmode="numeric" step="250" [value]="m.waterTargetMl"
+                     (input)="patch({ waterTargetMl: num($any($event.target).value) ?? m.waterTargetMl })" />
+            </label>
+          </div>
+          <div class="field">
+            <span>Giorni di palestra</span>
+            <div class="chips days">
+              @for (d of weekdays; track d.value) {
+                <button type="button" class="chip" [class.on]="m.gymDays.includes(d.value)"
+                        [attr.aria-pressed]="m.gymDays.includes(d.value)" (click)="toggleGymDay(d.value)">{{ d.label }}</button>
+              }
+            </div>
+          </div>
+        }
+
+        @case ('orari') {
+          <div class="times">
+            @for (t of timeSlots; track t.id) {
+              <label class="field row">
+                <span>{{ t.label }}</span>
+                <input type="time" [value]="m.times[t.id]" (change)="setTime(t.id, $any($event.target).value)" />
+              </label>
+            }
+            <label class="field row">
+              <span>Palestra (fine)</span>
+              <input type="time" [value]="m.gymEnd" (change)="patch({ gymEnd: $any($event.target).value || m.gymEnd })" />
+            </label>
+          </div>
+
+          <h3>Promemoria personali <span class="muted">(facoltativi)</span></h3>
+          <p class="hint">Per esempio un farmaco o un integratore a un orario preciso. Compaiono nella timeline di Oggi.</p>
+          @for (r of m.reminders; track r.id) {
+            <div class="reminder">
+              <input type="time" aria-label="Orario" [value]="r.time" (change)="updateReminder(r.id, { time: $any($event.target).value })" />
+              <input type="text" aria-label="Testo del promemoria" placeholder="Testo" [value]="r.text"
+                     (input)="updateReminder(r.id, { text: $any($event.target).value })" />
+              <button type="button" class="icon-btn" aria-label="Elimina promemoria" (click)="removeReminder(r.id)">✕</button>
+            </div>
+          }
+          <button type="button" class="btn" (click)="addReminder()">+ Aggiungi promemoria</button>
+        }
+      }
+    </section>
+  }
+
+  <div class="actions" [class.sticky]="mode() === 'wizard'">
+    @if (mode() === 'wizard') {
+      @if (step() > 0) {
+        <button type="button" class="btn" (click)="back()">Indietro</button>
+      }
+      <button type="submit" class="btn primary" [disabled]="(step() === 0 && nameMissing()) || saving()">
+        {{ isLast() ? 'Inizia' : 'Avanti' }}
+      </button>
+    } @else {
+      <button type="submit" class="btn primary" [disabled]="nameMissing() || saving()">Salva</button>
+      @if (savedFlash()) {
+        <span class="saved" role="status">✓ Salvato</span>
+      }
+    }
+  </div>
+</form>

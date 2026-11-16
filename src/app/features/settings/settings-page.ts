@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { ThemeService, type ThemePref } from '../../core/platform/theme.service';
 import { InstallService } from '../../core/platform/install.service';
 import { StorageService } from '../../core/platform/storage.service';
@@ -8,7 +9,7 @@ import { Icon } from '../../shared/ui/icon';
 
 @Component({
   selector: 'app-settings-page',
-  imports: [DatePipe, Icon],
+  imports: [DatePipe, RouterLink, Icon],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './settings-page.html',
   styleUrl: './settings-page.scss',
@@ -33,7 +34,8 @@ export class SettingsPage {
     if (!confirm('Importare il backup? I dati attuali su questo dispositivo verranno sostituiti.')) return;
     try {
       await this.backup.restore(file);
-      this.importMessage.set({ ok: true, text: 'Backup importato.' });
+      this.importMessage.set({ ok: true, text: 'Backup importato. Ricarico…' });
+      setTimeout(() => location.reload(), 600);
     } catch (e) {
       this.importMessage.set({ ok: false, text: (e as Error).message });
     }

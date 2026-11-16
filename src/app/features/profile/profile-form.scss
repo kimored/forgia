@@ -1,0 +1,138 @@
+:host {
+  display: block;
+}
+form {
+  display: grid;
+  gap: 16px;
+}
+.section {
+  display: grid;
+  gap: 14px;
+  animation: enter var(--dur) var(--ease-spring);
+}
+h2 {
+  font-size: 1.1rem;
+}
+h3 {
+  font-size: 0.95rem;
+  margin-top: 6px;
+}
+.field {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+
+  > span {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-2);
+  }
+  &.row {
+    grid-template-columns: 1fr auto;
+    align-items: center;
+  }
+}
+input {
+  min-height: var(--touch);
+  padding: 0 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  font-size: 1rem; /* ≥16px: iOS non zooma sul focus */
+  width: 100%;
+  min-width: 0;
+  &:focus {
+    outline: 2px solid var(--primary);
+    outline-offset: 0;
+  }
+}
+input[type='time'] {
+  width: auto;
+  font-variant-numeric: tabular-nums;
+}
+.grid2,
+.grid3 {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.chip {
+  min-height: 40px;
+  min-width: 48px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-weight: 600;
+  transition: background var(--dur), color var(--dur), transform var(--dur) var(--ease-spring);
+  &.on {
+    background: var(--primary);
+    border-color: transparent;
+    color: var(--primary-contrast);
+  }
+  &:active {
+    transform: scale(0.94);
+  }
+}
+.times {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+.reminder {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 8px;
+  align-items: center;
+}
+.hint {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-2);
+}
+.progress {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-bottom: 16px;
+  span {
+    height: 4px;
+    border-radius: 2px;
+    background: var(--border);
+    transition: background var(--dur);
+    &.on {
+      background: var(--primary);
+    }
+  }
+}
+.actions {
+  &.sticky {
+    position: sticky;
+    bottom: 0;
+    z-index: 1;
+    padding: 16px 0 calc(var(--safe-bottom) + 12px);
+    background: linear-gradient(to bottom, transparent, var(--bg) 35%);
+  }
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-end;
+  .btn[disabled] {
+    opacity: 0.5;
+  }
+}
+.saved {
+  color: var(--ok);
+  font-weight: 600;
+}
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
