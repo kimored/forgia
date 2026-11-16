@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "sushiSwapDinner": "ce-pollo-insalata-carote",
+  "weeks": [
+    [
+      { "colazione": "col-lm", "pranzo": "pr-pasta-tonno", "spuntino2": "sp2-mandorle", "cena": "ce-pollo-insalata-carote" },
+      { "colazione": "col-cf", "pranzo": "pr-pasta-lenticchie", "spuntino2": "sp2-noci", "cena": "ce-orata-patate-insalata" },
+      { "colazione": "col-cb", "pranzo": "pr-riso-pomodoro", "spuntino2": "sp2-mista", "cena": "ce-hamburger-insalata-carote" },
+      { "colazione": "col-lm", "pranzo": "pr-pasta-patate", "spuntino2": "sp2-mandorle", "cena": "ce-salmone-spinaci" },
+      { "colazione": "col-cf", "pranzo": "pr-pasta-uova-pancetta", "pranzoAlt": ["pr-spaghetti-lupini"], "spuntino2": "sp2-noci", "cena": "ce-tacchino-insalata-carote" },
+      { "colazione": "col-cb", "pranzo": "pr-riso-spinaci", "spuntino2": "sp2-mandorle", "cena": "libero" },
+      { "colazione": "col-lm", "pranzo": "libero", "spuntino2": "sp2-mista", "cena": "libero" }
+    ],
+    [
+      { "colazione": "col-cf", "pranzo": "pr-pasta-fagioli", "spuntino2": "sp2-noci", "cena": "ce-pollo-spinaci-carote" },
+      { "colazione": "col-lm", "pranzo": "pr-riso-verza", "spuntino2": "sp2-mandorle", "cena": "ce-merluzzo-patate-insalata" },
+      { "colazione": "col-cb", "pranzo": "pr-pasta-macinato", "spuntino2": "sp2-mista", "cena": "ce-cotoletta-insalata-carote" },
+      { "colazione": "col-lm", "pranzo": "pr-pasta-ceci", "spuntino2": "sp2-noci", "cena": "ce-salmone-spinaci" },
+      { "colazione": "col-cf", "pranzo": "pr-pasta-tonno", "pranzoAlt": ["pr-spaghetti-lupini"], "spuntino2": "sp2-mandorle", "cena": "ce-salsicce-friarielli" },
+      { "colazione": "col-cb", "pranzo": "pr-pasta-patate", "spuntino2": "sp2-noci", "cena": "libero" },
+      { "colazione": "col-lm", "pranzo": "libero", "spuntino2": "sp2-mista", "cena": "libero" }
+    ],
+    [
+      { "colazione": "col-cb", "pranzo": "pr-riso-spinaci", "spuntino2": "sp2-mandorle", "cena": "ce-tacchino-insalata-carote" },
+      { "colazione": "col-lm", "pranzo": "pr-pasta-lenticchie", "spuntino2": "sp2-noci", "cena": "ce-orata-patate-insalata" },
+      { "colazione": "col-cf", "pranzo": "pr-pasta-tonno", "spuntino2": "sp2-mista", "cena": "ce-vitello-spinaci-carote" },
+      { "colazione": "col-lm", "pranzo": "pr-pasta-patate", "spuntino2": "sp2-mandorle", "cena": "ce-frittata-insalata-carote" },
+      { "colazione": "col-cb", "pranzo": "pr-pasta-ceci", "pranzoAlt": ["pr-spaghetti-lupini"], "spuntino2": "sp2-noci", "cena": "ce-salmone-insalata-carote" },
+      { "colazione": "col-cf", "pranzo": "pr-riso-pomodoro", "spuntino2": "sp2-mandorle", "cena": "libero" },
+      { "colazione": "col-lm", "pranzo": "libero", "spuntino2": "sp2-mista", "cena": "libero" }
+    ],
+    [
+      { "colazione": "col-lm", "pranzo": "pr-pasta-fagioli", "spuntino2": "sp2-mandorle", "cena": "ce-pollo-insalata-carote" },
+      { "colazione": "col-cb", "pranzo": "pr-riso-verza", "spuntino2": "sp2-noci", "cena": "ce-merluzzo-patate-spinaci" },
+      { "colazione": "col-lm", "pranzo": "pr-pasta-macinato", "spuntino2": "sp2-mista", "cena": "ce-tacchino-insalata-carote" },
+      { "colazione": "col-cf", "pranzo": "pr-pasta-tonno", "spuntino2": "sp2-mandorle", "cena": "ce-salsicce-friarielli" },
+      { "colazione": "col-cb", "pranzo": "pr-pasta-uova-pancetta", "pranzoAlt": ["pr-spaghetti-lupini"], "spuntino2": "sp2-noci", "cena": "ce-salmone-insalata-carote" },
+      { "colazione": "col-lm", "pranzo": "pr-pasta-lenticchie", "spuntino2": "sp2-mandorle", "cena": "libero" },
+      { "colazione": "col-cf", "pranzo": "libero", "spuntino2": "sp2-mista", "cena": "libero" }
+    ]
+  ]
+}

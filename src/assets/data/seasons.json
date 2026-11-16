@@ -1,0 +1,9 @@
+{
+  "always": ["banana"],
+  "seasons": [
+    { "id": "inverno", "name": "Autunno / Inverno", "months": [10, 11, 12, 1, 2], "fruits": ["mele", "pere", "arance", "mandarini", "kiwi", "cachi"] },
+    { "id": "primavera", "name": "Primavera", "months": [3, 4, 5], "fruits": ["fragole", "nespole"] },
+    { "id": "estate", "name": "Estate", "months": [6, 7, 8, 9], "fruits": ["pesche", "albicocche", "melone", "anguria", "prugne", "fichi", "uva"] }
+  ],
+  "neverPropose": ["piselli", "zucchine", "zucca", "melanzane", "gallette", "burro d'arachidi", "frutta essiccata nel muesli"]
+}
