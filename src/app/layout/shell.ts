@@ -45,7 +45,6 @@ export class Shell {
     { path: 'oggi', label: 'Oggi', icon: 'today' },
     { path: 'settimana', label: 'Settimana', icon: 'week' },
     { path: 'allenamento', label: 'Allenamento', icon: 'workout' },
-    { path: 'dispensa', label: 'Dispensa', icon: 'pantry' },
     { path: 'progressi', label: 'Progressi', icon: 'progress' },
   ];
 }

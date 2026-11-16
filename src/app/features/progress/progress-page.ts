@@ -11,6 +11,8 @@ import { adherence, projectionSeries, waistAlert, weightStalled } from '../../co
 import { parseScaleWords, SCALE_FIELD_LABELS, type ScaleField } from '../../core/domain/scale-ocr';
 import { OcrLoadError, OcrService } from '../../core/platform/ocr.service';
 import { TimeChart, type TimeSeries } from '../../shared/ui/time-chart';
+import { StonksChart } from '../../shared/ui/stonks-chart';
+import { BottomSheet } from '../../shared/ui/bottom-sheet';
 
 const MEASURES: { key: keyof Omit<MeasurementEntry, 'date'>; label: string }[] = [
   { key: 'waistCm', label: 'Girovita' },
@@ -22,7 +24,7 @@ const EXTRA_FIELDS: ScaleField[] = ['bmi', 'skeletalMusclePct', 'proteinPct', 'v
 
 @Component({
   selector: 'app-progress-page',
-  imports: [DatePipe, DecimalPipe, KeyValuePipe, TimeChart],
+  imports: [DatePipe, DecimalPipe, KeyValuePipe, TimeChart, StonksChart, BottomSheet],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './progress-page.html',
   styleUrl: './progress-page.scss',
@@ -38,6 +40,97 @@ export class ProgressPage {
   protected readonly todayDate = today();
   protected readonly measures = MEASURES;
   protected readonly isMonday = weekdayOf(this.todayDate) === 0;
+
+  // ---------- Bottone + e schede di inserimento ----------
+
+  protected readonly fabOpen = signal(false);
+  protected readonly weightSheet = signal(false);
+  protected readonly measureSheet = signal(false);
+
+  protected openSheet(which: 'weight' | 'measure'): void {
+    this.fabOpen.set(false);
+    (which === 'weight' ? this.weightSheet : this.measureSheet).set(true);
+  }
+
+  // ---------- Riepilogo in alto ----------
+
+  /** Pesata precedente all'ultima, per la variazione. */
+  protected readonly previous = computed(() => this.store.weights().at(-2) ?? null);
+  protected readonly sinceLast = computed(() => {
+    const l = this.latest();
+    const p = this.previous();
+    return l && p ? Math.round((l.kg - p.kg) * 10) / 10 : null;
+  });
+
+  /** Obiettivo indicato dal piano (fine della prima proiezione), se c'è. */
+  protected readonly goal = computed(() => {
+    const s = this.store.start();
+    if (!s) return null;
+    const series = projectionSeries(this.plans.plan(), s.kg, s.date, addDays(s.date, 3650))[0];
+    const end = series?.points.at(-1);
+    return end ? { kg: end.value, date: end.date } : null;
+  });
+
+  /** Anello: avanzamento dal peso di partenza all'obiettivo (pieno se non c'è obiettivo). */
+  protected readonly ring = computed(() => {
+    const l = this.latest();
+    const s = this.store.start();
+    const g = this.goal();
+    const C = 2 * Math.PI * 88;
+    let pct = 1;
+    if (l && s && g && g.kg !== s.kg) pct = Math.min(1, Math.max(0, (l.kg - s.kg) / (g.kg - s.kg)));
+    return { C, dash: C * pct, pct };
+  });
+
+  /** Riquadri tipo app della bilancia: valori dell'ultima pesata e variazione dalla precedente. */
+  protected readonly tiles = computed(() => {
+    const w = this.store.weights();
+    const l = w.at(-1);
+    if (!l) return [];
+    const prevOf = (get: (x: (typeof w)[number]) => number | undefined) => {
+      for (let i = w.length - 2; i >= 0; i--) {
+        const v = get(w[i]);
+        if (v !== undefined) return v;
+      }
+      return undefined;
+    };
+    const out: { label: string; value: number; unit: string; diff: number | null; icon: string }[] = [];
+    const add = (label: string, icon: string, unit: string, get: (x: (typeof w)[number]) => number | undefined) => {
+      const v = get(l);
+      if (v === undefined) return;
+      const p = prevOf(get);
+      out.push({ label, icon, unit, value: v, diff: p === undefined ? null : Math.round((v - p) * 10) / 10 });
+    };
+    add('Grasso corporeo', '💧', '%', (x) => x.fatPct);
+    add('Massa muscolare', '💪', 'kg', (x) => x.muscleKg);
+    add('BMR', '🔥', 'kcal', (x) => x.bmrKcal);
+    const icons: Record<string, string> = { bmi: '📐', skeletalMusclePct: '🦴', proteinPct: '🥚', visceralFat: '🎯', waterPct: '🌊', boneKg: '🦴', metabolicAge: '⏳' };
+    for (const k of EXTRA_FIELDS) {
+      const label = SCALE_FIELD_LABELS[k].replace(/ \(.*\)$/, '');
+      const unit = /\((.*)\)$/.exec(SCALE_FIELD_LABELS[k])?.[1] ?? '';
+      add(label, icons[k] ?? '•', unit, (x) => x.extra?.[k]);
+    }
+    return out;
+  });
+
+  /** Variazioni in percentuale dall'inizio. */
+  protected readonly percents = computed(() => {
+    const out: { label: string; pct: number; from: number; to: number; unit: string }[] = [];
+    const push = (label: string, unit: string, list: number[]) => {
+      if (list.length < 2 || !list[0]) return;
+      out.push({ label, unit, from: list[0], to: list.at(-1)!, pct: ((list.at(-1)! - list[0]) / list[0]) * 100 });
+    };
+    const w = this.store.weights();
+    const s = this.store.start();
+    push('Peso', 'kg', [...(s ? [s.kg] : []), ...w.map((x) => x.kg)]);
+    const b = this.startBody();
+    push('Grasso', '%', [...(b?.fatPct ? [b.fatPct] : []), ...w.flatMap((x) => (x.fatPct ? [x.fatPct] : []))]);
+    push('Muscoli', 'kg', [...(b?.muscleKg ? [b.muscleKg] : []), ...w.flatMap((x) => (x.muscleKg ? [x.muscleKg] : []))]);
+    for (const m of MEASURES) push(m.label, 'cm', this.store.measurements().flatMap((x) => (x[m.key] !== undefined ? [x[m.key]!] : [])));
+    return out;
+  });
+
+  protected readonly stonks = computed(() => this.store.weights().map((w) => ({ date: w.date, value: w.kg })));
 
   // ---------- Peso ----------
 
@@ -103,7 +196,10 @@ export class ProgressPage {
     this.form.set(this.emptyForm());
     this.scan.set({ state: 'idle' });
     this.saved.set(true);
-    setTimeout(() => this.saved.set(false), 1600);
+    setTimeout(() => {
+      this.saved.set(false);
+      this.weightSheet.set(false);
+    }, 900);
   }
 
   protected async importScreenshot(input: HTMLInputElement): Promise<void> {
@@ -179,6 +275,7 @@ export class ProgressPage {
     if (Object.keys(entry).length === 1) return;
     await this.store.saveMeasurement(entry);
     this.mForm.set({});
+    this.measureSheet.set(false);
   }
 
   protected measureDelta(key: keyof Omit<MeasurementEntry, 'date'>): number | null {

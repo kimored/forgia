@@ -1,50 +1,84 @@
 @let l = latest();
 @let a = adherenceNow();
 @let c = consistency();
+@let rg = ring();
 
 <h1>Progressi</h1>
 
-<!-- ---------- Peso ---------- -->
-<section class="card">
-  <div class="sec-head">
-    <h2>Peso</h2>
-    @if (l) {
-      <div class="kpi">
-        <span class="num big">{{ l.kg | number: '1.1-1' }} kg</span>
-        @if (delta() !== null) {
-          <span class="num" [class.up]="delta()! > 0" [class.down]="delta()! < 0">{{ delta()! > 0 ? '+' : '' }}{{ delta() | number: '1.1-1' }} kg dall'inizio</span>
-        }
+<!-- ---------- Ultima pesata (stile app della bilancia) ---------- -->
+<section class="card hero">
+  @if (l) {
+    <div class="ring">
+      <svg viewBox="0 0 200 200" aria-hidden="true">
+        <circle cx="100" cy="100" r="88" class="track" />
+        <circle cx="100" cy="100" r="88" class="arc" [attr.stroke-dasharray]="rg.dash + ' ' + rg.C" transform="rotate(-90 100 100)" />
+      </svg>
+      <div class="center">
+        <span class="muted small">Peso</span>
+        <span class="kg num">{{ l.kg | number: '1.1-1' }}<small>kg</small></span>
+        <span class="muted small">{{ l.date | date: 'EEE d MMM' }}</span>
       </div>
-    }
-  </div>
+    </div>
+    <div class="hero-meta">
+      @if (sinceLast() !== null) {
+        <span class="pill num" [class.up]="sinceLast()! > 0" [class.down]="sinceLast()! < 0">
+          {{ sinceLast()! > 0 ? '▲ +' : sinceLast()! < 0 ? '▼ ' : '■ ' }}{{ sinceLast() | number: '1.1-1' }} kg dalla pesata prima
+        </span>
+      }
+      @if (delta() !== null) {
+        <span class="pill num">{{ delta()! > 0 ? '+' : '' }}{{ delta() | number: '1.1-1' }} kg dall'inizio</span>
+      }
+      @if (goal(); as g) {
+        <span class="muted small">Obiettivo del piano: {{ g.kg | number: '1.1-1' }} kg · {{ rg.pct * 100 | number: '1.0-0' }}% del percorso</span>
+      }
+    </div>
+  } @else {
+    <p class="muted empty">Nessuna pesata ancora. Tocca <strong>+</strong> in basso per inserire la prima.</p>
+  }
   @if (isMonday) { <p class="tip">⚖️ È lunedì: pesati a digiuno, prima della colazione.</p> }
   @if (stall(); as s) { <p class="tip warn">📋 {{ s }}</p> }
 
-  <app-time-chart [series]="weightSeries()" unit="kg" ariaLabel="Peso e proiezioni del piano"
-                  empty="Inserisci la prima pesata per vedere il grafico e le curve del piano." />
+  @if (tiles().length) {
+    <ul class="tiles">
+      @for (t of tiles(); track t.label) {
+        <li>
+          <span class="t-icon" aria-hidden="true">{{ t.icon }}</span>
+          <span class="t-label">{{ t.label }}</span>
+          <strong class="num">{{ t.value | number: '1.0-1' }}<small> {{ t.unit }}</small></strong>
+          @if (t.diff !== null && t.diff !== 0) {
+            <span class="t-diff num">{{ t.diff > 0 ? '▲ +' : '▼ ' }}{{ t.diff | number: '1.0-1' }}</span>
+          }
+        </li>
+      }
+    </ul>
+  }
+</section>
 
-  <div class="form">
-    <h3>Nuova pesata</h3>
-    <label class="btn scan-btn">
-      📷 Da screenshot della bilancia
-      <input type="file" accept="image/*" hidden #shot (change)="importScreenshot(shot)" />
-    </label>
-    @switch (scan().state) {
-      @case ('busy') { <p class="muted" role="status">Leggo lo screenshot… {{ ocr.progress() !== null ? ((ocr.progress()! * 100) | number: '1.0-0') + '%' : '' }}</p> }
-      @case ('done') { <p class="ok" role="status">✓ {{ scan().text }}</p> }
-      @case ('error') { <p class="err" role="alert">{{ scan().text }}</p> }
-    }
-    @let f = form();
-    <div class="grid">
-      <label class="field"><span>Data</span><input type="date" [value]="f.date" (change)="patchForm({ date: $any($event.target).value || f.date })" /></label>
-      <label class="field"><span>Peso (kg)</span><input type="text" inputmode="decimal" [value]="f.kg" (input)="patchForm({ kg: $any($event.target).value })" /></label>
-      <label class="field"><span>Grasso %</span><input type="text" inputmode="decimal" [value]="f.fat" (input)="patchForm({ fat: $any($event.target).value })" /></label>
-      <label class="field"><span>Massa muscolare (kg)</span><input type="text" inputmode="decimal" [value]="f.muscle" (input)="patchForm({ muscle: $any($event.target).value })" /></label>
-      <label class="field"><span>BMR (kcal)</span><input type="text" inputmode="numeric" [value]="f.bmr" (input)="patchForm({ bmr: $any($event.target).value })" /></label>
-    </div>
-    <button type="button" class="btn primary" [disabled]="!f.kg" (click)="saveWeight()">{{ saved() ? '✓ Salvata' : 'Salva pesata' }}</button>
-  </div>
+<!-- ---------- Progressi in % ---------- -->
+@if (percents().length) {
+  <section class="card">
+    <h2>Progressi dall'inizio</h2>
+    <ul class="pcts">
+      @for (p of percents(); track p.label) {
+        <li>
+          <span class="muted small">{{ p.label }}</span>
+          <strong class="num" [class.up]="p.pct > 0" [class.down]="p.pct < 0">{{ p.pct > 0 ? '+' : '' }}{{ p.pct | number: '1.1-1' }}%</strong>
+          <span class="muted small num">{{ p.from | number: '1.0-1' }} → {{ p.to | number: '1.0-1' }} {{ p.unit }}</span>
+        </li>
+      }
+    </ul>
+  </section>
+}
 
+<!-- ---------- Grafico stonks ---------- -->
+<section class="card">
+  <h2>Andamento del peso</h2>
+  <app-stonks-chart [points]="stonks()" unit="kg" ariaLabel="Andamento del peso" empty="Inserisci almeno due pesate per vedere il grafico." />
+  <details>
+    <summary>Confronto con le curve del piano</summary>
+    <app-time-chart [series]="weightSeries()" unit="kg" ariaLabel="Peso e proiezioni del piano"
+                    empty="Inserisci la prima pesata per vedere il grafico e le curve del piano." />
+  </details>
   @if (store.weights().length) {
     <details>
       <summary>Tutte le pesate ({{ store.weights().length }})</summary>
@@ -65,24 +99,10 @@
 <section class="card">
   <h2>Composizione corporea</h2>
   <p class="muted small">Le bilance a impedenza sono imprecise: conta il trend, non il singolo valore.</p>
-  @if (startBody(); as b) {
-    @if (b.fatPct || b.muscleKg || b.bmrKcal) {
-      <p class="small">Partenza:
-        @if (b.fatPct) { grasso {{ b.fatPct | number: '1.1-1' }}% }
-        @if (b.muscleKg) { · massa muscolare {{ b.muscleKg | number: '1.1-1' }} kg }
-        @if (b.bmrKcal) { · BMR {{ b.bmrKcal }} kcal }
-      </p>
-    }
-  }
   <div class="two">
     <app-time-chart [series]="composition()" unit="%" ariaLabel="Grasso corporeo" empty="Nessun valore di grasso registrato." />
     <app-time-chart [series]="muscle()" unit="kg" ariaLabel="Massa muscolare" empty="Nessun valore di massa muscolare registrato." />
   </div>
-  @if (l?.extra; as ex) {
-    <ul class="extras">
-      @for (k of ex | keyvalue; track k.key) { <li><span>{{ extraLabel(k.key) }}</span><strong class="num">{{ k.value | number: '1.0-2' }}</strong></li> }
-    </ul>
-  }
 </section>
 
 <!-- ---------- Misure ---------- -->
@@ -93,18 +113,21 @@
   </div>
   @if (waist(); as w) { <p class="tip warn">⚠️ Girovita +{{ w.delta | number: '1.1-1' }} cm negli ultimi 3 mesi: parlane con il tuo nutrizionista.</p> }
   @if (measureDue()) { <p class="tip">📏 È il momento delle misure del mese.</p> }
-  <div class="grid">
-    @for (m of measures; track m.key) {
-      <label class="field">
-        <span>{{ m.label }} (cm)
-          @if (measureDelta(m.key); as d) { <em [class.up]="d > 0" [class.down]="d < 0">{{ d > 0 ? '+' : '' }}{{ d | number: '1.1-1' }}</em> }
-        </span>
-        <input type="text" inputmode="decimal" [placeholder]="lastMeasure()?.[m.key] ?? ''" [value]="mForm()[m.key] ?? ''"
-               (input)="setMeasure(m.key, $any($event.target).value)" />
-      </label>
-    }
-  </div>
-  <button type="button" class="btn" (click)="saveMeasures()">Salva misure di oggi</button>
+  @if (lastMeasure(); as lm) {
+    <ul class="pcts">
+      @for (m of measures; track m.key) {
+        @if (lm[m.key] !== undefined) {
+          <li>
+            <span class="muted small">{{ m.label }}</span>
+            <strong class="num">{{ lm[m.key] | number: '1.0-1' }} cm</strong>
+            @if (measureDelta(m.key); as d) { <span class="small num" [class.up]="d > 0" [class.down]="d < 0">{{ d > 0 ? '+' : '' }}{{ d | number: '1.1-1' }} cm</span> }
+          </li>
+        }
+      }
+    </ul>
+  } @else {
+    <p class="muted small">Nessuna misura ancora: tocca + in basso.</p>
+  }
 </section>
 
 <!-- ---------- Aderenza ---------- -->
@@ -143,3 +166,66 @@
   </ol>
   <p class="muted small">Barra: aderenza alla dieta · pallini: allenamenti fatti sul totale della settimana.</p>
 </section>
+
+<!-- ---------- Bottone + flottante ---------- -->
+<div class="fab-wrap">
+  @if (fabOpen()) {
+    <div class="fab-backdrop" (click)="fabOpen.set(false)"></div>
+    <div class="fab-menu" role="menu" animate.enter="fade-in">
+      <button type="button" role="menuitem" (click)="openSheet('weight')">⚖️ Pesata</button>
+      <button type="button" role="menuitem" (click)="openSheet('measure')">📏 Misure (braccia, girovita…)</button>
+    </div>
+  }
+  <button type="button" class="fab" [class.open]="fabOpen()" [attr.aria-expanded]="fabOpen()" aria-label="Aggiungi pesata o misure" (click)="fabOpen.set(!fabOpen())">+</button>
+</div>
+
+<app-bottom-sheet [(open)]="weightSheet" label="Nuova pesata">
+  @if (weightSheet()) {
+    <div class="form">
+      <h3>Nuova pesata</h3>
+      <label class="btn scan-btn">
+        📷 Da screenshot della bilancia
+        <input type="file" accept="image/*" hidden #shot (change)="importScreenshot(shot)" />
+      </label>
+      @switch (scan().state) {
+        @case ('busy') { <p class="muted" role="status">Leggo lo screenshot… {{ ocr.progress() !== null ? ((ocr.progress()! * 100) | number: '1.0-0') + '%' : '' }}</p> }
+        @case ('done') { <p class="ok" role="status">✓ {{ scan().text }}</p> }
+        @case ('error') { <p class="err" role="alert">{{ scan().text }}</p> }
+      }
+      @let f = form();
+      <div class="grid">
+        <label class="field"><span>Data</span><input type="date" [value]="f.date" (change)="patchForm({ date: $any($event.target).value || f.date })" /></label>
+        <label class="field"><span>Peso (kg)</span><input type="text" inputmode="decimal" [value]="f.kg" (input)="patchForm({ kg: $any($event.target).value })" /></label>
+        <label class="field"><span>Grasso %</span><input type="text" inputmode="decimal" [value]="f.fat" (input)="patchForm({ fat: $any($event.target).value })" /></label>
+        <label class="field"><span>Massa muscolare (kg)</span><input type="text" inputmode="decimal" [value]="f.muscle" (input)="patchForm({ muscle: $any($event.target).value })" /></label>
+        <label class="field"><span>BMR (kcal)</span><input type="text" inputmode="numeric" [value]="f.bmr" (input)="patchForm({ bmr: $any($event.target).value })" /></label>
+      </div>
+      @if (f.extra | keyvalue; as ex) {
+        @if (ex.length) {
+          <ul class="extras">
+            @for (k of ex; track k.key) { <li><span>{{ extraLabel(k.key) }}</span><strong class="num">{{ k.value | number: '1.0-2' }}</strong></li> }
+          </ul>
+        }
+      }
+      <button type="button" class="btn primary" [disabled]="!f.kg" (click)="saveWeight()">{{ saved() ? '✓ Salvata' : 'Salva pesata' }}</button>
+    </div>
+  }
+</app-bottom-sheet>
+
+<app-bottom-sheet [(open)]="measureSheet" label="Nuove misure">
+  @if (measureSheet()) {
+    <div class="form">
+      <h3>Misure di oggi</h3>
+      <div class="grid">
+        @for (m of measures; track m.key) {
+          <label class="field">
+            <span>{{ m.label }} (cm)</span>
+            <input type="text" inputmode="decimal" [placeholder]="lastMeasure()?.[m.key] ?? ''" [value]="mForm()[m.key] ?? ''"
+                   (input)="setMeasure(m.key, $any($event.target).value)" />
+          </label>
+        }
+      </div>
+      <button type="button" class="btn primary" (click)="saveMeasures()">Salva misure</button>
+    </div>
+  }
+</app-bottom-sheet>
