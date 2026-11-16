@@ -151,3 +151,6 @@ html.sheet-open body {
     color: var(--warn);
   }
 }
+
+/* Messaggi con testo tecnico lungo: vanno a capo invece di allargare la pagina */
+[role='alert'], [role='status'], .err, .error, .warn-box { overflow-wrap: anywhere; }

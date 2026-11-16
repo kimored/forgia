@@ -23,7 +23,10 @@ export class OcrService {
 
   private getWorker(): Promise<Worker> {
     this.worker ??= (async () => {
-      const { createWorker } = await import('tesseract.js');
+      // tesseract.js è CommonJS: nella build di produzione le funzioni stanno sotto `default`.
+      const mod = (await import('tesseract.js')) as typeof import('tesseract.js') & { default?: typeof import('tesseract.js') };
+      const createWorker = mod.createWorker ?? mod.default?.createWorker;
+      if (typeof createWorker !== 'function') throw new Error('libreria OCR non caricata');
       const base = new URL('ocr/', document.baseURI).href;
       // Prima il motore scelto in automatico; se il browser non lo regge (es. alcune versioni
       // di Safari su iPhone con le istruzioni SIMD più recenti) si riprova con versioni più compatibili.

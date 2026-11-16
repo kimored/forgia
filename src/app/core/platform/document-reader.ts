@@ -113,7 +113,9 @@ export class DocumentReader {
 
   /** Word: righe delle tabelle ricostruite (cella alimento + cella quantità sulla stessa riga). */
   private async readDocx(file: File): Promise<SourcePage> {
-    const mammoth = await import('mammoth');
+    // mammoth è CommonJS: nella build di produzione le funzioni stanno sotto `default`.
+    const mod = (await import('mammoth')) as typeof import('mammoth') & { default?: typeof import('mammoth') };
+    const mammoth = typeof (mod as { convertToHtml?: unknown }).convertToHtml === 'function' ? mod : mod.default!;
     const { value: html } = await mammoth.convertToHtml({ arrayBuffer: await file.arrayBuffer() });
     const dom = new DOMParser().parseFromString(html, 'text/html');
     const lines: SourceLine[] = [];
