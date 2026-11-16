@@ -90,7 +90,7 @@
     <div class="save">
       <button type="button" class="btn primary" [disabled]="empty()" (click)="save()">{{ saved() ? '✓ Salvata' : 'Salva la scheda' }}</button>
       @if (empty()) { <p class="muted small">Ogni giorno deve avere almeno un esercizio.</p> }
-      <button type="button" class="link" (click)="mode.set('choose')">Ricomincia da capo</button>
+      <button type="button" class="btn restart" (click)="mode.set('choose')">Ricomincia</button>
     </div>
   }
 }
