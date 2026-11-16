@@ -45,11 +45,44 @@
         }
 
         @case ('inizio') {
+          <div class="scan">
+            @switch (scan().state) {
+              @case ('busy') {
+                <div class="scan-busy" role="status">
+                  <span>Leggo lo screenshot… {{ ocr.progress() !== null ? ((ocr.progress()! * 100) | number: '1.0-0') + '%' : '' }}</span>
+                  <span class="bar"><span [style.width.%]="(ocr.progress() ?? 0) * 100"></span></span>
+                  <span class="hint">La prima volta scarico il motore di lettura (circa 6 MB), poi funziona anche offline.</span>
+                </div>
+              }
+              @default {
+                <label class="btn primary scan-btn">
+                  📷 {{ scan().state === 'done' ? 'Carica un altro screenshot' : 'Carica lo screenshot della bilancia' }}
+                  <input type="file" accept="image/*" hidden #shot (change)="importScreenshot(shot)" />
+                </label>
+                <p class="hint">Feelfit o app simili: leggo peso, grasso, massa muscolare, BMR e gli altri valori. L'immagine resta sul telefono.</p>
+              }
+            }
+            @if (scan(); as s) {
+              @if (s.state === 'done') {
+                <p class="scan-ok" role="status">
+                  ✓ Letti {{ s.count }} valori@if (s.date) { (pesata del {{ s.date | date: 'd MMM y' }})}. Controllali qui sotto.
+                </p>
+                @if (s.extras.length) {
+                  <ul class="extras">
+                    @for (x of s.extras; track x.label) { <li><span>{{ x.label }}</span> <strong class="num">{{ x.value | number: '1.0-2' }}</strong></li> }
+                  </ul>
+                }
+              } @else if (s.state === 'error') {
+                <p class="scan-err" role="alert">{{ s.message }}</p>
+              }
+            }
+          </div>
+          <div class="or"><span>oppure inserisci a mano</span></div>
           <div class="grid2">
             <label class="field">
               <span>Peso iniziale (kg)</span>
-              <input type="number" inputmode="decimal" step="0.1" [value]="m.startWeightKg ?? ''"
-                     (input)="patch({ startWeightKg: num($any($event.target).value) })" />
+              <input type="number" inputmode="decimal" step="0.1" [value]="m.startWeightKg ?? ''" [class.ocr]="fromOcr().has('weightKg')"
+                     (input)="touched('weightKg'); patch({ startWeightKg: num($any($event.target).value) })" />
             </label>
             <label class="field">
               <span>Inizio del piano</span>
@@ -63,18 +96,18 @@
           <div class="grid3">
             <label class="field">
               <span>Grasso %</span>
-              <input type="number" inputmode="decimal" step="0.1" [value]="m.body?.fatPct ?? ''"
-                     (input)="setBody('fatPct', $any($event.target).value)" />
+              <input type="number" inputmode="decimal" step="0.1" [value]="m.body?.fatPct ?? ''" [class.ocr]="fromOcr().has('fatPct')"
+                     (input)="touched('fatPct'); setBody('fatPct', $any($event.target).value)" />
             </label>
             <label class="field">
               <span>Massa muscolare (kg)</span>
-              <input type="number" inputmode="decimal" step="0.1" [value]="m.body?.muscleKg ?? ''"
-                     (input)="setBody('muscleKg', $any($event.target).value)" />
+              <input type="number" inputmode="decimal" step="0.1" [value]="m.body?.muscleKg ?? ''" [class.ocr]="fromOcr().has('muscleKg')"
+                     (input)="touched('muscleKg'); setBody('muscleKg', $any($event.target).value)" />
             </label>
             <label class="field">
               <span>BMR (kcal)</span>
-              <input type="number" inputmode="numeric" [value]="m.body?.bmrKcal ?? ''"
-                     (input)="setBody('bmrKcal', $any($event.target).value)" />
+              <input type="number" inputmode="numeric" [value]="m.body?.bmrKcal ?? ''" [class.ocr]="fromOcr().has('bmrKcal')"
+                     (input)="touched('bmrKcal'); setBody('bmrKcal', $any($event.target).value)" />
             </label>
           </div>
           <p class="hint">Le bilance a impedenza sono imprecise: conta il trend.</p>

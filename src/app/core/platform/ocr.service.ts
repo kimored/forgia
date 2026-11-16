@@ -1,0 +1,84 @@
+import { Injectable, signal } from '@angular/core';
+import type { Worker } from 'tesseract.js';
+import type { OcrWord } from '../domain/scale-ocr';
+
+const THRESHOLD = 225;
+const MAX_WIDTH = 1600;
+
+/**
+ * OCR sul dispositivo con Tesseract.js: gratis, senza limiti, offline dopo il primo uso.
+ * Libreria, motore WebAssembly e modello italiano sono serviti dall'app stessa (/ocr)
+ * e messi in cache dal service worker la prima volta che servono.
+ */
+@Injectable({ providedIn: 'root' })
+export class OcrService {
+  private worker: Promise<Worker> | null = null;
+  /** 0–1 durante il riconoscimento, null a riposo. */
+  readonly progress = signal<number | null>(null);
+  readonly status = signal('');
+
+  private getWorker(): Promise<Worker> {
+    this.worker ??= (async () => {
+      const { createWorker } = await import('tesseract.js');
+      const base = new URL('ocr/', document.baseURI).href;
+      return createWorker('ita', 1, {
+        workerPath: `${base}worker.min.js`,
+        corePath: `${base}core`,
+        langPath: `${base}lang`,
+        gzip: true,
+        workerBlobURL: false,
+        logger: (m: { status: string; progress: number }) => {
+          this.status.set(m.status);
+          if (m.status === 'recognizing text') this.progress.set(m.progress);
+        },
+      });
+    })();
+    this.worker.catch(() => (this.worker = null));
+    return this.worker;
+  }
+
+  /** Riconosce le parole di un'immagine, con la loro posizione. */
+  async words(file: Blob): Promise<OcrWord[]> {
+    this.progress.set(0);
+    this.status.set('preparazione');
+    try {
+      const image = await preprocess(file);
+      const worker = await this.getWorker();
+      const { data } = await worker.recognize(image, {}, { blocks: true });
+      return (data.blocks ?? []).flatMap((b) =>
+        b.paragraphs.flatMap((p) => p.lines.flatMap((l) => l.words.map((w) => ({ text: w.text, ...w.bbox })))),
+      );
+    } finally {
+      this.progress.set(null);
+    }
+  }
+}
+
+/**
+ * Scala di grigi + soglia: il testo colorato su fondo chiaro (i numeri verdi di Feelfit)
+ * diventa nero su bianco, molto più leggibile per l'OCR. Gli screenshot scuri vengono invertiti.
+ */
+async function preprocess(file: Blob): Promise<HTMLCanvasElement> {
+  const bitmap = await createImageBitmap(file);
+  const scale = Math.min(1, MAX_WIDTH / bitmap.width);
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.round(bitmap.width * scale);
+  canvas.height = Math.round(bitmap.height * scale);
+  const ctx = canvas.getContext('2d', { willReadFrequently: true })!;
+  ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  bitmap.close();
+
+  const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const px = img.data;
+  let sum = 0;
+  for (let i = 0; i < px.length; i += 4) sum += 0.299 * px[i] + 0.587 * px[i + 1] + 0.114 * px[i + 2];
+  const dark = sum / (px.length / 4) < 110;
+  for (let i = 0; i < px.length; i += 4) {
+    let l = 0.299 * px[i] + 0.587 * px[i + 1] + 0.114 * px[i + 2];
+    if (dark) l = 255 - l;
+    const v = l > THRESHOLD ? 255 : 0;
+    px[i] = px[i + 1] = px[i + 2] = v;
+  }
+  ctx.putImageData(img, 0, 0);
+  return canvas;
+}

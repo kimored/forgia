@@ -1,8 +1,11 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { ProfileService } from '../../core/data/profile.service';
 import type { Weekday } from '../../core/models/plan';
 import type { PersonalReminder, Profile, Sex, TimeSlot } from '../../core/models/profile';
-import { WEEKDAY_SHORT, mondayOf } from '../../core/domain/dates';
+import { WEEKDAY_SHORT, mondayOf, parseIsoDate } from '../../core/domain/dates';
+import { parseScaleWords, SCALE_FIELD_LABELS, type ScaleField } from '../../core/domain/scale-ocr';
+import { OcrService } from '../../core/platform/ocr.service';
 
 type Section = 'tu' | 'inizio' | 'obiettivi' | 'orari';
 
@@ -12,12 +15,14 @@ type Section = 'tu' | 'inizio' | 'obiettivi' | 'orari';
  */
 @Component({
   selector: 'app-profile-form',
+  imports: [DatePipe, DecimalPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './profile-form.html',
   styleUrl: './profile-form.scss',
 })
 export class ProfileForm {
   private readonly profiles = inject(ProfileService);
+  protected readonly ocr = inject(OcrService);
 
   readonly mode = input<'wizard' | 'edit'>('edit');
   readonly saved = output<void>();
@@ -26,6 +31,57 @@ export class ProfileForm {
   protected readonly step = signal(0);
   protected readonly saving = signal(false);
   protected readonly savedFlash = signal(false);
+
+  // ---------- Import da screenshot della bilancia ----------
+
+  protected readonly scan = signal<
+    | { state: 'idle' }
+    | { state: 'busy' }
+    | { state: 'done'; count: number; date?: Date; extras: { label: string; value: number }[] }
+    | { state: 'error'; message: string }
+  >({ state: 'idle' });
+  /** Campi compilati dall'OCR, evidenziati finché non li tocchi. */
+  protected readonly fromOcr = signal<Set<string>>(new Set());
+
+  private static readonly EXTRA: ScaleField[] = [
+    'bmi', 'skeletalMusclePct', 'proteinPct', 'visceralFat', 'waterPct', 'boneKg', 'metabolicAge',
+  ];
+
+  protected async importScreenshot(input: HTMLInputElement): Promise<void> {
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file) return;
+    this.scan.set({ state: 'busy' });
+    try {
+      const { reading, fields } = parseScaleWords(await this.ocr.words(file));
+      if (!fields.length) {
+        this.scan.set({ state: 'error', message: 'Non ho trovato valori nello screenshot. Prova con la schermata dei risultati della pesata, oppure inseriscili a mano.' });
+        return;
+      }
+      const { date, weightKg, ...body } = reading;
+      this.model.update((m) => ({
+        ...m,
+        startWeightKg: weightKg ?? m.startWeightKg,
+        body: { ...m.body, ...body, measuredAt: date ?? m.body?.measuredAt },
+      }));
+      this.fromOcr.set(new Set(fields));
+      this.scan.set({
+        state: 'done',
+        count: fields.length,
+        date: date ? parseIsoDate(date) : undefined,
+        extras: ProfileForm.EXTRA.filter((f) => reading[f] !== undefined).map((f) => ({ label: SCALE_FIELD_LABELS[f], value: reading[f]! })),
+      });
+    } catch {
+      this.scan.set({ state: 'error', message: 'Lettura non riuscita. Riprova, oppure inserisci i valori a mano.' });
+    }
+  }
+
+  protected touched(field: string): void {
+    if (!this.fromOcr().has(field)) return;
+    const next = new Set(this.fromOcr());
+    next.delete(field);
+    this.fromOcr.set(next);
+  }
 
   protected readonly sections: { id: Section; title: string }[] = [
     { id: 'tu', title: 'Su di te' },

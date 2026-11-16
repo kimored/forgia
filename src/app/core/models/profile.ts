@@ -21,6 +21,16 @@ export interface BodyComposition {
   fatPct?: number;
   muscleKg?: number;
   bmrKcal?: number;
+  /** Valori aggiuntivi letti dallo screenshot della bilancia. */
+  bmi?: number;
+  skeletalMusclePct?: number;
+  proteinPct?: number;
+  visceralFat?: number;
+  waterPct?: number;
+  boneKg?: number;
+  metabolicAge?: number;
+  /** Data della pesata da cui vengono i valori. */
+  measuredAt?: string;
 }
 
 export interface Profile {

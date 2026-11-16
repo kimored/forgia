@@ -28,10 +28,29 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "worker.min.js",
+                "input": "node_modules/tesseract.js/dist",
+                "output": "ocr"
+              },
+              {
+                "glob": "tesseract-core-*lstm.wasm.js",
+                "input": "node_modules/tesseract.js-core",
+                "output": "ocr/core"
+              },
+              {
+                "glob": "ita.traineddata.gz",
+                "input": "node_modules/@tesseract.js-data/ita/4.0.0_best_int",
+                "output": "ocr/lang"
               }
             ],
             "styles": [
               "src/styles.scss"
+            ],
+            "allowedCommonJsDependencies": [
+              "tesseract.js",
+              "regenerator-runtime"
             ]
           },
           "configurations": {

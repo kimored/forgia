@@ -136,3 +136,98 @@ input[type='time'] {
     transform: translateY(8px);
   }
 }
+
+/* Safari iOS: il campo data ha una larghezza minima propria e sborda dalla griglia. */
+input[type='date'] {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  text-align: left;
+  &::-webkit-date-and-time-value {
+    text-align: left;
+  }
+}
+
+/* ---------- Import da screenshot ---------- */
+.scan {
+  display: grid;
+  gap: 8px;
+}
+.scan-btn {
+  justify-self: stretch;
+  min-height: 52px;
+  font-size: 1rem;
+}
+.scan-busy {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  font-weight: 600;
+}
+.bar {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--border);
+  overflow: hidden;
+  span {
+    display: block;
+    height: 100%;
+    background: var(--primary);
+    transition: width 200ms;
+  }
+}
+.scan-ok {
+  margin: 0;
+  color: var(--ok);
+  font-weight: 600;
+  animation: enter var(--dur) var(--ease-spring);
+}
+.scan-err {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--warn-soft);
+  color: var(--warn);
+  font-weight: 600;
+}
+.extras {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 6px;
+  li {
+    display: flex;
+    justify-content: space-between;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 10px;
+    background: var(--surface-2);
+    font-size: 0.85rem;
+  }
+}
+.or {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-2);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+}
+input.ocr {
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 10%, var(--surface-2));
+}
