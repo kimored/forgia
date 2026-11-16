@@ -76,6 +76,9 @@ describe('riconoscimento delle righe', () => {
     expect(cleanName('- Pasta di semola')).toEqual({ name: 'Pasta di semola', sub: true });
     expect(cleanName('Caffè quesetisoosibiontaneronesi AAA')).toMatchObject({ name: 'Caffè' });
     expect(cleanName('i È Macedonia')).toMatchObject({ name: 'Macedonia' });
+    expect(cleanName('caffè - Vea a n a mimi aa')).toMatchObject({ name: 'caffè' });
+    expect(cleanName('Pasta di semola')).toMatchObject({ name: 'Pasta di semola' });
+    expect(cleanName('Olio extra vergine di oliva')).toMatchObject({ name: 'Olio extra vergine di oliva' });
   });
 
   it('sezioni di pasto, anche con rumore', () => {

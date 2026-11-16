@@ -92,11 +92,15 @@ const DOC_WIDTH = 1800;
 async function prepareDocument(source: Blob | HTMLCanvasElement): Promise<HTMLCanvasElement> {
   const { adaptiveThreshold, removeDottedLines, toGray } = await import('../domain/image-prep');
   const bitmap = source instanceof Blob ? await createImageBitmap(source) : source;
-  const scale = DOC_WIDTH / bitmap.width;
+  // Si riduce se enorme, si ingrandisce solo se piccola: l'ingrandimento del canvas sfoca le lettere.
+  const scale = bitmap.width > DOC_WIDTH * 1.4 ? DOC_WIDTH / bitmap.width : bitmap.width < 1100 ? 1100 / bitmap.width : 1;
   const canvas = document.createElement('canvas');
   canvas.width = Math.round(bitmap.width * scale);
   canvas.height = Math.round(bitmap.height * scale);
   const ctx = canvas.getContext('2d', { willReadFrequently: true })!;
+  // Ridimensionamento di qualità: con quello di default le lettere sottili si rovinano.
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
   ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
   if ('close' in bitmap) bitmap.close();
 

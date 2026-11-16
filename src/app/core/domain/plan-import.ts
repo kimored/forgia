@@ -218,11 +218,15 @@ export function cleanName(text: string): { name: string; sub: boolean } {
   const sub = /^[\s'"„“”‘’|!]*[-–—]/.test(t) || /^["„“]\s*[A-Z]/.test(t);
   t = t.replace(/^[\s'"„“”‘’|!:;.,>?\-–—_]+/, '');
   // Coda di rumore: token lunghi senza senso ("quesetisoosibiontaneronesi…") o ripetizioni.
-  const words = t.split(/\s+/);
+  // Token di sola punteggiatura (puntini delle linee guida) non contano.
+  const words = t.split(/\s+/).filter((w) => /[\p{L}\d]/u.test(w));
   // Lettere o accenti isolati in testa ("i È Macedonia", "1! Yogurt") sono rumore.
   while (words.length > 1 && words[0].replace(/[^a-zà-ù]/gi, '').length <= 1) words.shift();
   const keep: string[] = [];
-  for (const w of words) {
+  const short = (w?: string) => !!w && w.replace(/[^a-zà-ù]/gi, '').length <= 2;
+  for (const [i, w] of words.entries()) {
+    // Puntini residui letti come lettere: "Caffè - Vea a n a aa" → più frammenti corti di fila.
+    if (keep.length && [w, words[i + 1], words[i + 2]].filter(short).length >= 2 && words.length > i + 1) break;
     // Un numero nel nome di solito è una quantità finita nella riga sbagliata: si taglia lì.
     if (/\d/.test(w)) break;
     const plain = w.replace(/[^a-zà-ù']/gi, '');
