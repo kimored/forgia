@@ -59,7 +59,7 @@
                   📷 {{ scan().state === 'done' ? 'Carica un altro screenshot' : 'Carica lo screenshot della bilancia' }}
                   <input type="file" accept="image/*" hidden #shot (change)="importScreenshot(shot)" />
                 </label>
-                <p class="hint">Feelfit o app simili: leggo peso, grasso, massa muscolare, BMR e gli altri valori. L'immagine resta sul telefono.</p>
+                <p class="hint">Va bene l'app di qualsiasi bilancia (Feelfit, Zepp, Renpho, Huawei…): leggo peso, grasso, massa muscolare, BMR e gli altri valori. L'immagine resta sul telefono.</p>
               }
             }
             @if (scan(); as s) {

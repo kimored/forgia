@@ -70,6 +70,64 @@ describe('parseScaleWords (layout Feelfit)', () => {
   });
 });
 
+/** Costruisce righe di testo a partire da coordinate semplici (una parola = una frase). */
+const row = (y: number, ...cells: [string, number][]) =>
+  cells.map(([text, x]) => w(text, x, y, x + text.length * 18, y + 30));
+
+describe('altre app di bilance', () => {
+  it('elenco con il valore a destra (stile Renpho / Huawei)', () => {
+    const words = [
+      ...row(100, ['Peso', 40], ['78,6 kg', 800]),
+      ...row(180, ['Grasso corporeo', 40], ['21,3 %', 800]),
+      ...row(260, ['Acqua', 40], ['55,1 %', 800]),
+      ...row(340, ['Muscoli', 40], ['58,0 kg', 800]),
+      ...row(420, ['Ossa', 40], ['2,9 kg', 800]),
+      ...row(500, ['Metabolismo basale', 40], ['1745 kcal', 800]),
+      ...row(580, ['Grasso viscerale', 40], ['8', 800]),
+    ];
+    expect(parseScaleWords(words).reading).toMatchObject({
+      weightKg: 78.6, fatPct: 21.3, waterPct: 55.1, muscleKg: 58, boneKg: 2.9, bmrKcal: 1745, visceralFat: 8,
+    });
+  });
+
+  it('valore sopra l’etichetta (stile Xiaomi / Zepp Life)', () => {
+    const words = [
+      ...row(100, ['78.6kg', 60], ['24.0', 460], ['21.3%', 860]),
+      ...row(150, ['Peso', 70], ['BMI', 470], ['Grasso', 870]),
+      ...row(300, ['55.1%', 60], ['58.0kg', 460], ['1745kcal', 860]),
+      ...row(350, ['Acqua', 70], ['Muscoli', 470], ['BMR', 870]),
+    ];
+    expect(parseScaleWords(words).reading).toMatchObject({
+      weightKg: 78.6, bmi: 24, fatPct: 21.3, waterPct: 55.1, muscleKg: 58, bmrKcal: 1745,
+    });
+  });
+
+  it('etichetta e valore nella stessa frase', () => {
+    const words = [w('Peso: 78,6 kg', 40, 100, 300, 130), w('Grasso corporeo 21,3%', 40, 160, 420, 190), w('BMI 24', 40, 220, 160, 250)];
+    expect(parseScaleWords(words).reading).toMatchObject({ weightKg: 78.6, fatPct: 21.3, bmi: 24 });
+  });
+
+  it('etichette in inglese e peso in libbre', () => {
+    const words = [
+      ...row(100, ['Weight', 40], ['173.3 lb', 800]),
+      ...row(180, ['Body Fat', 40], ['21.3%', 800]),
+      ...row(260, ['Body Water', 40], ['55.1%', 800]),
+      ...row(340, ['Metabolic Age', 40], ['30', 800]),
+    ];
+    expect(parseScaleWords(words).reading).toMatchObject({ weightKg: 78.6, fatPct: 21.3, waterPct: 55.1, metabolicAge: 30 });
+  });
+
+  it('peso senza etichetta: il numero in kg più grande', () => {
+    const words = [w('78.6', 300, 100, 600, 220), w('kg', 610, 160, 680, 220), ...row(400, ['Grasso', 40], ['21,3 %', 800])];
+    expect(parseScaleWords(words).reading).toMatchObject({ weightKg: 78.6, fatPct: 21.3 });
+  });
+
+  it('non confonde le unità: un valore in kg non finisce in un campo in %', () => {
+    const words = [...row(100, ['Muscolo scheletrico', 40], ['32.5 kg', 800])];
+    expect(parseScaleWords(words).reading.skeletalMusclePct).toBeUndefined();
+  });
+});
+
 describe('helper', () => {
   it('parseValue', () => {
     expect(parseValue('80,5 kg')).toBe(80.5);
