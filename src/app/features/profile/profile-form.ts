@@ -147,7 +147,8 @@ export class ProfileForm {
   }
 
   protected addReminder(): void {
-    const r: PersonalReminder = { id: crypto.randomUUID(), time: '08:00', text: '', enabled: true };
+    // Niente crypto.randomUUID(): esiste solo in HTTPS, e in locale (http://192.168…) farebbe fallire il click.
+    const r: PersonalReminder = { id: `r-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`, time: '08:00', text: '', enabled: true };
     this.model.update((m) => ({ ...m, reminders: [...m.reminders, r] }));
   }
 
