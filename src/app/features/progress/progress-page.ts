@@ -228,7 +228,7 @@ export class ProgressPage {
     } catch (e) {
       this.scan.set({
         state: 'error',
-        text: e instanceof OcrLoadError ? 'Non riesco a caricare il motore di lettura: riprova online.' : 'Lettura non riuscita: inserisci i valori a mano.',
+        text: e instanceof OcrLoadError ? `Non riesco a caricare il motore di lettura (${e.message}).` : 'Lettura non riuscita: inserisci i valori a mano.',
       });
     }
   }

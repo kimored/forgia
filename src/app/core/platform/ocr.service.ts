@@ -4,7 +4,7 @@ import type { OcrWord } from '../domain/scale-ocr';
 
 const THRESHOLD = 225;
 const MAX_WIDTH = 1600;
-const LOAD_TIMEOUT_MS = 90_000;
+const LOAD_TIMEOUT_MS = 40_000;
 
 /** Il motore OCR non si è caricato (prima volta offline, o file mancanti sul server). */
 export class OcrLoadError extends Error {}
@@ -25,22 +25,37 @@ export class OcrService {
     this.worker ??= (async () => {
       const { createWorker } = await import('tesseract.js');
       const base = new URL('ocr/', document.baseURI).href;
-      // Se un file del motore manca, il worker può restare appeso: meglio un errore chiaro.
-      const timeout = new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error('tempo scaduto nel caricamento')), LOAD_TIMEOUT_MS),
-      );
-      const worker = createWorker('ita', 1, {
-        workerPath: `${base}worker.min.js`,
-        corePath: `${base}core`,
-        langPath: `${base}lang`,
-        gzip: true,
-        workerBlobURL: false,
-        logger: (m: { status: string; progress: number }) => {
-          this.status.set(m.status);
-          if (m.status === 'recognizing text') this.progress.set(m.progress);
-        },
-      });
-      return Promise.race([worker, timeout]);
+      // Prima il motore scelto in automatico; se il browser non lo regge (es. alcune versioni
+      // di Safari su iPhone con le istruzioni SIMD più recenti) si riprova con versioni più compatibili.
+      const cores = [`${base}core`, `${base}core/tesseract-core-simd-lstm.wasm.js`, `${base}core/tesseract-core-lstm.wasm.js`];
+      const errors: string[] = [];
+      for (const corePath of cores) {
+        let w: Worker | undefined;
+        try {
+          // Se un file del motore manca, il worker può restare appeso: meglio un errore chiaro.
+          const timeout = new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error('tempo scaduto nel caricamento')), LOAD_TIMEOUT_MS),
+          );
+          const pending = createWorker('ita', 1, {
+            workerPath: `${base}worker.min.js`,
+            corePath,
+            langPath: `${base}lang`,
+            gzip: true,
+            workerBlobURL: false,
+            logger: (m: { status: string; progress: number }) => {
+              this.status.set(m.status);
+              if (m.status === 'recognizing text') this.progress.set(m.progress);
+            },
+            errorHandler: (e: unknown) => errors.push(String((e as Error)?.message ?? e)),
+          });
+          pending.then((x) => (w = x)).catch(() => undefined);
+          return await Promise.race([pending, timeout]);
+        } catch (e) {
+          errors.push(String((e as Error)?.message ?? e));
+          void w?.terminate();
+        }
+      }
+      throw new Error(errors.filter(Boolean).slice(-2).join(' · ') || 'motore non disponibile');
     })();
     this.worker.catch(() => (this.worker = null));
     return this.worker.catch((e) => {

@@ -80,7 +80,7 @@ export class ProfileForm {
         state: 'error',
         message:
           e instanceof OcrLoadError
-            ? 'Non riesco a caricare il motore di lettura. La prima volta serve la connessione: riprova online. Se il problema resta, inserisci i valori a mano.'
+            ? `Non riesco a caricare il motore di lettura (${e.message}). Riprova; se il problema resta, inserisci i valori a mano.`
             : `Lettura non riuscita (${(e as Error)?.message ?? 'errore sconosciuto'}). Riprova con un altro screenshot, oppure inserisci i valori a mano.`,
       });
     }
