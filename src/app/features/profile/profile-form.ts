@@ -5,7 +5,7 @@ import type { Weekday } from '../../core/models/plan';
 import type { PersonalReminder, Profile, Sex, TimeSlot } from '../../core/models/profile';
 import { WEEKDAY_SHORT, mondayOf, parseIsoDate } from '../../core/domain/dates';
 import { parseScaleWords, SCALE_FIELD_LABELS, type ScaleField } from '../../core/domain/scale-ocr';
-import { OcrService } from '../../core/platform/ocr.service';
+import { OcrLoadError, OcrService } from '../../core/platform/ocr.service';
 
 type Section = 'tu' | 'inizio' | 'obiettivi' | 'orari';
 
@@ -71,8 +71,15 @@ export class ProfileForm {
         date: date ? parseIsoDate(date) : undefined,
         extras: ProfileForm.EXTRA.filter((f) => reading[f] !== undefined).map((f) => ({ label: SCALE_FIELD_LABELS[f], value: reading[f]! })),
       });
-    } catch {
-      this.scan.set({ state: 'error', message: 'Lettura non riuscita. Riprova, oppure inserisci i valori a mano.' });
+    } catch (e) {
+      console.error('OCR: lettura non riuscita', e);
+      this.scan.set({
+        state: 'error',
+        message:
+          e instanceof OcrLoadError
+            ? 'Non riesco a caricare il motore di lettura. La prima volta serve la connessione: riprova online. Se il problema resta, inserisci i valori a mano.'
+            : `Lettura non riuscita (${(e as Error)?.message ?? 'errore sconosciuto'}). Riprova con un altro screenshot, oppure inserisci i valori a mano.`,
+      });
     }
   }
 

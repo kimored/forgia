@@ -4,6 +4,10 @@ import type { OcrWord } from '../domain/scale-ocr';
 
 const THRESHOLD = 225;
 const MAX_WIDTH = 1600;
+const LOAD_TIMEOUT_MS = 90_000;
+
+/** Il motore OCR non si è caricato (prima volta offline, o file mancanti sul server). */
+export class OcrLoadError extends Error {}
 
 /**
  * OCR sul dispositivo con Tesseract.js: gratis, senza limiti, offline dopo il primo uso.
@@ -21,7 +25,11 @@ export class OcrService {
     this.worker ??= (async () => {
       const { createWorker } = await import('tesseract.js');
       const base = new URL('ocr/', document.baseURI).href;
-      return createWorker('ita', 1, {
+      // Se un file del motore manca, il worker può restare appeso: meglio un errore chiaro.
+      const timeout = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('tempo scaduto nel caricamento')), LOAD_TIMEOUT_MS),
+      );
+      const worker = createWorker('ita', 1, {
         workerPath: `${base}worker.min.js`,
         corePath: `${base}core`,
         langPath: `${base}lang`,
@@ -32,9 +40,13 @@ export class OcrService {
           if (m.status === 'recognizing text') this.progress.set(m.progress);
         },
       });
+      return Promise.race([worker, timeout]);
     })();
     this.worker.catch(() => (this.worker = null));
-    return this.worker;
+    return this.worker.catch((e) => {
+      console.error('OCR: caricamento del motore non riuscito', e);
+      throw new OcrLoadError(String(e?.message ?? e));
+    });
   }
 
   /** Riconosce le parole di un'immagine, con la loro posizione. */
