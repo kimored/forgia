@@ -1,0 +1,230 @@
+:host {
+  display: block;
+  min-height: 100dvh;
+}
+
+.shell {
+  min-height: 100dvh;
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+/* ---------- Telefono: tab bar in basso ---------- */
+.rail {
+  display: none;
+}
+
+.main {
+  min-width: 0;
+  padding-bottom: calc(64px + var(--safe-bottom));
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(var(--safe-top) + 4px) calc(var(--safe-right) + 8px) 4px calc(var(--safe-left) + 16px);
+  background: color-mix(in srgb, var(--bg) 85%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: var(--text);
+}
+.topbar-title {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+.topbar .icon-btn {
+  color: inherit;
+}
+
+.content {
+  padding: 8px calc(var(--safe-right) + 16px) 24px calc(var(--safe-left) + 16px);
+  max-width: var(--content-max);
+  margin: 0 auto;
+}
+
+.banner {
+  margin: 8px calc(var(--safe-right) + 16px) 0 calc(var(--safe-left) + 16px);
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  background: var(--warn-soft);
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 12px;
+  align-items: start;
+  animation: drop var(--dur) var(--ease-spring);
+
+  p {
+    margin: 0;
+    display: grid;
+    gap: 2px;
+    font-size: 0.92rem;
+  }
+  app-icon {
+    color: var(--warn);
+    margin-top: 2px;
+  }
+}
+.banner-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tabbar {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: 20;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  padding: 4px calc(var(--safe-right) + 4px) calc(var(--safe-bottom) + 4px) calc(var(--safe-left) + 4px);
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid var(--border);
+}
+.tab {
+  min-height: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-2);
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+
+  app-icon {
+    padding: 3px 16px;
+    border-radius: 999px;
+    transition: background var(--dur), transform var(--dur) var(--ease-spring);
+  }
+  &.active {
+    color: var(--primary);
+    app-icon {
+      background: var(--primary-soft);
+    }
+  }
+  &:active app-icon {
+    transform: scale(0.9);
+  }
+}
+
+/* ---------- Tablet: navigation rail ---------- */
+@media (min-width: 600px) {
+  .shell {
+    grid-template-columns: auto 1fr;
+  }
+  .tabbar,
+  .topbar {
+    display: none;
+  }
+  .main {
+    padding-bottom: var(--safe-bottom);
+    padding-top: var(--safe-top);
+  }
+  .rail {
+    position: sticky;
+    top: 0;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    width: calc(84px + var(--safe-left));
+    padding: calc(var(--safe-top) + 12px) 8px calc(var(--safe-bottom) + 12px) calc(var(--safe-left) + 8px);
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+  }
+  .rail-brand {
+    display: grid;
+    place-items: center;
+    margin-bottom: 12px;
+    span {
+      display: none;
+    }
+  }
+  .rail-spacer {
+    flex: 1;
+  }
+  .rail-item {
+    width: 100%;
+    min-height: 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-2);
+    text-decoration: none;
+    border-radius: var(--radius-sm);
+
+    app-icon {
+      padding: 4px 16px;
+      border-radius: 999px;
+      transition: background var(--dur);
+    }
+    &.active {
+      color: var(--primary);
+      app-icon {
+        background: var(--primary-soft);
+      }
+    }
+  }
+  .content {
+    padding: 24px calc(var(--safe-right) + 24px) 32px 24px;
+  }
+  .banner {
+    margin: 16px calc(var(--safe-right) + 24px) 0 24px;
+    max-width: var(--content-max);
+  }
+}
+
+/* ---------- Desktop: rail estesa con etichette ---------- */
+@media (min-width: 1024px) {
+  .rail {
+    width: 232px;
+    align-items: stretch;
+    padding-inline: 12px;
+  }
+  .rail-brand {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-start;
+    padding: 0 8px;
+    font-weight: 700;
+    font-size: 1.15rem;
+    span {
+      display: inline;
+    }
+  }
+  .rail-item {
+    flex-direction: row;
+    justify-content: flex-start;
+    min-height: 48px;
+    gap: 12px;
+    padding: 0 8px;
+    font-size: 0.95rem;
+    app-icon {
+      padding: 4px 8px;
+    }
+    &.active {
+      background: var(--primary-soft);
+    }
+  }
+}
+
+@keyframes drop {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}

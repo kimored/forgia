@@ -1,0 +1,72 @@
+<h1>Impostazioni</h1>
+
+<section class="card">
+  <h2>Tema</h2>
+  <div class="segmented" role="radiogroup" aria-label="Tema">
+    @for (t of themes; track t.value) {
+      <button type="button" role="radio" [attr.aria-checked]="theme.pref() === t.value"
+              [class.on]="theme.pref() === t.value" (click)="theme.pref.set(t.value)">
+        {{ t.label }}
+      </button>
+    }
+  </div>
+</section>
+
+@if (!install.standalone()) {
+  <section class="card">
+    <h2>Installa l'app</h2>
+    @if (install.canPrompt()) {
+      <p class="muted">Aggiungi Massa alla schermata Home: si apre a tutto schermo e funziona offline.</p>
+      <button class="btn primary" type="button" (click)="install.prompt()">
+        <app-icon name="download" [size]="20" /> Installa
+      </button>
+    } @else if (install.showIosHelp()) {
+      <ol class="steps">
+        <li>Apri questa pagina in <strong>Safari</strong>.</li>
+        <li>Tocca <app-icon name="share" [size]="18" /> <strong>Condividi</strong>.</li>
+        <li>Scegli <app-icon name="plusSquare" [size]="18" /> <strong>Aggiungi alla schermata Home</strong>.</li>
+      </ol>
+    } @else {
+      <p class="muted">Usa il menu del browser → «Installa app» o «Aggiungi a schermata Home».</p>
+    }
+  </section>
+}
+
+<section class="card">
+  <h2>Backup dei dati</h2>
+  <p class="muted">
+    I tuoi dati restano solo su questo dispositivo. Salva un backup JSON almeno una volta al mese
+    (su iPhone puoi salvarlo in File o su iCloud Drive).
+  </p>
+  <p class="meta">
+    Ultimo backup:
+    <strong>{{ backup.lastBackupAt() ? (backup.lastBackupAt() | date: 'd MMMM y, HH:mm') : 'mai' }}</strong>
+  </p>
+  <p class="meta">
+    Archiviazione persistente:
+    <strong>
+      @switch (storage.persisted()) {
+        @case (true) { attiva }
+        @case (false) { non concessa dal browser }
+        @default { non supportata }
+      }
+    </strong>
+  </p>
+  <div class="row">
+    <button class="btn primary" type="button" (click)="backup.download()">
+      <app-icon name="download" [size]="20" /> Esporta
+    </button>
+    <label class="btn">
+      <app-icon name="upload" [size]="20" /> Importa
+      <input type="file" accept="application/json,.json" hidden #file (change)="onImport(file)" />
+    </label>
+  </div>
+  @if (importMessage(); as m) {
+    <p class="msg" [class.err]="!m.ok" role="status">{{ m.text }}</p>
+  }
+</section>
+
+<section class="card">
+  <h2>Info</h2>
+  <p class="muted">Massa · PWA personale, offline, senza server.</p>
+</section>

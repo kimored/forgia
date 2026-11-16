@@ -1,0 +1,55 @@
+<div class="shell">
+  <nav class="rail" aria-label="Navigazione principale">
+    <div class="rail-brand">
+      <img src="icons/icon.svg" alt="" width="36" height="36" />
+      <span>Massa</span>
+    </div>
+    @for (item of nav; track item.path) {
+      <a class="rail-item" [routerLink]="item.path" routerLinkActive="active" ariaCurrentWhenActive="page">
+        <app-icon [name]="item.icon" />
+        <span>{{ item.label }}</span>
+      </a>
+    }
+    <span class="rail-spacer"></span>
+    <a class="rail-item" routerLink="impostazioni" routerLinkActive="active" ariaCurrentWhenActive="page">
+      <app-icon name="settings" />
+      <span>Impostazioni</span>
+    </a>
+  </nav>
+
+  <div class="main">
+    <header class="topbar">
+      <span class="topbar-title">Massa</span>
+      <a class="icon-btn" routerLink="impostazioni" aria-label="Impostazioni">
+        <app-icon name="settings" />
+      </a>
+    </header>
+
+    @if (backup.due()) {
+      <div class="banner" role="status">
+        <app-icon name="shield" />
+        <p>
+          <strong>Fai un backup dei tuoi dati.</strong>
+          <span class="muted">Su iPhone i dati locali possono essere cancellati: salvane una copia una volta al mese.</span>
+        </p>
+        <div class="banner-actions">
+          <button class="btn primary" type="button" (click)="backup.download()">Salva backup</button>
+          <button class="btn ghost" type="button" (click)="backup.snooze()">Più tardi</button>
+        </div>
+      </div>
+    }
+
+    <main class="content">
+      <router-outlet />
+    </main>
+  </div>
+
+  <nav class="tabbar" aria-label="Navigazione principale">
+    @for (item of nav; track item.path) {
+      <a class="tab" [routerLink]="item.path" routerLinkActive="active" ariaCurrentWhenActive="page">
+        <app-icon [name]="item.icon" />
+        <span>{{ item.label }}</span>
+      </a>
+    }
+  </nav>
+</div>
