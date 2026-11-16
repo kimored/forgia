@@ -1,6 +1,6 @@
 import type Dexie from 'dexie';
 
-export const BACKUP_FORMAT = 'massa-backup';
+export const BACKUP_FORMAT = 'forgia-backup';
 export const BACKUP_INTERVAL_DAYS = 30;
 const DAY_MS = 86_400_000;
 
@@ -28,7 +28,7 @@ export function parseBackup(json: string): BackupFile {
   }
   const file = data as Partial<BackupFile>;
   if (file?.format !== BACKUP_FORMAT || typeof file.tables !== 'object' || !file.tables) {
-    throw new Error('Il file non è un backup di Massa.');
+    throw new Error('Il file non è un backup di Forgia.');
   }
   return file as BackupFile;
 }

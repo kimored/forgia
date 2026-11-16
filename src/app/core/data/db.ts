@@ -11,10 +11,10 @@ export interface KeyValue<T = unknown> {
  * e finiscono nell'export JSON di backup. Le tabelle dei log arrivano con le
  * prossime versioni dello schema.
  */
-export class MassaDb extends Dexie {
+export class ForgiaDb extends Dexie {
   kv!: Table<KeyValue, string>;
 
-  constructor(name = 'massa') {
+  constructor(name = 'forgia') {
     super(name);
     this.version(1).stores({
       kv: 'key',
@@ -22,4 +22,4 @@ export class MassaDb extends Dexie {
   }
 }
 
-export const db = new MassaDb();
+export const db = new ForgiaDb();

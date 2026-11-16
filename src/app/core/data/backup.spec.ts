@@ -30,6 +30,6 @@ describe('parseBackup', () => {
 
   it('rifiuta JSON non valido o di altro formato', () => {
     expect(() => parseBackup('{')).toThrow(/JSON/);
-    expect(() => parseBackup('{"foo":1}')).toThrow(/backup di Massa/);
+    expect(() => parseBackup('{"foo":1}')).toThrow(/backup di Forgia/);
   });
 });

@@ -32,13 +32,13 @@ export class BackupService {
     const now = new Date();
     const backup = await exportDb(db, now);
     const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
-    const name = `massa-backup-${now.toISOString().slice(0, 10)}.json`;
+    const name = `forgia-backup-${now.toISOString().slice(0, 10)}.json`;
 
     // Su iOS/Android il foglio di condivisione permette di salvare su File / Drive.
     const file = new File([blob], name, { type: 'application/json' });
     if (navigator.canShare?.({ files: [file] })) {
       try {
-        await navigator.share({ files: [file], title: 'Backup Massa' });
+        await navigator.share({ files: [file], title: 'Backup Forgia' });
       } catch (e) {
         if ((e as DOMException).name === 'AbortError') return;
         this.saveViaLink(blob, name);

@@ -1,4 +1,6 @@
-# Massa
+# Forgia
+
+**Nutrizione & Allenamento**
 
 PWA personale (Angular 22) per dieta, palestra, dispensa e progressi. Funziona offline, senza backend.
 

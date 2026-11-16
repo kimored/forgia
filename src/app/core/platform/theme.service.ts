@@ -1,7 +1,7 @@
 import { Injectable, effect, signal } from '@angular/core';
 
 export type ThemePref = 'auto' | 'light' | 'dark';
-const KEY = 'massa.theme';
+const KEY = 'forgia.theme';
 const COLOR = { light: '#f6f7f6', dark: '#0e1412' };
 
 /** Preferenza di tema per dispositivo (localStorage: è una comodità, non un dato da salvare). */
