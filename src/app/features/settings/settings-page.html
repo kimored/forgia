@@ -79,6 +79,27 @@
   }
 </section>
 
+<section class="card">
+  <h2>Allenamento</h2>
+  <label class="toggle-row">
+    <span>
+      <strong>Fase del programma</strong>
+      <span class="muted">Di solito segue la data di inizio del piano</span>
+    </span>
+    <select class="label-input" [value]="app.settings().workoutPhase ?? ''" (change)="app.update({ workoutPhase: $any($event.target).value || undefined })">
+      <option value="">Automatica</option>
+      @for (ph of phases; track ph.id) { <option [value]="ph.id">{{ ph.name }}</option> }
+    </select>
+  </label>
+  <label class="toggle-row">
+    <span>
+      <strong>Suono e vibrazione a fine recupero</strong>
+      <span class="muted">Su iPhone solo suono: Safari non permette la vibrazione</span>
+    </span>
+    <input type="checkbox" role="switch" [checked]="app.settings().restAlert" (change)="app.update({ restAlert: $any($event.target).checked })" />
+  </label>
+</section>
+
 @if (!install.standalone()) {
   <section class="card">
     <h2>Installa l'app</h2>
@@ -136,6 +157,7 @@
 <section class="card">
   <h2>Info</h2>
   <p class="muted">Forgia · PWA personale, offline, senza server.</p>
+  <p class="muted small">Immagini degli esercizi: <a href="https://github.com/yuhonas/free-exercise-db" target="_blank" rel="noopener">free-exercise-db</a> di yuhonas, pubblico dominio (The Unlicense). OCR: Tesseract.js (Apache 2.0). PDF: pdf.js (Apache 2.0). Word: mammoth (BSD).</p>
   <p class="disclaimer">
     ⚕️ Forgia ti aiuta a seguire il piano alimentare che ti ha dato il tuo nutrizionista o dietologo.
     Non è un dispositivo medico, non calcola fabbisogni né prescrive diete e non sostituisce il parere

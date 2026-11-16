@@ -8,6 +8,7 @@ import { BackupService } from '../../core/data/backup.service';
 import { SettingsService } from '../../core/data/settings.service';
 import { PlanImportError, PlanService } from '../../core/data/plan.service';
 import { Icon } from '../../shared/ui/icon';
+import { PROGRAM } from '../../core/domain/workout';
 
 @Component({
   selector: 'app-settings-page',
@@ -22,6 +23,7 @@ export class SettingsPage {
   protected readonly storage = inject(StorageService);
   protected readonly backup = inject(BackupService);
   protected readonly app = inject(SettingsService);
+  protected readonly phases = PROGRAM.phases;
   protected readonly plans = inject(PlanService);
   protected readonly planMessage = signal<{ ok: boolean; text: string } | null>(null);
   protected readonly hasOtherPart = computed(() => this.plans.catalog().slots.some((s) => s.owner === 'other'));

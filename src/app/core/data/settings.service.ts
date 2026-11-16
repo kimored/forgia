@@ -8,10 +8,14 @@ export interface AppSettings {
   alertDays: number;
   /** Nome della seconda parte della lista spesa (pasti preparati da altri, es. "Per la nonna"). */
   otherLabel: string;
+  /** Fase di allenamento scelta a mano (vuoto = in base alla data di inizio). */
+  workoutPhase?: string;
+  /** Suono e vibrazione a fine recupero. */
+  restAlert: boolean;
 }
 
 const KEY = 'settings';
-const DEFAULTS: AppSettings = { pantryAutoDeduct: true, alertDays: 3, otherLabel: 'Per chi cucina' };
+const DEFAULTS: AppSettings = { pantryAutoDeduct: true, alertDays: 3, otherLabel: 'Per chi cucina', restAlert: true };
 
 @Injectable({ providedIn: 'root' })
 export class SettingsService {

@@ -1,0 +1,243 @@
+:host {
+  display: block;
+}
+.ex {
+  display: grid;
+  gap: 10px;
+  transition: border-color 200ms;
+  &.complete {
+    border-color: color-mix(in srgb, var(--ok) 50%, var(--border));
+  }
+}
+header {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 12px;
+  align-items: start;
+}
+.media {
+  position: relative;
+  aspect-ratio: 3 / 2;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: #fff;
+  img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    opacity: 0;
+    transition: opacity 400ms;
+    &.on {
+      opacity: 1;
+    }
+  }
+}
+.title {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px;
+  min-width: 0;
+}
+.idx {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--primary-soft);
+  color: var(--primary);
+  font-weight: 800;
+  font-size: 0.85rem;
+}
+h3 {
+  font-size: 1.05rem;
+}
+p {
+  margin: 4px 0 0;
+}
+.target {
+  font-size: 0.9rem;
+  strong {
+    font-size: 1.05rem;
+  }
+}
+.muscles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  .badge {
+    min-height: 22px;
+    font-size: 0.72rem;
+  }
+}
+.note,
+.hint {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  background: var(--surface-2);
+}
+.hint {
+  font-weight: 600;
+  &.up {
+    background: color-mix(in srgb, var(--ok) 14%, transparent);
+    color: var(--ok);
+  }
+}
+.link {
+  justify-self: start;
+  border: 0;
+  background: none;
+  color: var(--primary);
+  font-weight: 700;
+  padding: 0;
+  min-height: 32px;
+}
+.tips {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 4px;
+  font-size: 0.9rem;
+}
+.sets {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+  li {
+    display: grid;
+    grid-template-columns: 22px 1fr 1fr 48px;
+    gap: 6px;
+    align-items: center;
+    &.done .field input {
+      color: var(--ok);
+      font-weight: 800;
+    }
+  }
+}
+.n {
+  font-weight: 800;
+  color: var(--text-2);
+  text-align: center;
+}
+.field {
+  display: grid;
+  grid-template-columns: 36px 1fr 36px;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-2);
+  overflow: hidden;
+  min-width: 0;
+  label {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 2px;
+    min-width: 0;
+  }
+  input {
+    width: 100%;
+    min-width: 0;
+    min-height: 48px;
+    border: 0;
+    background: transparent;
+    text-align: center;
+    font-size: 1.25rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    &:focus {
+      outline: none;
+    }
+  }
+  span {
+    font-size: 0.7rem;
+    color: var(--text-2);
+  }
+}
+.step {
+  height: 48px;
+  border: 0;
+  background: transparent;
+  font-size: 1.3rem;
+  color: var(--text-2);
+  &:active {
+    background: var(--border);
+  }
+}
+.ok {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--surface);
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: var(--text-2);
+  transition: transform 300ms var(--ease-spring), background 200ms;
+  &.on {
+    background: var(--ok);
+    border-color: transparent;
+    color: #fff;
+    animation: pop 380ms var(--ease-spring);
+  }
+  &:active {
+    transform: scale(0.9);
+  }
+}
+.prev {
+  grid-column: 2 / 4;
+  font-size: 0.75rem;
+  color: var(--text-2);
+  margin-top: -4px;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  .btn {
+    min-height: 36px;
+    font-size: 0.85rem;
+    padding: 0 10px;
+  }
+}
+@keyframes pop {
+  40% {
+    transform: scale(1.18);
+  }
+}
+@media (max-width: 380px) {
+  header {
+    grid-template-columns: 96px 1fr;
+  }
+  .field {
+    grid-template-columns: 30px 1fr 30px;
+  }
+}
+
+/* Tablet / desktop: scheda dell'esercizio e registro delle serie affiancati. */
+:host {
+  container-type: inline-size;
+}
+@container (min-width: 680px) {
+  .ex {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    column-gap: 18px;
+    align-items: start;
+    > * {
+      grid-column: 1;
+    }
+    > .sets {
+      grid-column: 2;
+      grid-row: 1 / span 8;
+    }
+  }
+  header {
+    grid-template-columns: 150px 1fr;
+  }
+}

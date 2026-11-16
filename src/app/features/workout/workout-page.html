@@ -1,0 +1,119 @@
+@let p = plan();
+@let s = session();
+@let c = consistency();
+
+<header class="head">
+  <div>
+    <h1>Allenamento</h1>
+    <p class="muted date">{{ jsDate() | date: 'EEEE d MMMM' }}</p>
+  </div>
+  <div class="streak" [class.hot]="c.streak > 0" [attr.aria-label]="'Questa settimana ' + c.thisWeek + ' sedute su ' + c.target">
+    <span class="num big">{{ c.thisWeek }}/{{ c.target }}</span>
+    <span class="muted">questa settimana</span>
+    @if (c.streak > 0) { <span class="fire">🔥 {{ c.streak }} {{ c.streak === 1 ? 'settimana piena' : 'settimane piene' }} di fila</span> }
+  </div>
+</header>
+
+@if (!p) {
+  <section class="card rest">
+    <h2>😌 Oggi riposo</h2>
+    @if (next(); as n) { <p>Prossima seduta: <strong>{{ n | date: 'EEEE d MMMM' }}</strong>.</p> }
+    <p class="muted">{{ notes.at(-1) }}</p>
+    <button type="button" class="btn" (click)="force.set(true)">Allenati comunque</button>
+  </section>
+} @else {
+  <section class="card plan-head">
+    <div class="ph-row">
+      <div>
+        <span class="badge primary">{{ p.phase.name }}</span>
+        @if (p.deload) { <span class="badge warn">Settimana di scarico: metà serie</span> }
+        @if (phaseManual()) { <span class="badge">fase scelta a mano</span> }
+      </div>
+      <span class="muted small">settimana {{ p.phaseWeek }} della fase</span>
+    </div>
+    <div class="ph-row">
+      <h2>{{ p.template.name }}</h2>
+      @if (templates().length > 1 && !s) {
+        <label class="pick">
+          <span class="sr-only">Scheda</span>
+          <select [value]="p.template.id" (change)="chooseTemplate($any($event.target).value)">
+            @for (t of templates(); track t.id) { <option [value]="t.id">{{ t.name }}</option> }
+          </select>
+        </label>
+      }
+    </div>
+    <p class="muted small">{{ p.exercises.length }} esercizi · {{ p.phase.duration }}</p>
+
+    @if (!s) {
+      <button type="button" class="btn primary start" (click)="startSession()">▶ Inizia la seduta</button>
+    } @else {
+      <div class="live" [class.ended]="!!s.endedAt">
+        <span class="clock num">⏱ {{ elapsed() }}</span>
+        <span class="muted">{{ progress().done }}/{{ progress().total }} serie</span>
+        <span class="bar"><span [style.width.%]="progress().total ? (progress().done / progress().total) * 100 : 0"></span></span>
+        @if (!s.endedAt) {
+          <button type="button" class="btn" (click)="finish()">Termina</button>
+        } @else {
+          <span class="done-label">✓ Seduta completata</span>
+          <button type="button" class="btn ghost" (click)="resume()">Riprendi</button>
+        }
+      </div>
+    }
+  </section>
+
+  <div class="list">
+    @for (e of exercises(); track e.info.id + $index; let i = $index) {
+      <app-exercise-card [planned]="e" [session]="s" [index]="i"
+                         (done)="onSet($event, i)" (history)="openHistory($event)" (swap)="swap(i, $event)" />
+    }
+  </div>
+
+  <details class="card notes">
+    <summary>Regole del programma</summary>
+    <ul>
+      @for (n of notes; track n) { <li>{{ n }}</li> }
+    </ul>
+    <p class="muted small">Puoi forzare una fase in <a routerLink="/impostazioni">Impostazioni → Allenamento</a>.</p>
+  </details>
+}
+
+@if (timer.running() || timer.finished()) {
+  <div class="timer" role="timer" [class.end]="timer.finished()" animate.enter="timer-in" animate.leave="timer-out">
+    @if (timer.running()) {
+      <div class="ring" [style.--p]="timer.remaining() / timer.total()">
+        <span class="num">{{ fmtTime(timer.remaining()) }}</span>
+      </div>
+      <div class="t-info">
+        <strong>Recupero</strong>
+        <span class="muted">{{ timer.label() }}</span>
+      </div>
+      <button type="button" class="btn" (click)="timer.add(15)">+15 s</button>
+      <button type="button" class="btn ghost" (click)="timer.skip()">Salta</button>
+    } @else {
+      <strong>⏰ Recupero finito: vai con la prossima serie!</strong>
+    }
+  </div>
+}
+
+<app-bottom-sheet [(open)]="historyOpen" label="Storico esercizio">
+  @if (historyOpen() && historyData(); as h) {
+    <div class="history">
+      <h2>{{ h.name }}</h2>
+      @if (h.sessions.length) {
+        @if (h.bodyweight) {
+          <app-line-chart title="Ripetizioni migliori" [points]="h.reps" unit="rip" />
+        } @else {
+          <app-line-chart title="Carico massimo" [points]="h.maxKg" unit="kg" />
+          <app-line-chart title="Volume (kg × ripetizioni)" [points]="h.volume" />
+        }
+        <ul class="sessions">
+          @for (x of h.sessions; track x.sessionId) {
+            <li><span>{{ x.date | date: 'EEE d MMM' }}</span><span class="num">{{ setsLabel(x.sets) }}</span></li>
+          }
+        </ul>
+      } @else {
+        <p class="muted">Ancora nessuna serie registrata per questo esercizio.</p>
+      }
+    </div>
+  }
+</app-bottom-sheet>

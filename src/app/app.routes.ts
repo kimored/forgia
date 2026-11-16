@@ -31,7 +31,11 @@ export const routes: Routes = [
         title: 'Settimana · Forgia',
         loadComponent: () => import('./features/week/week-page').then((m) => m.WeekPage),
       },
-      { path: 'allenamento', title: 'Allenamento · Forgia', loadComponent: placeholder, data: { title: 'Allenamento' } },
+      {
+        path: 'allenamento',
+        title: 'Allenamento · Forgia',
+        loadComponent: () => import('./features/workout/workout-page').then((m) => m.WorkoutPage),
+      },
       {
         path: 'dispensa',
         title: 'Dispensa · Forgia',
