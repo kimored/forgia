@@ -11,6 +11,14 @@ export interface ExerciseInfo {
   /** Incremento di carico suggerito (kg). */
   increment: number;
   tips: string[];
+  equipment?: string;
+  level?: string;
+  /** Istruzioni del database (in inglese). */
+  instructions?: string[];
+  /** Percorsi delle immagini; se assenti: exercises/<db>/0|1.webp. */
+  images?: string[];
+  /** Viene dal catalogo completo (non dai 23 esercizi curati). */
+  library?: boolean;
 }
 
 /** Recupero in secondi [min, max]. */

@@ -24,7 +24,9 @@
           "/data/**",
           "/icons/**",
           "/exercises/**",
-          "/**/*.(svg|jpg|jpeg|png|webp|gif|woff2|mp3)"
+          "/**/*.(svg|jpg|jpeg|png|webp|gif|woff2|mp3)",
+          "!/exercise-lib/**",
+          "!/ocr/**"
         ]
       }
     },
@@ -35,6 +37,16 @@
       "resources": {
         "files": [
           "/ocr/**"
+        ]
+      }
+    },
+    {
+      "name": "exercise-lib",
+      "installMode": "lazy",
+      "updateMode": "lazy",
+      "resources": {
+        "files": [
+          "/exercise-lib/**"
         ]
       }
     }

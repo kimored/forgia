@@ -35,6 +35,16 @@ export const routes: Routes = [
         loadComponent: () => import('./features/workout/workout-page').then((m) => m.WorkoutPage),
       },
       {
+        path: 'allenamento/esercizi',
+        title: 'Esercizi · Forgia',
+        loadComponent: () => import('./features/workout/exercise-catalog-page').then((m) => m.ExerciseCatalogPage),
+      },
+      {
+        path: 'allenamento/programma',
+        title: 'Il mio programma · Forgia',
+        loadComponent: () => import('./features/workout/program-editor-page').then((m) => m.ProgramEditorPage),
+      },
+      {
         path: 'dispensa',
         title: 'Dispensa · Forgia',
         loadComponent: () => import('./features/pantry/pantry-page').then((m) => m.PantryPage),

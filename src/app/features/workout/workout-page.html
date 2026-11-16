@@ -2,6 +2,11 @@
 @let s = session();
 @let c = consistency();
 
+<nav class="links" aria-label="Strumenti">
+  <a class="btn ghost" routerLink="esercizi">📚 Catalogo esercizi</a>
+  <a class="btn ghost" routerLink="programma">✏️ Il mio programma</a>
+</nav>
+
 <header class="head">
   <div>
     <h1>Allenamento</h1>
@@ -18,7 +23,7 @@
   <section class="card rest">
     <h2>😌 Oggi riposo</h2>
     @if (next(); as n) { <p>Prossima seduta: <strong>{{ n | date: 'EEEE d MMMM' }}</strong>.</p> }
-    <p class="muted">{{ notes.at(-1) }}</p>
+    <p class="muted">{{ notes().at(-1) }}</p>
     <button type="button" class="btn" (click)="force.set(true)">Allenati comunque</button>
   </section>
 } @else {
@@ -64,14 +69,14 @@
   <div class="list">
     @for (e of exercises(); track e.info.id + $index; let i = $index) {
       <app-exercise-card [planned]="e" [session]="s" [index]="i"
-                         (done)="onSet($event, i)" (history)="openHistory($event)" (swap)="swap(i, $event)" />
+                         (done)="onSet($event, i)" (history)="openHistory($event)" (swap)="swap(i, $event)" (detail)="openDetail($event, i)" />
     }
   </div>
 
   <details class="card notes">
     <summary>Regole del programma</summary>
     <ul>
-      @for (n of notes; track n) { <li>{{ n }}</li> }
+      @for (n of notes(); track n) { <li>{{ n }}</li> }
     </ul>
     <p class="muted small">Puoi forzare una fase in <a routerLink="/impostazioni">Impostazioni → Allenamento</a>.</p>
   </details>
@@ -94,6 +99,12 @@
     }
   </div>
 }
+
+<app-bottom-sheet [(open)]="detailOpen" label="Esecuzione e varianti">
+  @if (detailOpen() && detailInfo(); as di) {
+    <app-exercise-detail [info]="di" variantLabel="Usa oggi" (choose)="useVariant($event)" (navigate)="detailInfo.set($event)" />
+  }
+</app-bottom-sheet>
 
 <app-bottom-sheet [(open)]="historyOpen" label="Storico esercizio">
   @if (historyOpen() && historyData(); as h) {

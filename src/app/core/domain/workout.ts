@@ -16,8 +16,11 @@ export function exercise(id: string): ExerciseInfo {
 }
 
 export function exerciseImages(e: ExerciseInfo): string[] {
-  return [`exercises/${e.db}/0.webp`, `exercises/${e.db}/1.webp`];
+  return e.images ?? [`exercises/${e.db}/0.webp`, `exercises/${e.db}/1.webp`];
 }
+
+/** Cerca un esercizio: tra i 23 curati o (se fornito) nel catalogo completo. */
+export type ExerciseLookup = (id: string) => ExerciseInfo;
 
 export interface Reps {
   min: number;
@@ -81,6 +84,7 @@ export function plannedSession(
   date: IsoDate,
   input: { startDate: IsoDate; gymDays: readonly Weekday[]; phaseOverride?: string; force?: boolean; templateId?: string },
   program: WorkoutProgram = PROGRAM,
+  lookup: ExerciseLookup = exercise,
 ): PlannedSession | null {
   const gym = input.gymDays.includes(weekdayOf(date));
   if (!gym && !input.force && !input.templateId) return null;
@@ -100,7 +104,7 @@ export function plannedSession(
     programWeek,
     template,
     deload,
-    exercises: template.exercises.map((pe) => plan(pe, phaseWeek, defaults, deload)),
+    exercises: template.exercises.map((pe) => plan(pe, phaseWeek, defaults, deload, lookup)),
   };
 }
 
@@ -109,19 +113,20 @@ function plan(
   phaseWeek: number,
   defaults: { sets: number; rir: string; rest: RestRange } | undefined,
   deload: boolean,
+  lookup: ExerciseLookup,
 ): PlannedExercise {
   const week = pe.byWeek?.find((w) => w.weeks.includes(phaseWeek));
   const reps = week?.reps ?? pe.reps;
   let sets = week?.sets ?? pe.sets ?? defaults?.sets ?? 3;
   if (deload) sets = Math.max(1, Math.ceil(sets / 2));
   return {
-    info: exercise(pe.exercise),
+    info: lookup(pe.exercise),
     sets,
     reps,
     range: parseReps(reps),
     rest: pe.rest ?? defaults?.rest ?? DEFAULT_REST,
     rir: pe.sets ? undefined : defaults?.rir,
-    alternatives: (pe.alternatives ?? []).map(exercise),
+    alternatives: (pe.alternatives ?? []).map(lookup),
     superset: pe.superset,
     note: pe.note,
   };

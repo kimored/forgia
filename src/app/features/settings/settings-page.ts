@@ -9,7 +9,7 @@ import { SettingsService } from '../../core/data/settings.service';
 import { PlanImportError, PlanService } from '../../core/data/plan.service';
 import { Icon } from '../../shared/ui/icon';
 import { NotificationService } from '../../core/platform/notification.service';
-import { PROGRAM } from '../../core/domain/workout';
+import { ProgramService } from '../../core/data/program.service';
 
 @Component({
   selector: 'app-settings-page',
@@ -24,7 +24,8 @@ export class SettingsPage {
   protected readonly storage = inject(StorageService);
   protected readonly backup = inject(BackupService);
   protected readonly app = inject(SettingsService);
-  protected readonly phases = PROGRAM.phases;
+  private readonly programs = inject(ProgramService);
+  protected readonly phases = computed(() => this.programs.program().phases);
   protected readonly notifications = inject(NotificationService);
 
   protected async toggleNotifications(on: boolean): Promise<void> {

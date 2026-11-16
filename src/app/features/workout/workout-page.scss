@@ -246,3 +246,14 @@ p {
   overflow: hidden;
   clip-path: inset(50%);
 }
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+  .btn {
+    min-height: 40px;
+    font-size: 0.9rem;
+  }
+}

@@ -4,7 +4,10 @@ import { RouterLink } from '@angular/router';
 import { SettingsService } from '../../core/data/settings.service';
 import { WorkoutStore } from '../../core/data/workout.store';
 import { parseIsoDate, today } from '../../core/domain/dates';
-import { exercise, exerciseStats, nextGymDay, PROGRAM, type PlannedExercise } from '../../core/domain/workout';
+import { exerciseStats, nextGymDay, type PlannedExercise } from '../../core/domain/workout';
+import { ProgramService } from '../../core/data/program.service';
+import type { ExerciseInfo } from '../../core/models/workout';
+import { ExerciseDetail } from './exercise-detail';
 import { ProfileService } from '../../core/data/profile.service';
 import { RestTimerService } from '../../core/platform/rest-timer.service';
 import { BottomSheet } from '../../shared/ui/bottom-sheet';
@@ -17,7 +20,7 @@ interface WakeLockSentinelLike {
 
 @Component({
   selector: 'app-workout-page',
-  imports: [DatePipe, RouterLink, ExerciseCard, BottomSheet, LineChart],
+  imports: [DatePipe, RouterLink, ExerciseCard, BottomSheet, LineChart, ExerciseDetail],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './workout-page.html',
   styleUrl: './workout-page.scss',
@@ -27,6 +30,7 @@ export class WorkoutPage {
   protected readonly timer = inject(RestTimerService);
   private readonly profiles = inject(ProfileService);
   private readonly settings = inject(SettingsService);
+  protected readonly programs = inject(ProgramService);
 
   protected readonly date = signal(today());
   protected readonly jsDate = computed(() => parseIsoDate(this.date()));
@@ -51,12 +55,12 @@ export class WorkoutPage {
       const alt = swaps.get(i);
       if (!alt) return e;
       // Variante: l'originale diventa a sua volta un'alternativa.
-      return { ...e, info: exercise(alt), alternatives: [e.info, ...e.alternatives.filter((a) => a.id !== alt)] };
+      return { ...e, info: this.store.library.lookup(alt), alternatives: [e.info, ...e.alternatives.filter((a) => a.id !== alt)] };
     });
   });
   protected readonly templates = computed(() => this.plan()?.phase.templates ?? []);
   protected readonly next = computed(() => nextGymDay(this.date(), this.profiles.effective().gymDays));
-  protected readonly notes = PROGRAM.notes;
+  protected readonly notes = computed(() => this.programs.program().notes);
   protected readonly phaseManual = computed(() => !!this.settings.settings().workoutPhase);
 
   protected readonly progress = computed(() => {
@@ -161,6 +165,24 @@ export class WorkoutPage {
     this.swaps.set(next);
   }
 
+  // ---------- Dettaglio e varianti ----------
+
+  protected readonly detailOpen = signal(false);
+  protected readonly detailInfo = signal<ExerciseInfo | null>(null);
+  private readonly detailIndex = signal<number | null>(null);
+
+  protected openDetail(info: ExerciseInfo, index: number): void {
+    this.detailInfo.set(info);
+    this.detailIndex.set(index);
+    this.detailOpen.set(true);
+  }
+
+  protected useVariant(id: string): void {
+    const i = this.detailIndex();
+    if (i !== null) this.swap(i, id);
+    this.detailOpen.set(false);
+  }
+
   // ---------- Storico ----------
 
   protected readonly historyOpen = signal(false);
@@ -171,7 +193,7 @@ export class WorkoutPage {
     const pts = exerciseStats(this.store.sets(), id);
     const fmt = (d: string) => new Intl.DateTimeFormat('it-IT', { day: 'numeric', month: 'short' }).format(parseIsoDate(d));
     return {
-      name: exercise(id).name,
+      name: this.store.library.lookup(id).name,
       maxKg: pts.map((p) => ({ label: fmt(p.date), value: p.maxKg })),
       volume: pts.map((p) => ({ label: fmt(p.date), value: p.volume })),
       sessions: this.store.history(id).slice(0, 12),

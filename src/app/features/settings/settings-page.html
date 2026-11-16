@@ -88,7 +88,7 @@
     </span>
     <select class="label-input" [value]="app.settings().workoutPhase ?? ''" (change)="app.update({ workoutPhase: $any($event.target).value || undefined })">
       <option value="">Automatica</option>
-      @for (ph of phases; track ph.id) { <option [value]="ph.id">{{ ph.name }}</option> }
+      @for (ph of phases(); track ph.id) { <option [value]="ph.id">{{ ph.name }}</option> }
     </select>
   </label>
   <label class="toggle-row">

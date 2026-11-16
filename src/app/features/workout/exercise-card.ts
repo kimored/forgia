@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, input, output, signal } from '@angular/core';
 import { WorkoutStore } from '../../core/data/workout.store';
 import { exerciseImages, suggestion, type PlannedExercise } from '../../core/domain/workout';
-import type { WorkoutSession } from '../../core/models/workout';
+import type { ExerciseInfo, WorkoutSession } from '../../core/models/workout';
 
 export interface SetDone {
   exercise: PlannedExercise;
@@ -27,6 +27,7 @@ export class ExerciseCard {
   readonly done = output<SetDone>();
   readonly history = output<string>();
   readonly swap = output<string>();
+  readonly detail = output<ExerciseInfo>();
 
   /** Le due immagini dell'esecuzione si alternano: un'animazione leggera senza video. */
   protected readonly frame = signal(0);

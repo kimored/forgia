@@ -1,11 +1,12 @@
 @let p = planned();
 <article class="card ex" [class.complete]="completed() === p.sets">
   <header>
-    <div class="media" aria-hidden="true">
+    <button type="button" class="media" (click)="detail.emit(p.info)" [attr.aria-label]="'Ingrandisci esecuzione di ' + p.info.name">
       @for (src of images(); track src; let i = $index) {
         <img [src]="src" alt="" loading="lazy" [class.on]="frame() === i" width="240" height="160" />
       }
-    </div>
+      <span class="zoom" aria-hidden="true">⤢</span>
+    </button>
     <div class="title">
       <span class="idx num">{{ index() + 1 }}</span>
       <div>
@@ -68,6 +69,7 @@
 
   <div class="actions">
     <button type="button" class="btn ghost" (click)="history.emit(p.info.id)">📊 Storico</button>
+    <button type="button" class="btn ghost" (click)="detail.emit(p.info)">🔁 Varianti</button>
     @for (a of p.alternatives; track a.id) {
       <button type="button" class="btn ghost" (click)="swap.emit(a.id)">⇄ {{ a.name }}</button>
     }

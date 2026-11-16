@@ -6,12 +6,16 @@ import { historyOf, plannedSession, weeklyConsistency, type PlannedSession } fro
 import { db } from './db';
 import { ProfileService } from './profile.service';
 import { SettingsService } from './settings.service';
+import { ProgramService } from './program.service';
+import { ExerciseLibraryService } from './exercise-library.service';
 
 /** Sedute e serie registrate (IndexedDB → signals). */
 @Injectable({ providedIn: 'root' })
 export class WorkoutStore {
   private readonly profiles = inject(ProfileService);
   private readonly settings = inject(SettingsService);
+  private readonly programs = inject(ProgramService);
+  readonly library = inject(ExerciseLibraryService);
 
   readonly sessions = signal<WorkoutSession[]>([]);
   readonly sets = signal<SetLog[]>([]);
@@ -23,12 +27,14 @@ export class WorkoutStore {
 
   plan(date: IsoDate, opts: { force?: boolean; templateId?: string } = {}): PlannedSession | null {
     const p = this.profiles.effective();
-    return plannedSession(date, {
-      startDate: p.startDate,
-      gymDays: p.gymDays,
-      phaseOverride: this.settings.settings().workoutPhase || undefined,
-      ...opts,
-    });
+    // Legge i segnali del catalogo: quando si carica, le schede si aggiornano.
+    this.library.loaded();
+    return plannedSession(
+      date,
+      { startDate: p.startDate, gymDays: p.gymDays, phaseOverride: this.settings.settings().workoutPhase || undefined, ...opts },
+      this.programs.program(),
+      this.library.lookup,
+    );
   }
 
   sessionOn(date: IsoDate): WorkoutSession | undefined {

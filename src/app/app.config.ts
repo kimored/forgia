@@ -15,6 +15,7 @@ import { BackupService } from './core/data/backup.service';
 import { ProfileService } from './core/data/profile.service';
 import { SettingsService } from './core/data/settings.service';
 import { PlanService } from './core/data/plan.service';
+import { ProgramService } from './core/data/program.service';
 import { InstallService } from './core/platform/install.service';
 import { StorageService } from './core/platform/storage.service';
 import { ThemeService } from './core/platform/theme.service';
@@ -47,7 +48,8 @@ export const appConfig: ApplicationConfig = {
       const profile = inject(ProfileService);
       const settings = inject(SettingsService);
       const plan = inject(PlanService);
-      await Promise.all([profile.load(), settings.load(), plan.load()]);
+      const program = inject(ProgramService);
+      await Promise.all([profile.load(), settings.load(), plan.load(), program.load()]);
     }),
   ],
 };
