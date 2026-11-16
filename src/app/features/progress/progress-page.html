@@ -1,0 +1,145 @@
+@let l = latest();
+@let a = adherenceNow();
+@let c = consistency();
+
+<h1>Progressi</h1>
+
+<!-- ---------- Peso ---------- -->
+<section class="card">
+  <div class="sec-head">
+    <h2>Peso</h2>
+    @if (l) {
+      <div class="kpi">
+        <span class="num big">{{ l.kg | number: '1.1-1' }} kg</span>
+        @if (delta() !== null) {
+          <span class="num" [class.up]="delta()! > 0" [class.down]="delta()! < 0">{{ delta()! > 0 ? '+' : '' }}{{ delta() | number: '1.1-1' }} kg dall'inizio</span>
+        }
+      </div>
+    }
+  </div>
+  @if (isMonday) { <p class="tip">⚖️ È lunedì: pesati a digiuno, prima della colazione.</p> }
+  @if (stall(); as s) { <p class="tip warn">📋 {{ s }}</p> }
+
+  <app-time-chart [series]="weightSeries()" unit="kg" ariaLabel="Peso e proiezioni del piano"
+                  empty="Inserisci la prima pesata per vedere il grafico e le curve del piano." />
+
+  <div class="form">
+    <h3>Nuova pesata</h3>
+    <label class="btn scan-btn">
+      📷 Da screenshot della bilancia
+      <input type="file" accept="image/*" hidden #shot (change)="importScreenshot(shot)" />
+    </label>
+    @switch (scan().state) {
+      @case ('busy') { <p class="muted" role="status">Leggo lo screenshot… {{ ocr.progress() !== null ? ((ocr.progress()! * 100) | number: '1.0-0') + '%' : '' }}</p> }
+      @case ('done') { <p class="ok" role="status">✓ {{ scan().text }}</p> }
+      @case ('error') { <p class="err" role="alert">{{ scan().text }}</p> }
+    }
+    @let f = form();
+    <div class="grid">
+      <label class="field"><span>Data</span><input type="date" [value]="f.date" (change)="patchForm({ date: $any($event.target).value || f.date })" /></label>
+      <label class="field"><span>Peso (kg)</span><input type="text" inputmode="decimal" [value]="f.kg" (input)="patchForm({ kg: $any($event.target).value })" /></label>
+      <label class="field"><span>Grasso %</span><input type="text" inputmode="decimal" [value]="f.fat" (input)="patchForm({ fat: $any($event.target).value })" /></label>
+      <label class="field"><span>Massa muscolare (kg)</span><input type="text" inputmode="decimal" [value]="f.muscle" (input)="patchForm({ muscle: $any($event.target).value })" /></label>
+      <label class="field"><span>BMR (kcal)</span><input type="text" inputmode="numeric" [value]="f.bmr" (input)="patchForm({ bmr: $any($event.target).value })" /></label>
+    </div>
+    <button type="button" class="btn primary" [disabled]="!f.kg" (click)="saveWeight()">{{ saved() ? '✓ Salvata' : 'Salva pesata' }}</button>
+  </div>
+
+  @if (store.weights().length) {
+    <details>
+      <summary>Tutte le pesate ({{ store.weights().length }})</summary>
+      <ul class="rows">
+        @for (w of store.weights().slice().reverse(); track w.date) {
+          <li>
+            <span>{{ w.date | date: 'EEE d MMM y' }}</span>
+            <span class="num">{{ w.kg | number: '1.1-1' }} kg@if (w.fatPct) { · {{ w.fatPct | number: '1.1-1' }}% }</span>
+            <button type="button" class="icon-btn" aria-label="Elimina pesata" (click)="store.deleteWeight(w.date)">✕</button>
+          </li>
+        }
+      </ul>
+    </details>
+  }
+</section>
+
+<!-- ---------- Composizione ---------- -->
+<section class="card">
+  <h2>Composizione corporea</h2>
+  <p class="muted small">Le bilance a impedenza sono imprecise: conta il trend, non il singolo valore.</p>
+  @if (startBody(); as b) {
+    @if (b.fatPct || b.muscleKg || b.bmrKcal) {
+      <p class="small">Partenza:
+        @if (b.fatPct) { grasso {{ b.fatPct | number: '1.1-1' }}% }
+        @if (b.muscleKg) { · massa muscolare {{ b.muscleKg | number: '1.1-1' }} kg }
+        @if (b.bmrKcal) { · BMR {{ b.bmrKcal }} kcal }
+      </p>
+    }
+  }
+  <div class="two">
+    <app-time-chart [series]="composition()" unit="%" ariaLabel="Grasso corporeo" empty="Nessun valore di grasso registrato." />
+    <app-time-chart [series]="muscle()" unit="kg" ariaLabel="Massa muscolare" empty="Nessun valore di massa muscolare registrato." />
+  </div>
+  @if (l?.extra; as ex) {
+    <ul class="extras">
+      @for (k of ex | keyvalue; track k.key) { <li><span>{{ extraLabel(k.key) }}</span><strong class="num">{{ k.value | number: '1.0-2' }}</strong></li> }
+    </ul>
+  }
+</section>
+
+<!-- ---------- Misure ---------- -->
+<section class="card">
+  <div class="sec-head">
+    <h2>Misure</h2>
+    @if (lastMeasure(); as m) { <span class="muted small">ultime: {{ m.date | date: 'd MMM' }}</span> }
+  </div>
+  @if (waist(); as w) { <p class="tip warn">⚠️ Girovita +{{ w.delta | number: '1.1-1' }} cm negli ultimi 3 mesi: parlane con il tuo nutrizionista.</p> }
+  @if (measureDue()) { <p class="tip">📏 È il momento delle misure del mese.</p> }
+  <div class="grid">
+    @for (m of measures; track m.key) {
+      <label class="field">
+        <span>{{ m.label }} (cm)
+          @if (measureDelta(m.key); as d) { <em [class.up]="d > 0" [class.down]="d < 0">{{ d > 0 ? '+' : '' }}{{ d | number: '1.1-1' }}</em> }
+        </span>
+        <input type="text" inputmode="decimal" [placeholder]="lastMeasure()?.[m.key] ?? ''" [value]="mForm()[m.key] ?? ''"
+               (input)="setMeasure(m.key, $any($event.target).value)" />
+      </label>
+    }
+  </div>
+  <button type="button" class="btn" (click)="saveMeasures()">Salva misure di oggi</button>
+</section>
+
+<!-- ---------- Aderenza ---------- -->
+<section class="card">
+  <h2>Aderenza alla dieta</h2>
+  <div class="kpis">
+    @for (k of [{ l: 'Questa settimana', v: a.week }, { l: 'Questo mese', v: a.month }]; track k.l) {
+      <div [class]="'kpi-box ' + k.v.level">
+        <span class="num big">{{ k.v.total ? (k.v.pct * 100 | number: '1.0-0') + '%' : '—' }}</span>
+        <span class="muted small">{{ k.l }} · {{ k.v.done }}/{{ k.v.total }} pasti</span>
+      </div>
+    }
+  </div>
+  <p class="muted small">Conta i pasti segnati come fatti, anche con una variante. I pasti liberi non contano. Verde = 100%, giallo = almeno 80%, rosso = sotto 80%.</p>
+</section>
+
+<!-- ---------- Settimane ---------- -->
+<section class="card">
+  <div class="sec-head">
+    <h2>Ultime settimane</h2>
+    @if (c.streak > 0) { <span class="streak">🔥 {{ c.streak }} {{ c.streak === 1 ? 'settimana' : 'settimane' }} con tutti gli allenamenti</span> }
+  </div>
+  <ol class="weeks">
+    @for (w of weeks(); track w.monday) {
+      <li>
+        <span class="wk muted">{{ w.jsDate | date: 'd MMM' }}</span>
+        <span class="bar" [attr.aria-label]="'Aderenza ' + (w.adherence.pct * 100 | number: '1.0-0') + '%'">
+          <span [class]="w.adherence.level" [style.width.%]="w.adherence.pct * 100"></span>
+        </span>
+        <span class="num small">{{ w.adherence.total ? (w.adherence.pct * 100 | number: '1.0-0') + '%' : '—' }}</span>
+        <span class="gym" [class.full]="w.sessions >= w.target">
+          @for (on of w.dots; track $index) { <i [class.on]="on"></i> }
+        </span>
+      </li>
+    }
+  </ol>
+  <p class="muted small">Barra: aderenza alla dieta · pallini: allenamenti fatti sul totale della settimana.</p>
+</section>

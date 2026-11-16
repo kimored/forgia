@@ -15,6 +15,8 @@ export interface WeightEntry {
   fatPct?: number;
   muscleKg?: number;
   bmrKcal?: number;
+  /** Altri valori letti dallo screenshot della bilancia (BMI, idratazione…). */
+  extra?: Record<string, number>;
 }
 
 export interface MeasurementEntry {
