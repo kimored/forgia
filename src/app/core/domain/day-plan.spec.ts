@@ -102,14 +102,3 @@ describe('resolveDay', () => {
     expect(qty(d, 'cena', 'pane')).toBe(40);
   });
 });
-
-describe('ordine delle settimane', () => {
-  it('scambia la settimana 1 con la 2', async () => {
-    const { planWeek } = await import('./day-plan');
-    expect(planWeek(1, [2, 1, 3, 4], 4)).toBe(2);
-    expect(planWeek(2, [2, 1, 3, 4], 4)).toBe(1);
-    expect(planWeek(3, [2, 1, 3, 4], 4)).toBe(3);
-    expect(planWeek(3, undefined, 4)).toBe(3);
-    expect(planWeek(1, [9], 4)).toBe(1);
-  });
-});

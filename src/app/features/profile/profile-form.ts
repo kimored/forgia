@@ -122,23 +122,6 @@ export class ProfileForm {
   protected readonly startMonday = computed(() => mondayOf(this.model().startDate));
   protected readonly nameMissing = computed(() => !this.model().name.trim());
 
-  /** Posizioni del ciclo con la settimana del piano assegnata a ciascuna. */
-  protected readonly weekSlots = computed(() => {
-    const n = this.plans.catalog().cycleLength;
-    const order = this.model().weekOrder;
-    return Array.from({ length: n }, (_, i) => ({ pos: i + 1, week: order?.[i] && order[i] <= n ? order[i] : i + 1 }));
-  });
-  protected readonly weekChoices = computed(() => this.weekSlots().map((s) => s.pos));
-
-  /** Assegna la settimana `week` alla posizione `pos`, scambiandola con quella che la occupava. */
-  protected setWeek(pos: number, week: number): void {
-    const order = this.weekSlots().map((s) => s.week);
-    const j = order.indexOf(week);
-    if (j >= 0) order[j] = order[pos - 1];
-    order[pos - 1] = week;
-    this.patch({ weekOrder: order.every((w, i) => w === i + 1) ? undefined : order });
-  }
-
   protected patch(p: Partial<Profile>): void {
     this.model.update((m) => ({ ...m, ...p }));
   }
