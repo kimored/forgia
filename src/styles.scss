@@ -1,28 +1,28 @@
 /* ===== Design tokens ===== */
 :root {
-  /* Tema unico: nero con accenti rossi. */
+  /* Tema unico: antracite con accento verde lime (un solo colore acceso). */
   color-scheme: dark;
-  --bg: #0a0a0b;
-  --surface: #121214;
-  --surface-2: #1b1b1e;
-  --text: #f4f4f5;
-  --text-2: #a1a1aa;
-  --border: #3a1518;
-  --primary: #e5222f;
-  --primary-contrast: #ffffff;
-  --primary-soft: #2a0d10;
+  --bg: #1a1c1e;
+  --surface: #222528;
+  --surface-2: #2b2f33;
+  --text: #e6e8ea;
+  --text-2: #9aa1a8;
+  --border: #33383d;
+  --primary: #a3e635;
+  --primary-contrast: #16200a;
+  --primary-soft: #2c3a1a;
   --warn: #f59e0b;
   --warn-soft: #2b1d06;
-  --danger: #ff4d5a;
-  --ok: #22c55e;
+  --danger: #f87171;
+  --ok: #a3e635;
 
-  /* colori per categoria di pasto: toni del rosso e neutri */
-  --c-colazione: #ff8a65;
-  --c-spuntino: #f87171;
-  --c-pranzo: #e5222f;
-  --c-cena: #b91c1c;
-  --c-post: #ff4d5a;
-  --c-integratori: #71717a;
+  /* colori per categoria di pasto: tenui, per distinguerli senza stancare */
+  --c-colazione: #fbbf24;
+  --c-spuntino: #a3e635;
+  --c-pranzo: #38bdf8;
+  --c-cena: #a78bfa;
+  --c-post: #fb923c;
+  --c-integratori: #94a3b8;
 
   --radius: 16px;
   --radius-sm: 10px;

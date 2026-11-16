@@ -1,12 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" fill="#0a0a0b"/>
-  <g fill="none" stroke="#e5222f" stroke-linecap="round" stroke-linejoin="round">
+  <rect width="512" height="512" fill="#1a1c1e"/>
+  <g fill="none" stroke="#a3e635" stroke-linecap="round" stroke-linejoin="round">
     <!-- manubrio -->
     <path d="M176 256h160" stroke-width="28"/>
-    <rect x="128" y="196" width="40" height="120" rx="12" fill="#e5222f" stroke="none"/>
-    <rect x="344" y="196" width="40" height="120" rx="12" fill="#e5222f" stroke="none"/>
-    <rect x="96" y="220" width="28" height="72" rx="10" fill="#7f1d1d" stroke="none"/>
-    <rect x="388" y="220" width="28" height="72" rx="10" fill="#7f1d1d" stroke="none"/>
+    <rect x="128" y="196" width="40" height="120" rx="12" fill="#a3e635" stroke="none"/>
+    <rect x="344" y="196" width="40" height="120" rx="12" fill="#a3e635" stroke="none"/>
+    <rect x="96" y="220" width="28" height="72" rx="10" fill="#4d7c0f" stroke="none"/>
+    <rect x="388" y="220" width="28" height="72" rx="10" fill="#4d7c0f" stroke="none"/>
   </g>
   <!-- foglia -->
   <path d="M256 168c34-36 82-40 104-36-4 44-30 76-72 84-14 2-26 0-32-4 0 0 0-26 0-44z" fill="#ffffff"/>

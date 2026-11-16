@@ -14,7 +14,7 @@ const rounded = Buffer.from(
 for (const size of [192, 512]) {
   await sharp(rounded).resize(size, size).png().toFile(`${out}/icon-${size}.png`);
   await sharp(svg).resize(Math.round(size * 0.8), Math.round(size * 0.8))
-    .extend({ top: Math.round(size * 0.1), bottom: Math.round(size * 0.1), left: Math.round(size * 0.1), right: Math.round(size * 0.1), background: '#0a0a0b' })
+    .extend({ top: Math.round(size * 0.1), bottom: Math.round(size * 0.1), left: Math.round(size * 0.1), right: Math.round(size * 0.1), background: '#1a1c1e' })
     .resize(size, size).png().toFile(`${out}/maskable-${size}.png`);
 }
 await sharp(svg).resize(180, 180).png().toFile(`${out}/apple-touch-icon.png`);
