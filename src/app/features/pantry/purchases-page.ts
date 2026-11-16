@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { PantryStore } from '../../core/data/pantry.store';
 import { today } from '../../core/domain/dates';
@@ -7,11 +7,23 @@ import { defaultFormat } from '../../core/domain/pantry';
 import { STORES, type Store } from '../../core/models/pantry';
 import { formatEur } from '../../shared/qty-format';
 import { Icon } from '../../shared/ui/icon';
+import { KvService } from '../../core/data/kv.service';
+import { IGNORE, matchProduct, normalize, parseReceipt } from '../../core/domain/receipt';
+import { OcrLoadError, OcrService } from '../../core/platform/ocr.service';
+
+interface ReviewRow {
+  text: string;
+  productId: string;
+  packs: number;
+  priceText: string;
+}
+
+const LEARNED_KEY = 'receipt-matches';
 
 /** Storico degli acquisti: cosa, quanto e dove, per confrontare i prezzi nel tempo. */
 @Component({
   selector: 'app-purchases-page',
-  imports: [DatePipe, RouterLink, Icon],
+  imports: [DatePipe, DecimalPipe, RouterLink, Icon],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="head">
@@ -19,8 +31,57 @@ import { Icon } from '../../shared/ui/icon';
       <h1>Acquisti e prezzi</h1>
     </div>
 
+    <section class="card scan">
+      @if (!review()) {
+        <label class="btn primary file">
+          📷 Carica scontrino
+          <input type="file" accept="image/*" (change)="scan($any($event.target))" [disabled]="scanning()" />
+        </label>
+        @if (scanning()) {
+          <p class="muted small">Leggo lo scontrino… {{ ocr.progress() !== null ? (ocr.progress()! * 100 | number: '1.0-0') + '%' : '' }}</p>
+        } @else {
+          <p class="muted small">Foto dritta e ben illuminata, scontrino intero. La lettura avviene sul telefono, gratis.</p>
+        }
+        @if (scanError()) { <p class="error">{{ scanError() }}</p> }
+      } @else {
+        <h2>Controlla lo scontrino</h2>
+        <div class="row">
+          <label class="field">
+            <span>Data</span>
+            <input type="date" [value]="date()" (change)="date.set($any($event.target).value || date())" />
+          </label>
+        </div>
+        <div class="chips" role="group" aria-label="Negozio">
+          @for (s of stores; track s.id) {
+            <button type="button" class="chip" [class.on]="store() === s.id" (click)="store.set(s.id)">{{ s.name }}</button>
+          }
+        </div>
+        <ul class="review">
+          @for (r of review(); track $index; let i = $index) {
+            <li [class.off]="!r.productId">
+              <span class="raw">{{ r.text }}</span>
+              <select [attr.aria-label]="'Prodotto per ' + r.text" (change)="patchRow(i, { productId: $any($event.target).value })">
+                <option value="" [selected]="!r.productId">— ignora —</option>
+                @for (p of products(); track p.id) { <option [value]="p.id" [selected]="p.id === r.productId">{{ p.name }}</option> }
+              </select>
+              <input type="number" min="1" class="packs" [attr.aria-label]="'Confezioni ' + r.text" [value]="r.packs"
+                     (input)="patchRow(i, { packs: Math.max(1, +$any($event.target).value || 1) })" />
+              <input type="text" inputmode="decimal" class="price" placeholder="€" [attr.aria-label]="'Prezzo totale ' + r.text" [value]="r.priceText"
+                     (input)="patchRow(i, { priceText: $any($event.target).value })" />
+            </li>
+          }
+        </ul>
+        <p class="muted small">Prezzo = totale della riga. Le righe senza prodotto o senza prezzo non vengono salvate; gli abbinamenti che scegli li ricordo per la prossima volta.</p>
+        <label class="check"><input type="checkbox" [checked]="toPantry()" (change)="toPantry.set($any($event.target).checked)" /> Aggiungi anche in dispensa</label>
+        <div class="actions">
+          <button type="button" class="btn primary" [disabled]="!store() || !reviewCount()" (click)="saveReview()">Salva {{ reviewCount() }} acquisti</button>
+          <button type="button" class="btn ghost" (click)="review.set(null)">Annulla</button>
+        </div>
+      }
+    </section>
+
     <section class="card form">
-      <h2>Nuovo acquisto</h2>
+      <h2>Nuovo acquisto a mano</h2>
       <label class="field">
         <span>Prodotto</span>
         <select [value]="productId()" (change)="pickProduct($any($event.target).value)">
@@ -123,10 +184,90 @@ import { Icon } from '../../shared/ui/icon';
     .row-item div { display: grid; gap: 2px; min-width: 0; }
     .price { display: grid; justify-items: end; font-weight: 700; }
     .small { font-size: 0.8rem; }
+    .scan { display: grid; gap: 10px; }
+    .file { position: relative; overflow: hidden; justify-self: start; }
+    .file input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+    .error { color: var(--danger); margin: 0; }
+    .review li { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.5fr) 56px 76px; gap: 6px; align-items: center; }
+    .review li.off .raw { opacity: 0.5; text-decoration: line-through; }
+    .raw { font-family: ui-monospace, monospace; font-size: 0.78rem; overflow-wrap: anywhere; }
+    .review input, .review select { padding: 0 8px; font-size: 0.9rem; }
+    @media (max-width: 560px) { .review li { grid-template-columns: 1fr 56px 76px; } .review .raw { grid-column: 1 / -1; } }
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; }
   `,
 })
 export class PurchasesPage {
   private readonly pantry = inject(PantryStore);
+  private readonly kv = inject(KvService);
+  protected readonly ocr = inject(OcrService);
+
+  // ---------- Scontrino ----------
+  protected readonly scanning = signal(false);
+  protected readonly scanError = signal('');
+  protected readonly review = signal<ReviewRow[] | null>(null);
+  protected readonly reviewCount = computed(() => (this.review() ?? []).filter((r) => r.productId && this.money(r.priceText) !== null).length);
+
+  private money(t: string): number | null {
+    const n = parseFloat(t.replace(',', '.'));
+    return Number.isFinite(n) && n > 0 ? n : null;
+  }
+
+  protected async scan(input: HTMLInputElement): Promise<void> {
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file) return;
+    this.scanning.set(true);
+    this.scanError.set('');
+    try {
+      const { lines } = await this.ocr.documentLines(file);
+      const receipt = parseReceipt(lines.map((l) => l.text));
+      if (!receipt.lines.length) throw new Error('empty');
+      const learned = (await this.kv.get<Record<string, string>>(LEARNED_KEY)) ?? {};
+      const products = this.pantry.products();
+      this.review.set(
+        receipt.lines.map((l) => ({
+          text: l.text,
+          productId: matchProduct(l.text, products, learned)?.id ?? '',
+          packs: l.packs,
+          priceText: l.total !== null ? l.total.toFixed(2).replace('.', ',') : '',
+        })),
+      );
+      if (receipt.store) this.store.set(receipt.store);
+      this.date.set(receipt.date && receipt.date <= today() ? receipt.date : today());
+    } catch (e) {
+      this.scanError.set(
+        e instanceof OcrLoadError
+          ? 'Non riesco a caricare il lettore di testo: serve la connessione la prima volta.'
+          : 'Non ho trovato articoli. Riprova con una foto più nitida e dritta, oppure inserisci a mano qui sotto.',
+      );
+    } finally {
+      this.scanning.set(false);
+    }
+  }
+
+  protected patchRow(i: number, patch: Partial<ReviewRow>): void {
+    this.review.update((rows) => rows!.map((r, j) => (j === i ? { ...r, ...patch } : r)));
+  }
+
+  protected async saveReview(): Promise<void> {
+    const rows = this.review();
+    const store = this.store();
+    if (!rows || !store) return;
+    const learned = (await this.kv.get<Record<string, string>>(LEARNED_KEY)) ?? {};
+    for (const r of rows) {
+      learned[normalize(r.text)] = r.productId || IGNORE;
+      const total = this.money(r.priceText);
+      const p = this.pantry.product(r.productId);
+      if (!p || total === null) continue;
+      await this.pantry.recordPurchase(
+        { productId: p.id, formatId: defaultFormat(p).id, store, date: this.date(), price: Math.round((total / r.packs) * 100) / 100, packs: r.packs },
+        p.tracked && this.toPantry(),
+      );
+    }
+    await this.kv.set(LEARNED_KEY, learned);
+    this.review.set(null);
+  }
+
   protected readonly stores = STORES;
   protected readonly eur = formatEur;
   protected readonly Math = Math;
