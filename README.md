@@ -38,3 +38,19 @@ Se cambi nome al repo, aggiorna `--base-href` nello script `build:pages`.
 
 - **iPhone / iPad**: Safari → Condividi → Aggiungi alla schermata Home.
 - **Android**: Chrome → banner o menu → Installa app (o il bottone in Impostazioni).
+
+## Funzioni
+
+- **Oggi / Settimana**: menu del giorno dal piano caricato, varianti con gli avvisi delle regole del piano.
+- **Il mio piano**: import da PDF, Word, foto/scansioni o testo (lettura sul dispositivo), editor per la revisione.
+- **Dispensa**: generata dagli alimenti del piano, scalo automatico, lista spesa, storico prezzi per negozio.
+- **Allenamento**: scheda del giorno per fase, registro serie, timer di recupero, progressione, storico.
+- **Progressi**: peso (anche da screenshot della bilancia) con le curve del piano, composizione, misure, aderenza.
+
+Forgia **non è un dispositivo medico**: aiuta a seguire il piano del proprio nutrizionista o dietologo.
+
+## Licenze di terze parti
+
+- Immagini degli esercizi: [free-exercise-db](https://github.com/yuhonas/free-exercise-db) (The Unlicense, pubblico dominio).
+- OCR: [Tesseract.js](https://github.com/naptha/tesseract.js) (Apache 2.0) e modelli tessdata (Apache 2.0).
+- PDF: [pdf.js](https://github.com/mozilla/pdf.js) (Apache 2.0). Word: [mammoth](https://github.com/mwilliamson/mammoth.js) (BSD-2).
