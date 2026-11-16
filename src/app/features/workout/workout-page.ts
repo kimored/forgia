@@ -147,6 +147,16 @@ export class WorkoutPage {
     this.timer.skip();
   }
 
+  protected async remove(): Promise<void> {
+    const s = this.session();
+    if (!s?.id) return;
+    const n = this.progress().done;
+    const msg = n ? `Eliminare la seduta e le ${n} serie registrate? Non si può annullare.` : 'Eliminare la seduta?';
+    if (!confirm(msg)) return;
+    this.timer.skip();
+    await this.store.remove(s.id);
+  }
+
   protected async resume(): Promise<void> {
     const s = this.session();
     if (s?.id) await this.store.resume(s.id);

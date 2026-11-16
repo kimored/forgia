@@ -73,6 +73,14 @@ export class WorkoutStore {
     await db.sessions.update(sessionId, { endedAt: new Date().toISOString() });
   }
 
+  /** Elimina una seduta con tutte le sue serie. */
+  async remove(sessionId: number): Promise<void> {
+    await db.transaction('rw', db.sessions, db.sets, async () => {
+      await db.sets.where('sessionId').equals(sessionId).delete();
+      await db.sessions.delete(sessionId);
+    });
+  }
+
   async resume(sessionId: number): Promise<void> {
     await db.sessions.update(sessionId, { endedAt: undefined });
   }
