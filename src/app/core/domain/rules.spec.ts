@@ -14,7 +14,8 @@ function resolver(logs: MealLog[] = []): DayResolver {
   return (date: IsoDate) =>
     resolveDay(catalog, { date, profile: { ...profile, gymDays: [...profile.gymDays] }, logs: logs.filter((l) => l.date === date) });
 }
-const d = (offset: number) => addDays(START, offset);
+const at = (offset: number) => addDays(START, offset < 7 ? offset + 7 : offset < 14 ? offset - 7 : offset);
+const d = (offset: number) => at(offset);
 const sub = (offset: number, slot: MealSlot, optionId: string, status: MealLog['status'] = 'todo'): MealLog => ({
   date: d(offset), slot, status, optionId, at: '',
 });
@@ -74,7 +75,7 @@ describe('regole', () => {
   it('7 · salsicce entro 14 giorni, solo sulle sostituzioni', () => {
     // sett. 2 venerdì (giorno 11) ha le salsicce nel piano
     expect(texts(resolver(), 16, 'cena', 'ce-salsicce-friarielli')).toContain('Salsiccia già negli ultimi 14 giorni');
-    expect(texts(resolver(), 38, 'cena', 'ce-salsicce-friarielli')).not.toContain('Salsiccia già negli ultimi 14 giorni');
+    expect(texts(resolver(), 50, 'cena', 'ce-salsicce-friarielli')).not.toContain('Salsiccia già negli ultimi 14 giorni');
     // nel piano fisso (sett. 4 giovedì, giorno 24) non avvisa
     expect(texts(resolver(), 24, 'cena', 'ce-salsicce-friarielli')).not.toContain('Salsiccia già negli ultimi 14 giorni');
   });

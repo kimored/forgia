@@ -2110,83 +2110,6 @@
       [
         {
           "meals": {
-            "colazione": "col-lm",
-            "spuntino1": "sp1-uova",
-            "pranzo": "pr-pasta-tonno",
-            "spuntino2": "sp2-mandorle",
-            "cena": "ce-pollo-insalata-carote",
-            "post": "post-shake"
-          }
-        },
-        {
-          "meals": {
-            "colazione": "col-cf",
-            "spuntino1": "sp1-uova",
-            "pranzo": "pr-pasta-lenticchie",
-            "spuntino2": "sp2-noci",
-            "cena": "ce-orata-patate-insalata",
-            "post": "post-shake"
-          }
-        },
-        {
-          "meals": {
-            "colazione": "col-cb",
-            "spuntino1": "sp1-uova",
-            "pranzo": "pr-riso-pomodoro",
-            "spuntino2": "sp2-mista",
-            "cena": "ce-hamburger-insalata-carote",
-            "post": "post-shake"
-          }
-        },
-        {
-          "meals": {
-            "colazione": "col-lm",
-            "spuntino1": "sp1-uova",
-            "pranzo": "pr-pasta-patate",
-            "spuntino2": "sp2-mandorle",
-            "cena": "ce-salmone-spinaci",
-            "post": "post-shake"
-          }
-        },
-        {
-          "meals": {
-            "colazione": "col-cf",
-            "spuntino1": "sp1-uova",
-            "pranzo": "pr-pasta-uova-pancetta",
-            "spuntino2": "sp2-noci",
-            "cena": "ce-tacchino-insalata-carote",
-            "post": "post-shake"
-          },
-          "alternatives": {
-            "pranzo": [
-              "pr-spaghetti-lupini"
-            ]
-          }
-        },
-        {
-          "meals": {
-            "colazione": "col-cb",
-            "spuntino1": "sp1-uova",
-            "pranzo": "pr-riso-spinaci",
-            "spuntino2": "sp2-mandorle",
-            "cena": "libero",
-            "post": "post-shake"
-          }
-        },
-        {
-          "meals": {
-            "colazione": "col-lm",
-            "spuntino1": "sp1-uova",
-            "pranzo": "libero",
-            "spuntino2": "sp2-mista",
-            "cena": "libero",
-            "post": "post-shake"
-          }
-        }
-      ],
-      [
-        {
-          "meals": {
             "colazione": "col-cf",
             "spuntino1": "sp1-uova",
             "pranzo": "pr-pasta-fagioli",
@@ -2246,6 +2169,83 @@
             "spuntino1": "sp1-uova",
             "pranzo": "pr-pasta-patate",
             "spuntino2": "sp2-noci",
+            "cena": "libero",
+            "post": "post-shake"
+          }
+        },
+        {
+          "meals": {
+            "colazione": "col-lm",
+            "spuntino1": "sp1-uova",
+            "pranzo": "libero",
+            "spuntino2": "sp2-mista",
+            "cena": "libero",
+            "post": "post-shake"
+          }
+        }
+      ],
+      [
+        {
+          "meals": {
+            "colazione": "col-lm",
+            "spuntino1": "sp1-uova",
+            "pranzo": "pr-pasta-tonno",
+            "spuntino2": "sp2-mandorle",
+            "cena": "ce-pollo-insalata-carote",
+            "post": "post-shake"
+          }
+        },
+        {
+          "meals": {
+            "colazione": "col-cf",
+            "spuntino1": "sp1-uova",
+            "pranzo": "pr-pasta-lenticchie",
+            "spuntino2": "sp2-noci",
+            "cena": "ce-orata-patate-insalata",
+            "post": "post-shake"
+          }
+        },
+        {
+          "meals": {
+            "colazione": "col-cb",
+            "spuntino1": "sp1-uova",
+            "pranzo": "pr-riso-pomodoro",
+            "spuntino2": "sp2-mista",
+            "cena": "ce-hamburger-insalata-carote",
+            "post": "post-shake"
+          }
+        },
+        {
+          "meals": {
+            "colazione": "col-lm",
+            "spuntino1": "sp1-uova",
+            "pranzo": "pr-pasta-patate",
+            "spuntino2": "sp2-mandorle",
+            "cena": "ce-salmone-spinaci",
+            "post": "post-shake"
+          }
+        },
+        {
+          "meals": {
+            "colazione": "col-cf",
+            "spuntino1": "sp1-uova",
+            "pranzo": "pr-pasta-uova-pancetta",
+            "spuntino2": "sp2-noci",
+            "cena": "ce-tacchino-insalata-carote",
+            "post": "post-shake"
+          },
+          "alternatives": {
+            "pranzo": [
+              "pr-spaghetti-lupini"
+            ]
+          }
+        },
+        {
+          "meals": {
+            "colazione": "col-cb",
+            "spuntino1": "sp1-uova",
+            "pranzo": "pr-riso-spinaci",
+            "spuntino2": "sp2-mandorle",
             "cena": "libero",
             "post": "post-shake"
           }

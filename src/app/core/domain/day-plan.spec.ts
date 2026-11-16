@@ -7,17 +7,19 @@ import { resolveDay, type DayProfile, type ResolvedDay } from './day-plan';
 
 const START = '2026-11-16';
 const profile: DayProfile = { startDate: START, gymDays: [0, 2, 4], times: DEFAULT_TIMES };
+/** Le settimane 1 e 2 del piano di esempio sono scambiate: i test seguono i contenuti di prima. */
+const at = (offset: number) => addDays(START, offset < 7 ? offset + 7 : offset < 14 ? offset - 7 : offset);
 
 const day = (offset: number, extra: Partial<Parameters<typeof resolveDay>[1]> = {}) =>
-  resolveDay(catalog, { date: addDays(START, offset), profile, ...extra });
+  resolveDay(catalog, { date: at(offset), profile, ...extra });
 const meal = (d: ResolvedDay, slot: MealSlot) => d.meals.find((m) => m.slot === slot)!;
 const qty = (d: ResolvedDay, slot: MealSlot, food: string) =>
   meal(d, slot).portions.find((p) => p.food === food)?.qty;
 
 describe('resolveDay', () => {
-  it('lunedì settimana 1: piano previsto e giorno palestra', () => {
+  it('lunedì del ciclo (settimana 2 del piano): piano previsto e giorno palestra', () => {
     const d = day(0);
-    expect(d.week).toBe(1);
+    expect(d.week).toBe(2);
     expect(d.gym).toBe(true);
     expect(meal(d, 'colazione').option?.id).toBe('col-lm');
     expect(meal(d, 'pranzo').option?.id).toBe('pr-pasta-tonno');
@@ -46,25 +48,25 @@ describe('resolveDay', () => {
   });
 
   it('swap sushi del sabato: pranzo libero e cena da dieta con 80 g di pane', () => {
-    const d = day(5, { options: { date: addDays(START, 5), toggles: { sushi: true } } });
+    const d = day(5, { options: { date: at(5), toggles: { sushi: true } } });
     expect(meal(d, 'pranzo').free).toBe(true);
     expect(meal(d, 'cena').option?.id).toBe('ce-pollo-insalata-carote');
     expect(qty(d, 'cena', 'pane')).toBe(80);
   });
 
   it('lo swap sushi vale solo di sabato', () => {
-    const d = day(3, { options: { date: addDays(START, 3), toggles: { sushi: true } } });
+    const d = day(3, { options: { date: at(3), toggles: { sushi: true } } });
     expect(meal(d, 'pranzo').free).toBe(false);
   });
 
   it('cardio extra in un giorno di riposo: +30 g di pasta a pranzo', () => {
-    const d = day(1, { options: { date: addDays(START, 1), toggles: { cardio: true } } });
+    const d = day(1, { options: { date: at(1), toggles: { cardio: true } } });
     expect(qty(d, 'pranzo', 'pasta')).toBe(150);
     expect(meal(d, 'pranzo').notes.join()).toMatch(/\+30 g/);
   });
 
   it('il cardio extra non si applica nei giorni di palestra', () => {
-    const d = day(0, { options: { date: START, toggles: { cardio: true } } });
+    const d = day(0, { options: { date: at(0), toggles: { cardio: true } } });
     expect(qty(d, 'pranzo', 'pasta')).toBe(120);
   });
 
@@ -74,7 +76,7 @@ describe('resolveDay', () => {
   });
 
   it('regola 5 segue le sostituzioni: frittata a cena → affettato', () => {
-    const date = addDays(START, 1);
+    const date = at(1);
     const d = day(1, {
       logs: [{ date, slot: 'cena', status: 'todo', optionId: 'ce-frittata-insalata-carote', at: '' }],
     });
@@ -85,19 +87,19 @@ describe('resolveDay', () => {
 
   it('regola 6: patate sostituite da 40 g di pane se scelte in un giorno di palestra', () => {
     const d = day(0, {
-      logs: [{ date: START, slot: 'cena', status: 'todo', optionId: 'ce-orata-patate-insalata', at: '' }],
+      logs: [{ date: at(0), slot: 'cena', status: 'todo', optionId: 'ce-orata-patate-insalata', at: '' }],
     });
     expect(qty(d, 'cena', 'patate')).toBeUndefined();
     expect(qty(d, 'cena', 'pane')).toBe(40);
   });
 
   it('usa gli orari del profilo', () => {
-    const d = resolveDay(catalog, { date: START, profile: { ...profile, times: { ...DEFAULT_TIMES, pranzo: '13:00' } } });
+    const d = resolveDay(catalog, { date: at(0), profile: { ...profile, times: { ...DEFAULT_TIMES, pranzo: '13:00' } } });
     expect(meal(d, 'pranzo').time).toBe('13:00');
   });
 
   it('giorni di palestra personalizzati', () => {
-    const d = resolveDay(catalog, { date: addDays(START, 1), profile: { ...profile, gymDays: [1, 3] } });
+    const d = resolveDay(catalog, { date: at(1), profile: { ...profile, gymDays: [1, 3] } });
     expect(d.gym).toBe(true);
     expect(qty(d, 'cena', 'pane')).toBe(40);
   });
