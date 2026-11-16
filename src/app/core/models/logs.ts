@@ -2,13 +2,14 @@ import type { MealSlot } from './plan';
 
 /** Dati utente giornalieri (IndexedDB). Le date sono stringhe locali "YYYY-MM-DD". */
 
-export type MealStatus = 'done' | 'skipped' | 'replaced';
+/** 'todo' = non ancora segnato (serve quando c'è solo una sostituzione). */
+export type MealStatus = 'todo' | 'done' | 'skipped';
 
 export interface MealLog {
   date: string;
   slot: MealSlot;
   status: MealStatus;
-  /** MealOption scelta al posto di quella del piano (status 'replaced', o 'done' dopo una sostituzione). */
+  /** MealOption scelta al posto di quella del piano. */
   optionId?: string;
   at: string;
 }

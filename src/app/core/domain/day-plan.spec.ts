@@ -76,7 +76,7 @@ describe('resolveDay', () => {
   it('regola 5 segue le sostituzioni: frittata a cena → affettato', () => {
     const date = addDays(START, 1);
     const d = day(1, {
-      logs: [{ date, slot: 'cena', status: 'replaced', optionId: 'ce-frittata-insalata-carote', at: '' }],
+      logs: [{ date, slot: 'cena', status: 'todo', optionId: 'ce-frittata-insalata-carote', at: '' }],
     });
     expect(meal(d, 'cena').option?.id).toBe('ce-frittata-insalata-carote');
     expect(meal(d, 'cena').planned?.id).toBe('ce-orata-patate-insalata');
@@ -85,7 +85,7 @@ describe('resolveDay', () => {
 
   it('regola 6: patate sostituite da 40 g di pane se scelte in un giorno di palestra', () => {
     const d = day(0, {
-      logs: [{ date: START, slot: 'cena', status: 'replaced', optionId: 'ce-orata-patate-insalata', at: '' }],
+      logs: [{ date: START, slot: 'cena', status: 'todo', optionId: 'ce-orata-patate-insalata', at: '' }],
     });
     expect(qty(d, 'cena', 'patate')).toBeUndefined();
     expect(qty(d, 'cena', 'pane')).toBe(40);
