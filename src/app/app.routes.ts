@@ -26,7 +26,11 @@ export const routes: Routes = [
         title: 'Oggi · Forgia',
         loadComponent: () => import('./features/today/today-page').then((m) => m.TodayPage),
       },
-      { path: 'settimana', title: 'Settimana · Forgia', loadComponent: placeholder, data: { title: 'Settimana' } },
+      {
+        path: 'settimana',
+        title: 'Settimana · Forgia',
+        loadComponent: () => import('./features/week/week-page').then((m) => m.WeekPage),
+      },
       { path: 'allenamento', title: 'Allenamento · Forgia', loadComponent: placeholder, data: { title: 'Allenamento' } },
       { path: 'dispensa', title: 'Dispensa · Forgia', loadComponent: placeholder, data: { title: 'Dispensa' } },
       { path: 'progressi', title: 'Progressi · Forgia', loadComponent: placeholder, data: { title: 'Progressi' } },

@@ -1,0 +1,105 @@
+@let s = summary();
+
+<header class="head">
+  <div class="nav">
+    <button type="button" class="icon-btn" aria-label="Settimana precedente" (click)="go(-1)">‹</button>
+    <div class="title">
+      <h1>Settimana {{ cycleWeek() }} di 4</h1>
+      <span class="muted">{{ range().from | date: 'd MMM' }} – {{ range().to | date: 'd MMM y' }}</span>
+    </div>
+    <button type="button" class="icon-btn" aria-label="Settimana successiva" (click)="go(1)">›</button>
+  </div>
+  @if (!isThisWeek()) {
+    <button type="button" class="btn this-week" (click)="goThisWeek()">Questa settimana</button>
+  }
+</header>
+
+<section class="card summary">
+  <div class="stats">
+    <div class="stat" [class.ok]="s.fish >= 2" [class.ko]="s.fish < 2">
+      <span class="v num">🐟 {{ s.fish }}</span><span class="l">pesce · min 2</span>
+    </div>
+    <div class="stat" [class.ok]="s.redMeat <= 2" [class.ko]="s.redMeat > 2">
+      <span class="v num">🥩 {{ s.redMeat }}</span><span class="l">carne rossa · max 2</span>
+    </div>
+    <div class="stat" [class.ok]="s.cabbage <= 1" [class.ko]="s.cabbage > 1">
+      <span class="v num">🥬 {{ s.cabbage }}</span><span class="l">verza/cavolo · max 1</span>
+    </div>
+  </div>
+  @if (warnings().length) {
+    <ul class="warnings">
+      @for (w of warnings(); track w.text) { <li class="badge warn">⚠️ {{ w.text }}</li> }
+    </ul>
+  } @else {
+    <p class="all-ok">✓ Tutte le regole della settimana sono rispettate</p>
+  }
+</section>
+
+<!-- Tablet / desktop: griglia 7 giorni × pasti -->
+<div class="grid-wrap">
+  <table class="grid">
+    <thead>
+      <tr>
+        <th scope="col"><span class="sr-only">Pasto</span></th>
+        @for (d of days(); track d.date) {
+          <th scope="col" [class.today]="d.date === todayDate">
+            <button type="button" class="day-btn" (click)="open(d.date)">
+              <span class="dname">{{ d.short }}</span>
+              <span class="dnum num">{{ d.jsDate | date: 'd' }}</span>
+              @if (d.day.gym) { <span class="gym" aria-label="palestra">🏋️</span> }
+            </button>
+          </th>
+        }
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of grid(); track row.slot) {
+        <tr [style.--tint]="meta[row.slot].color">
+          <th scope="row"><span class="emoji" aria-hidden="true">{{ meta[row.slot].emoji }}</span> {{ meta[row.slot].label }}</th>
+          @for (c of row.cells; track $index) {
+            <td [class.today]="days()[$index].date === todayDate">
+              @if (c.meal) {
+                <button type="button" class="cell" [class.free]="c.meal.free" [class.done]="c.status === 'done'"
+                        [class.skipped]="c.status === 'skipped'" [class.replaced]="c.replaced"
+                        (click)="open(days()[$index].date, row.slot)">
+                  <span class="ctitle">{{ c.title }}</span>
+                  @if (c.tags.length || c.status === 'done') {
+                    <span class="cmeta">
+                      {{ c.tags.join(' ') }}
+                      @if (c.status === 'done') { <span class="tick">✓</span> }
+                    </span>
+                  }
+                </button>
+              }
+            </td>
+          }
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+<!-- Telefono: elenco per giorno -->
+<ol class="days-list">
+  @for (d of list(); track d.date) {
+    <li class="card day" [class.today]="d.date === todayDate">
+      <button type="button" class="day-head" (click)="open(d.date)">
+        <span class="dname">{{ d.jsDate | date: 'EEEE d' }}</span>
+        @if (d.day.gym) { <span class="badge gym">🏋️ Palestra</span> }
+        <span class="chev" aria-hidden="true">›</span>
+      </button>
+      <ul>
+        @for (c of d.cells; track c.meal!.slot) {
+          <li [style.--tint]="meta[c.meal!.slot].color">
+            <button type="button" class="row" [class.free]="c.meal!.free" [class.done]="c.status === 'done'"
+                    [class.skipped]="c.status === 'skipped'" (click)="open(d.date, c.meal!.slot)">
+              <span class="emoji" aria-hidden="true">{{ meta[c.meal!.slot].emoji }}</span>
+              <span class="rtitle">{{ c.title }}@if (c.replaced) {<span class="muted"> · sostituito</span>}</span>
+              <span class="rmeta">{{ c.tags.join(' ') }}@if (c.status === 'done') { <span class="tick">✓</span> }</span>
+            </button>
+          </li>
+        }
+      </ul>
+    </li>
+  }
+</ol>

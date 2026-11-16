@@ -1,11 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { DayStore } from '../../core/data/day.store';
 import { ProfileService } from '../../core/data/profile.service';
 import { addDays, parseIsoDate, today, type IsoDate } from '../../core/domain/dates';
 import { dayTips } from '../../core/domain/day-rules';
 import type { ResolvedMeal } from '../../core/domain/day-plan';
-import type { MealSlot } from '../../core/models/plan';
+import { MEAL_SLOTS, type MealSlot } from '../../core/models/plan';
 import type { PersonalReminder } from '../../core/models/profile';
 import { SLOT_META } from '../../shared/meal-format';
 import { mediaSignal } from '../../shared/media';
@@ -36,7 +36,29 @@ export class TodayPage {
   /** ≥ 900 px: dettaglio affiancato invece del bottom sheet. */
   protected readonly wide = mediaSignal('(min-width: 900px)');
 
+  /** Query param ?d=YYYY-MM-DD&pasto=slot (dalla vista Settimana). */
+  readonly d = input<string>();
+  readonly pasto = input<string>();
+
   protected readonly date = signal<IsoDate>(today());
+
+  constructor() {
+    effect(() => {
+      const d = this.d();
+      const slot = this.pasto() as MealSlot | undefined;
+      untracked(() => {
+        if (d && /^\d{4}-\d{2}-\d{2}$/.test(d) && d !== this.date()) {
+          this.direction.set(null);
+          this.date.set(d);
+        } else if (!d && this.date() !== today()) {
+          // Tap sul tab "Oggi" senza parametri: si torna al giorno corrente.
+          this.direction.set(null);
+          this.date.set(today());
+        }
+        if (slot && MEAL_SLOTS.includes(slot)) this.openMeal(slot);
+      });
+    });
+  }
   protected readonly direction = signal<'next' | 'prev' | null>(null);
   protected readonly isToday = computed(() => this.date() === today());
   protected readonly jsDate = computed(() => parseIsoDate(this.date()));

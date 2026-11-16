@@ -179,3 +179,25 @@ export function weekSummary(catalog: Catalog, resolve: DayResolver, date: IsoDat
   const count = (tag: FoodTag) => meals.filter((o) => catalog.hasTag(o, tag)).length;
   return { fish: count('pesce'), redMeat: count('carne-rossa'), cabbage: count('cavolo') };
 }
+
+const DAY_SHORT = ['lun', 'mar', 'mer', 'gio', 'ven', 'sab', 'dom'];
+
+/** Violazioni delle regole settimanali sul piano effettivo (con le sostituzioni). */
+export function weekWarnings(catalog: Catalog, resolve: DayResolver, date: IsoDate): RuleWarning[] {
+  const out: RuleWarning[] = [];
+  const { fish, redMeat, cabbage } = weekSummary(catalog, resolve, date);
+  if (fish < 2) out.push(warn(`Pesce ${fish} ${fish === 1 ? 'volta' : 'volte'} su almeno 2`));
+  if (redMeat > 2) out.push(warn(`Carne rossa ${redMeat} volte su massimo 2`));
+  if (cabbage > 1) out.push(warn(`Verza o cavolo ${cabbage} volte su massimo 1`));
+
+  // Regola 1, anche a cavallo con la domenica precedente.
+  const dates = [addDays(weekDates(date)[0], -1), ...weekDates(date)];
+  const legume = dates.map((d) => mainMeals(resolve(d)).some((o) => catalog.hasTag(o, 'legume')));
+  for (let i = 1; i < dates.length; i++) {
+    if (legume[i - 1] && legume[i]) {
+      const a = i - 1 === 0 ? 'dom' : DAY_SHORT[i - 2];
+      out.push(warn(`Legumi due giorni di fila (${a} e ${DAY_SHORT[i - 1]})`));
+    }
+  }
+  return out;
+}

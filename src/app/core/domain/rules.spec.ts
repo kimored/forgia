@@ -5,7 +5,7 @@ import { DEFAULT_TIMES } from '../models/profile';
 import { catalog } from './catalog';
 import { addDays, type IsoDate } from './dates';
 import { resolveDay } from './day-plan';
-import { variantsFor, warningsFor, weekSummary, type DayResolver } from './rules';
+import { variantsFor, warningsFor, weekSummary, weekWarnings, type DayResolver } from './rules';
 
 const START = '2026-11-16'; // lun settimana 1
 const profile = { startDate: START, gymDays: [0, 2, 4] as const, times: DEFAULT_TIMES };
@@ -116,5 +116,23 @@ describe('variantsFor', () => {
 describe('weekSummary', () => {
   it('conta pesce e carne rossa della settimana', () => {
     expect(weekSummary(catalog, resolver(), d(0))).toEqual({ fish: 2, redMeat: 1, cabbage: 0 });
+  });
+});
+
+describe('weekWarnings', () => {
+  it('il piano fisso non ha avvisi', () => {
+    for (const w of [0, 7, 14, 21]) expect(weekWarnings(catalog, resolver(), d(w))).toEqual([]);
+  });
+
+  it('segnala legumi di fila, pesce mancante e carne rossa in eccesso', () => {
+    const r = resolver([
+      sub(2, 'pranzo', 'pr-pasta-ceci'), // mer dopo le lenticchie di mar
+      sub(1, 'cena', 'ce-vitello-spinaci-carote'), // toglie un pesce, +1 rossa
+      sub(3, 'cena', 'ce-hamburger-insalata-carote'), // toglie l'altro pesce, +1 rossa
+    ]);
+    const texts = weekWarnings(catalog, r, d(0)).map((w) => w.text);
+    expect(texts).toContain('Legumi due giorni di fila (mar e mer)');
+    expect(texts).toContain('Pesce 0 volte su almeno 2');
+    expect(texts).toContain('Carne rossa 3 volte su massimo 2');
   });
 });
