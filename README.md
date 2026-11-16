@@ -1,59 +1,38 @@
-# AppDietaPalestra
+# Massa
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.2.7.
+PWA personale (Angular 22) per dieta, palestra, dispensa e progressi. Funziona offline, senza backend.
 
-## Development server
+## Privacy
 
-To start a local development server, run:
+Il repository contiene **solo** il piano generico (dieta, allenamenti, prodotti) e valori di default.
+Tutti i dati personali (profilo, peso, misure, log) si inseriscono nell'app e restano in IndexedDB
+sul dispositivo; finiscono solo nell'export JSON di backup.
 
-```bash
-ng serve
-```
-
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Sviluppo
 
 ```bash
-ng generate component component-name
+npm install
+npm start            # http://localhost:4200
+npm run test:ci      # test unitari (Vitest)
+npm run build:pages  # build per GitHub Pages (base-href /app-dieta-palestra/ + 404.html)
+npm run icons        # rigenera le icone PNG da public/icons/icon.svg
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Il service worker è attivo solo nella build di produzione.
 
-```bash
-ng generate --help
-```
+## Deploy su GitHub Pages
 
-## Building
+Il workflow `.github/workflows/deploy.yml` esegue test e build e pubblica a ogni push su `main`.
+Configurazione una tantum sul repo `app-dieta-palestra`:
 
-To build the project run:
+1. **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+2. Il repo deve essere pubblico (Pages gratuito), oppure serve un piano a pagamento.
+3. Nessun secret richiesto.
 
-```bash
-ng build
-```
+L'app sarà su `https://<utente>.github.io/app-dieta-palestra/`.
+Se cambi nome al repo, aggiorna `--base-href` nello script `build:pages`.
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+## Installazione
 
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+- **iPhone / iPad**: Safari → Condividi → Aggiungi alla schermata Home.
+- **Android**: Chrome → banner o menu → Installa app (o il bottone in Impostazioni).
