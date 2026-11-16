@@ -16,15 +16,14 @@ export interface MealLog {
 
 export interface DayOptions {
   date: string;
-  /** Sabato: pranzo libero (sushi), cena da dieta. */
-  sushiSwap?: boolean;
-  /** Giorno non di palestra con cardio: +30 g di pasta a pranzo. */
-  cardioExtra?: boolean;
+  /** Opzioni del giorno previste dal piano (regole day-swap / day-extra), per id. */
+  toggles?: Record<string, boolean>;
 }
 
 export interface HabitLog {
   date: string;
-  creatine?: boolean;
+  /** Abitudini del piano spuntate (PlanHabit.id → fatto). */
+  done?: Record<string, boolean>;
   waterMl?: number;
   /** id dei promemoria personali segnati come fatti. */
   reminders?: string[];

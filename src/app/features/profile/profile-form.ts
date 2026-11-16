@@ -2,12 +2,13 @@ import { ChangeDetectionStrategy, Component, computed, inject, input, output, si
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { ProfileService } from '../../core/data/profile.service';
 import type { Weekday } from '../../core/models/plan';
-import type { PersonalReminder, Profile, Sex, TimeSlot } from '../../core/models/profile';
+import type { PersonalReminder, Profile, Sex } from '../../core/models/profile';
+import { PlanImportError, PlanService } from '../../core/data/plan.service';
 import { WEEKDAY_SHORT, mondayOf, parseIsoDate } from '../../core/domain/dates';
 import { parseScaleWords, SCALE_FIELD_LABELS, type ScaleField } from '../../core/domain/scale-ocr';
 import { OcrLoadError, OcrService } from '../../core/platform/ocr.service';
 
-type Section = 'tu' | 'inizio' | 'obiettivi' | 'orari';
+type Section = 'tu' | 'inizio' | 'piano' | 'palestra' | 'orari';
 
 /**
  * Form "I miei dati". In modalità `wizard` mostra una sezione alla volta (primo avvio),
@@ -93,19 +94,33 @@ export class ProfileForm {
   protected readonly sections: { id: Section; title: string }[] = [
     { id: 'tu', title: 'Su di te' },
     { id: 'inizio', title: 'Punto di partenza' },
-    { id: 'obiettivi', title: 'Obiettivi e palestra' },
+    { id: 'piano', title: 'Il tuo piano alimentare' },
+    { id: 'palestra', title: 'Palestra e acqua' },
     { id: 'orari', title: 'Orari e promemoria' },
   ];
   protected readonly weekdays = WEEKDAY_SHORT.map((label, i) => ({ label, value: i as Weekday }));
-  protected readonly timeSlots: { id: TimeSlot; label: string }[] = [
-    { id: 'colazione', label: 'Colazione' },
-    { id: 'spuntino1', label: 'Spuntino mattina' },
-    { id: 'pranzo', label: 'Pranzo' },
-    { id: 'spuntino2', label: 'Spuntino pomeriggio' },
-    { id: 'cena', label: 'Cena' },
-    { id: 'palestra', label: 'Palestra (inizio)' },
-    { id: 'post', label: 'Post-allenamento' },
-  ];
+  protected readonly plans = inject(PlanService);
+  protected readonly planMessage = signal<{ ok: boolean; text: string } | null>(null);
+
+  /** Orari: un campo per ogni pasto del piano attivo, più la palestra. */
+  protected readonly timeSlots = computed(() => [
+    ...this.plans.catalog().slots.map((s) => ({ id: s.id, label: s.gymOnly ? `${s.label} (giorni palestra)` : s.label, def: s.time ?? '12:00' })),
+    { id: 'palestra', label: 'Palestra (inizio)', def: '22:00' },
+  ]);
+
+  protected async importPlan(input: HTMLInputElement): Promise<void> {
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file) return;
+    try {
+      const doc = await this.plans.importFile(file);
+      this.planMessage.set({ ok: true, text: `Piano caricato: ${doc.meta.title}` });
+    } catch (e) {
+      const errors = e instanceof PlanImportError ? e.errors : [String(e)];
+      this.planMessage.set({ ok: false, text: errors.slice(0, 3).join(' ') });
+    }
+  }
+
   protected readonly sexes: { value: Sex; label: string }[] = [
     { value: 'M', label: 'Uomo' },
     { value: 'F', label: 'Donna' },
@@ -132,12 +147,7 @@ export class ProfileForm {
     this.model.update((m) => ({ ...m, body: { ...m.body, [key]: this.num(value) } }));
   }
 
-  protected setTarget(key: 'kcal' | 'proteinG', value: string): void {
-    const n = this.num(value);
-    if (n !== undefined) this.model.update((m) => ({ ...m, targets: { ...m.targets, [key]: n } }));
-  }
-
-  protected setTime(slot: TimeSlot, value: string): void {
+  protected setTime(slot: string, value: string): void {
     if (value) this.model.update((m) => ({ ...m, times: { ...m.times, [slot]: value } }));
   }
 

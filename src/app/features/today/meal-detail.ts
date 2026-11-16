@@ -1,9 +1,9 @@
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
-import { catalog } from '../../core/domain/catalog';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
+import { PlanService } from '../../core/data/plan.service';
 import type { ResolvedMeal } from '../../core/domain/day-plan';
 import type { Variant } from '../../core/domain/rules';
 import { parseIsoDate, type IsoDate } from '../../core/domain/dates';
-import { SLOT_META, portionView, portionsLine } from '../../shared/meal-format';
+import { portionView, portionsLine, slotMeta } from '../../shared/meal-format';
 
 const GROUP_LABEL: Record<Variant['group'], string> = {
   previsto: 'Previsto oggi',
@@ -29,8 +29,9 @@ export class MealDetail {
   readonly skip = output<void>();
   readonly reset = output<void>();
 
-  protected readonly meta = computed(() => SLOT_META[this.meal().slot]);
-  protected readonly portions = computed(() => this.meal().portions.map(portionView));
+  private readonly catalog = inject(PlanService).catalog;
+  protected readonly meta = computed(() => slotMeta(this.catalog(), this.meal().slot));
+  protected readonly portions = computed(() => this.meal().portions.map((p) => portionView(this.catalog(), p)));
   protected readonly status = computed(() => this.meal().log?.status ?? 'todo');
   protected readonly replaced = computed(() => {
     const m = this.meal();
@@ -44,7 +45,7 @@ export class MealDetail {
       const label = GROUP_LABEL[v.group];
       let g = groups.at(-1);
       if (g?.label !== label) groups.push((g = { label, items: [] }));
-      g.items.push({ v, i, line: portionsLine(v.option.portions) });
+      g.items.push({ v, i, line: portionsLine(this.catalog(), v.option.portions) });
     });
     return groups;
   });
@@ -52,7 +53,7 @@ export class MealDetail {
   /** Frutta di stagione, per i pasti che la prevedono. */
   protected readonly fruits = computed(() => {
     if (!this.meal().portions.some((p) => p.food === 'frutta')) return null;
-    const season = catalog.seasonFor(parseIsoDate(this.date()).getMonth() + 1);
-    return season ? [...season.fruits, ...catalog.seasons.always].join(', ') : null;
+    const season = this.catalog().seasonFor(parseIsoDate(this.date()).getMonth() + 1);
+    return season ? season.fruits.join(', ') : null;
   });
 }

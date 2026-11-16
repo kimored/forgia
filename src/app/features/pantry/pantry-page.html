@@ -12,11 +12,13 @@
 </header>
 
 @if (tab() === 'dispensa') {
-  <div class="filters" role="group" aria-label="Filtra">
-    @for (f of [{ id: 'tutti', label: 'Tutti' }, { id: 'mine', label: 'La mia parte' }, { id: 'nonna', label: 'Per la nonna' }]; track f.id) {
-      <button type="button" class="chip" [class.on]="filter() === f.id" (click)="filter.set($any(f.id))">{{ f.label }}</button>
-    }
-  </div>
+  @if (split()) {
+    <div class="filters" role="group" aria-label="Filtra">
+      @for (f of [{ id: 'tutti', label: 'Tutti' }, { id: 'mine', label: 'La mia parte' }, { id: 'other', label: otherLabel() }]; track f.id) {
+        <button type="button" class="chip" [class.on]="filter() === f.id" (click)="filter.set($any(f.id))">{{ f.label }}</button>
+      }
+    </div>
+  }
 
   @if (store.alerts().length) {
     <p class="alert-banner">

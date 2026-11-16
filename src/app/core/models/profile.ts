@@ -6,8 +6,8 @@ import type { Weekday } from './plan';
  */
 export type Sex = 'M' | 'F' | 'altro';
 
-/** Eventi della giornata con orario configurabile. */
-export type TimeSlot = 'colazione' | 'spuntino1' | 'pranzo' | 'spuntino2' | 'cena' | 'palestra' | 'post';
+/** Orari personali: id dello slot del piano (o "palestra") → "HH:mm". */
+export type Times = Record<string, string>;
 
 export interface PersonalReminder {
   id: string;
@@ -42,9 +42,9 @@ export interface Profile {
   /** "YYYY-MM-DD": lunedì in cui inizia la settimana 1 del ciclo. */
   startDate: string;
   body?: BodyComposition;
-  targets: { kcal: number; proteinG: number };
   gymDays: Weekday[];
-  times: Record<TimeSlot, string>;
+  /** Orari scelti dall'utente; se uno slot manca vale l'orario indicato dal piano. */
+  times: Times;
   /** Fine della fascia palestra, "HH:mm". */
   gymEnd: string;
   waterTargetMl: number;
@@ -52,7 +52,8 @@ export interface Profile {
   updatedAt: string;
 }
 
-export const DEFAULT_TIMES: Record<TimeSlot, string> = {
+/** Orari di esempio (quelli del piano di esempio). */
+export const DEFAULT_TIMES: Times = {
   colazione: '09:30',
   spuntino1: '11:30',
   pranzo: '13:30',
@@ -66,9 +67,8 @@ export function defaultProfile(startDate: string): Profile {
   return {
     name: '',
     startDate,
-    targets: { kcal: 2800, proteinG: 150 },
     gymDays: [0, 2, 4],
-    times: { ...DEFAULT_TIMES },
+    times: { palestra: DEFAULT_TIMES['palestra'] },
     gymEnd: '23:30',
     waterTargetMl: 2500,
     reminders: [],

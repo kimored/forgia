@@ -1,6 +1,6 @@
-import type { Unit } from './plan';
+import type { ProductFormat, Unit } from './plan';
 
-/** Prodotti acquistabili (catalogo statico in src/assets/data/products.json). */
+export type { ProductFormat };
 
 export type Store = 'sole365' | 'deco' | 'conad' | 'altro';
 export const STORES: { id: Store; name: string }[] = [
@@ -10,33 +10,31 @@ export const STORES: { id: Store; name: string }[] = [
   { id: 'altro', name: 'Altro' },
 ];
 
-export type Owner = 'mine' | 'nonna';
+/** 'other' = la parte di chi cucina per te (es. la nonna), se la lista spesa è divisa. */
+export type Owner = 'mine' | 'other';
 
-export interface ProductFormat {
-  id: string;
-  label: string;
-  /** Quantità della confezione, nell'unità del prodotto. */
-  qty: number;
-  /** Prezzo di riferimento in euro (null = da inserire). */
-  price: number | null;
-}
-
+/**
+ * Prodotto della dispensa: un alimento del piano più le info d'acquisto
+ * (dal piano, modificabili dall'utente con ProductSettings).
+ */
 export interface Product {
   id: string;
   name: string;
   brand?: string;
   unit: Unit;
-  /** Cibi del piano soddisfatti da questo prodotto (Food.id). */
-  foods: string[];
   /** Il primo formato è quello di default per la lista spesa. */
   formats: ProductFormat[];
-  /** Parole chiave per riconoscere il prodotto negli scontrini. */
   aliases?: string[];
-  /** Prodotto "a scorta": non serve contarlo al grammo (olio, brodo…). */
-  untracked?: boolean;
 }
 
 /** Dati utente (IndexedDB). */
+
+/** Personalizzazioni dell'utente su un prodotto (marca, confezioni, prezzi di riferimento). */
+export interface ProductSettings {
+  productId: string;
+  brand?: string;
+  formats?: ProductFormat[];
+}
 
 export interface PantryItem {
   productId: string;

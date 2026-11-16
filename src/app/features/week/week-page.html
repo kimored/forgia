@@ -1,4 +1,3 @@
-@let s = summary();
 
 <header class="head">
   <div class="nav">
@@ -15,23 +14,22 @@
 </header>
 
 <section class="card summary">
-  <div class="stats">
-    <div class="stat" [class.ok]="s.fish >= 2" [class.ko]="s.fish < 2">
-      <span class="v num">🐟 {{ s.fish }}</span><span class="l">pesce · min 2</span>
+  @if (summary().length) {
+    <div class="stats">
+      @for (c of summary(); track c.tag) {
+        <div class="stat" [class.ok]="c.ok" [class.ko]="!c.ok">
+          <span class="v num">{{ c.count }}</span>
+          <span class="l">{{ c.label }}{{ c.min !== undefined ? ' · min ' + c.min : '' }}{{ c.max !== undefined ? ' · max ' + c.max : '' }}</span>
+        </div>
+      }
     </div>
-    <div class="stat" [class.ok]="s.redMeat <= 2" [class.ko]="s.redMeat > 2">
-      <span class="v num">🥩 {{ s.redMeat }}</span><span class="l">carne rossa · max 2</span>
-    </div>
-    <div class="stat" [class.ok]="s.cabbage <= 1" [class.ko]="s.cabbage > 1">
-      <span class="v num">🥬 {{ s.cabbage }}</span><span class="l">verza/cavolo · max 1</span>
-    </div>
-  </div>
+  }
   @if (warnings().length) {
     <ul class="warnings">
       @for (w of warnings(); track w.text) { <li class="badge warn">⚠️ {{ w.text }}</li> }
     </ul>
   } @else {
-    <p class="all-ok">✓ Tutte le regole della settimana sono rispettate</p>
+    <p class="all-ok">{{ summary().length ? '✓ Tutte le regole della settimana sono rispettate' : 'Il piano non prevede regole settimanali.' }}</p>
   }
 </section>
 
@@ -54,8 +52,8 @@
     </thead>
     <tbody>
       @for (row of grid(); track row.slot) {
-        <tr [style.--tint]="meta[row.slot].color">
-          <th scope="row"><span class="emoji" aria-hidden="true">{{ meta[row.slot].emoji }}</span> {{ meta[row.slot].label }}</th>
+        <tr [style.--tint]="row.meta.color">
+          <th scope="row"><span class="emoji" aria-hidden="true">{{ row.meta.emoji }}</span> {{ row.meta.label }}</th>
           @for (c of row.cells; track $index) {
             <td [class.today]="days()[$index].date === todayDate">
               @if (c.meal) {
@@ -90,10 +88,10 @@
       </button>
       <ul>
         @for (c of d.cells; track c.meal!.slot) {
-          <li [style.--tint]="meta[c.meal!.slot].color">
+          <li [style.--tint]="meta(c.meal!.slot).color">
             <button type="button" class="row" [class.free]="c.meal!.free" [class.done]="c.status === 'done'"
                     [class.skipped]="c.status === 'skipped'" (click)="open(d.date, c.meal!.slot)">
-              <span class="emoji" aria-hidden="true">{{ meta[c.meal!.slot].emoji }}</span>
+              <span class="emoji" aria-hidden="true">{{ meta(c.meal!.slot).emoji }}</span>
               <span class="rtitle">{{ c.title }}@if (c.replaced) {<span class="muted"> · sostituito</span>}</span>
               <span class="rmeta">{{ c.tags.join(' ') }}@if (c.status === 'done') { <span class="tick">✓</span> }</span>
             </button>

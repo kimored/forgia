@@ -6,10 +6,12 @@ export interface AppSettings {
   pantryAutoDeduct: boolean;
   /** Avviso quando un prodotto finisce entro N giorni. */
   alertDays: number;
+  /** Nome della seconda parte della lista spesa (pasti preparati da altri, es. "Per la nonna"). */
+  otherLabel: string;
 }
 
 const KEY = 'settings';
-const DEFAULTS: AppSettings = { pantryAutoDeduct: true, alertDays: 3 };
+const DEFAULTS: AppSettings = { pantryAutoDeduct: true, alertDays: 3, otherLabel: 'Per chi cucina' };
 
 @Injectable({ providedIn: 'root' })
 export class SettingsService {

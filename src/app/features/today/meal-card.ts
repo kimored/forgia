@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
+import { PlanService } from '../../core/data/plan.service';
 import type { ResolvedMeal } from '../../core/domain/day-plan';
-import { SLOT_META, portionView } from '../../shared/meal-format';
+import { portionView, slotMeta } from '../../shared/meal-format';
 import { CheckButton } from '../../shared/ui/check-button';
 import { LongPress } from '../../shared/ui/long-press';
 
@@ -51,11 +52,12 @@ export class MealCard {
   readonly menu = output<void>();
   readonly toggle = output<void>();
 
-  protected readonly meta = computed(() => SLOT_META[this.meal().slot]);
+  private readonly catalog = inject(PlanService).catalog;
+  protected readonly meta = computed(() => slotMeta(this.catalog(), this.meal().slot));
   protected readonly status = computed(() => this.meal().log?.status ?? 'todo');
   protected readonly replaced = computed(() => {
     const m = this.meal();
     return !!m.log?.optionId && m.log.optionId !== m.planned?.id;
   });
-  protected readonly portions = computed(() => this.meal().portions.map(portionView));
+  protected readonly portions = computed(() => this.meal().portions.map((p) => portionView(this.catalog(), p)));
 }

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { MealLog } from '../models/logs';
 import type { MealSlot } from '../models/plan';
 import { DEFAULT_TIMES } from '../models/profile';
-import { catalog } from './catalog';
+import { exampleCatalog as catalog } from './catalog';
 import { addDays, type IsoDate } from './dates';
 import { resolveDay } from './day-plan';
 import { variantsFor, warningsFor, weekSummary, weekWarnings, type DayResolver } from './rules';
@@ -41,15 +41,15 @@ describe('regole', () => {
 
   it('2 · verza una sola volta a settimana', () => {
     const r = resolver([sub(1, 'pranzo', 'pr-riso-verza')]);
-    expect(texts(r, 3, 'pranzo', 'pr-riso-verza')).toContain('Verza o cavolo già questa settimana');
-    expect(texts(resolver(), 3, 'pranzo', 'pr-riso-verza')).not.toContain('Verza o cavolo già questa settimana');
+    expect(texts(r, 3, 'pranzo', 'pr-riso-verza')).toContain('Cavoli / verza: 2ª volta questa settimana (max 1)');
+    expect(texts(resolver(), 3, 'pranzo', 'pr-riso-verza')).not.toContain('Cavoli / verza: 2ª volta questa settimana (max 1)');
   });
 
   it('3 · 3ª carne rossa della settimana', () => {
     // sett. 1 ha già l'hamburger di mercoledì; aggiungo il vitello giovedì → il terzo avvisa
     const r = resolver([sub(3, 'cena', 'ce-vitello-spinaci-carote')]);
-    expect(texts(r, 4, 'cena', 'ce-hamburger-insalata-carote')).toContain('3ª carne rossa della settimana');
-    expect(texts(resolver(), 4, 'cena', 'ce-hamburger-insalata-carote')).not.toContain('3ª carne rossa della settimana');
+    expect(texts(r, 4, 'cena', 'ce-hamburger-insalata-carote')).toContain('Carne rossa: 3ª volta questa settimana (max 2)');
+    expect(texts(resolver(), 4, 'cena', 'ce-hamburger-insalata-carote')).not.toContain('Carne rossa: 3ª volta questa settimana (max 2)');
   });
 
   it('4 · togliere il pesce lo porta sotto le 2 volte', () => {
@@ -58,36 +58,27 @@ describe('regole', () => {
 
   it('5 · con uova a pranzo il panino alle uova avvisa', () => {
     // venerdì sett. 1: pasta con uova e pancetta
-    expect(texts(resolver(), 4, 'spuntino1', 'sp1-uova')).toContain("Hai già uova a pranzo: nel panino metti l'affettato");
+    expect(texts(resolver(), 4, 'spuntino1', 'sp1-uova')).toContain("Uova già a pranzo: nel panino va l'affettato");
     expect(texts(resolver(), 3, 'spuntino1', 'sp1-uova')).toEqual([]);
   });
 
   it('5 · frittata a cena dopo il panino alle uova già mangiato', () => {
     const r = resolver([sub(1, 'spuntino1', 'sp1-uova', 'done')]);
-    expect(texts(r, 1, 'cena', 'ce-frittata-insalata-carote')).toContain('Uova già nel panino delle 11:30');
+    expect(texts(r, 1, 'cena', 'ce-frittata-insalata-carote')).toContain('Uova già a spuntino');
   });
 
   it('6 · patate a cena in un giorno di palestra', () => {
-    expect(texts(resolver(), 0, 'cena', 'ce-orata-patate-insalata')).toContain('Giorno palestra: al posto delle patate 40 g di pane');
+    expect(texts(resolver(), 0, 'cena', 'ce-orata-patate-insalata')).toContain('Giorno palestra: niente patate, 40 g di pane');
   });
 
   it('7 · salsicce entro 14 giorni, solo sulle sostituzioni', () => {
     // sett. 2 venerdì (giorno 11) ha le salsicce nel piano
-    expect(texts(resolver(), 16, 'cena', 'ce-salsicce-friarielli')).toContain('Salsicce già nelle ultime 2 settimane');
-    expect(texts(resolver(), 38, 'cena', 'ce-salsicce-friarielli')).not.toContain('Salsicce già nelle ultime 2 settimane');
+    expect(texts(resolver(), 16, 'cena', 'ce-salsicce-friarielli')).toContain('Salsiccia già negli ultimi 14 giorni');
+    expect(texts(resolver(), 38, 'cena', 'ce-salsicce-friarielli')).not.toContain('Salsiccia già negli ultimi 14 giorni');
     // nel piano fisso (sett. 4 giovedì, giorno 24) non avvisa
-    expect(texts(resolver(), 24, 'cena', 'ce-salsicce-friarielli')).not.toContain('Salsicce già nelle ultime 2 settimane');
+    expect(texts(resolver(), 24, 'cena', 'ce-salsicce-friarielli')).not.toContain('Salsiccia già negli ultimi 14 giorni');
   });
 
-  it('tortellini in brodo sconsigliati nei giorni con legumi', () => {
-    expect(texts(resolver(), 1, 'pranzo', 'pr-brodo-tortellini')).toContain('Sconsigliato nei giorni con legumi');
-  });
-
-  it('lesso: suggerito dopo il brodo', () => {
-    expect(texts(resolver(), 1, 'cena', 'ce-lesso-pollo')).toContain('Ideale lo stesso giorno del brodo o il giorno dopo');
-    const r = resolver([sub(1, 'pranzo', 'pr-brodo-tagliolini')]);
-    expect(texts(r, 2, 'cena', 'ce-lesso-pollo')).not.toContain('Ideale lo stesso giorno del brodo o il giorno dopo');
-  });
 });
 
 describe('variantsFor', () => {
@@ -115,7 +106,10 @@ describe('variantsFor', () => {
 
 describe('weekSummary', () => {
   it('conta pesce e carne rossa della settimana', () => {
-    expect(weekSummary(catalog, resolver(), d(0))).toEqual({ fish: 2, redMeat: 1, cabbage: 0 });
+    const s = weekSummary(catalog, resolver(), d(0));
+    expect(s.find((c) => c.tag === 'pesce')).toMatchObject({ count: 2, min: 2, ok: true });
+    expect(s.find((c) => c.tag === 'carne-rossa')).toMatchObject({ count: 1, max: 2, ok: true });
+    expect(s.find((c) => c.tag === 'cavolo')).toMatchObject({ count: 0, max: 1, ok: true });
   });
 });
 

@@ -97,7 +97,7 @@ input[type='time'] {
 }
 .progress {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 6px;
   margin-bottom: 16px;
   span {
@@ -230,4 +230,19 @@ input[type='date'] {
 input.ocr {
   border-color: var(--primary);
   background: color-mix(in srgb, var(--primary) 10%, var(--surface-2));
+}
+.plan-card {
+  display: grid;
+  gap: 4px;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+}
+.disclaimer {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  font-size: 0.85rem;
+  color: var(--text-2);
 }

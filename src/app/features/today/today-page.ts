@@ -3,11 +3,11 @@ import { DatePipe, DecimalPipe } from '@angular/common';
 import { DayStore } from '../../core/data/day.store';
 import { ProfileService } from '../../core/data/profile.service';
 import { addDays, parseIsoDate, today, type IsoDate } from '../../core/domain/dates';
-import { dayTips } from '../../core/domain/day-rules';
+import { dayTips, dayToggles } from '../../core/domain/day-rules';
 import type { ResolvedMeal } from '../../core/domain/day-plan';
-import { MEAL_SLOTS, type MealSlot } from '../../core/models/plan';
+import type { MealSlot } from '../../core/models/plan';
 import type { PersonalReminder } from '../../core/models/profile';
-import { SLOT_META } from '../../shared/meal-format';
+import { slotMeta } from '../../shared/meal-format';
 import { mediaSignal } from '../../shared/media';
 import { BottomSheet } from '../../shared/ui/bottom-sheet';
 import { CheckButton } from '../../shared/ui/check-button';
@@ -55,7 +55,7 @@ export class TodayPage {
           this.direction.set(null);
           this.date.set(today());
         }
-        if (slot && MEAL_SLOTS.includes(slot)) this.openMeal(slot);
+        if (slot && this.store.catalog().slot(slot)) this.openMeal(slot);
       });
     });
   }
@@ -66,9 +66,21 @@ export class TodayPage {
   protected readonly day = computed(() => this.store.day(this.date()));
   protected readonly profile = this.profiles.effective;
   protected readonly habits = computed(() => this.store.habits(this.date()));
-  protected readonly tips = computed(() => dayTips(this.day()));
+  protected readonly tips = computed(() => dayTips(this.store.catalog(), this.day()));
+  protected readonly toggles = computed(() => dayToggles(this.store.catalog(), this.day()));
+  protected readonly plan = computed(() => this.store.catalog().meta);
   protected readonly hasFree = computed(() => this.day().meals.some((m) => m.free));
-  protected readonly creatineStreak = computed(() => this.store.creatineStreak(this.date()));
+  /** Abitudini del piano (es. integratori) con spunta e giorni di fila. */
+  protected readonly planHabits = computed(() => {
+    const day = this.day();
+    const done = this.habits().done ?? {};
+    return this.store.catalog().habits.map((h) => ({
+      ...h,
+      done: !!done[h.id],
+      hintNow: (day.gym ? h.hintGym : undefined) ?? h.hint,
+      streak: this.store.habitStreak(this.date(), h.id),
+    }));
+  });
 
   protected readonly entries = computed<Entry[]>(() => {
     const day = this.day();
@@ -80,7 +92,7 @@ export class TodayPage {
         .map<Entry>((r) => ({ kind: 'reminder', time: r.time, reminder: r, done: doneReminders.has(r.id) })),
       ...day.meals.map<Entry>((m) => ({ kind: 'meal', time: m.time, meal: m })),
     ];
-    if (day.gym) list.push({ kind: 'gym', time: p.times.palestra, end: p.gymEnd });
+    if (day.gym) list.push({ kind: 'gym', time: p.times['palestra'] ?? '22:00', end: p.gymEnd });
     // A parità di orario la palestra viene prima del post-allenamento.
     return list.sort((a, b) => a.time.localeCompare(b.time) || (a.kind === 'gym' ? -1 : 1));
   });
@@ -116,7 +128,7 @@ export class TodayPage {
   protected readonly menuMeal = computed(() => this.day().meals.find((m) => m.slot === this.menuSlot()) ?? null);
 
   protected slotLabel(slot: MealSlot): string {
-    return SLOT_META[slot].label;
+    return slotMeta(this.store.catalog(), slot).label;
   }
 
   protected openMeal(slot: MealSlot): void {
@@ -185,12 +197,8 @@ export class TodayPage {
 
   // ---------- Opzioni e abitudini ----------
 
-  protected toggleSushi(): void {
-    void this.store.setOption(this.date(), { sushiSwap: !this.day().options.sushiSwap });
-  }
-
-  protected toggleCardio(): void {
-    void this.store.setOption(this.date(), { cardioExtra: !this.day().options.cardioExtra });
+  protected toggleOption(id: string): void {
+    void this.store.toggleOption(this.date(), id);
   }
 
   protected water_(delta: number): void {

@@ -113,24 +113,37 @@
           <p class="hint">Le bilance a impedenza sono imprecise: conta il trend.</p>
         }
 
-        @case ('obiettivi') {
-          <div class="grid3">
-            <label class="field">
-              <span>Calorie al giorno</span>
-              <input type="number" inputmode="numeric" step="50" [value]="m.targets.kcal"
-                     (input)="setTarget('kcal', $any($event.target).value)" />
-            </label>
-            <label class="field">
-              <span>Proteine (g)</span>
-              <input type="number" inputmode="numeric" step="5" [value]="m.targets.proteinG"
-                     (input)="setTarget('proteinG', $any($event.target).value)" />
-            </label>
-            <label class="field">
-              <span>Acqua (ml)</span>
-              <input type="number" inputmode="numeric" step="250" [value]="m.waterTargetMl"
-                     (input)="patch({ waterTargetMl: num($any($event.target).value) ?? m.waterTargetMl })" />
-            </label>
+        @case ('piano') {
+          @let meta = plans.plan().meta;
+          <div class="plan-card">
+            <strong>{{ meta.title }}</strong>
+            @if (meta.author) { <span class="muted">di {{ meta.author }}</span> }
+            @if (meta.kcal || meta.proteinG) {
+              <span class="muted">
+                Indicati dal piano:
+                @if (meta.kcal) { {{ meta.kcal | number }} kcal }
+                @if (meta.kcal && meta.proteinG) { · }
+                @if (meta.proteinG) { {{ meta.proteinG }} g di proteine }
+              </span>
+            }
+            @if (meta.notes) { <span class="hint">{{ meta.notes }}</span> }
           </div>
+          <label class="btn">
+            📄 Carica il piano del nutrizionista (file Forgia .json)
+            <input type="file" accept="application/json,.json" hidden #planFile (change)="importPlan(planFile)" />
+          </label>
+          <p class="hint">Presto anche da PDF, Word, scansione o foto del piano. Puoi iniziare con il piano di esempio e cambiarlo quando vuoi da Impostazioni → Il mio piano.</p>
+          @if (planMessage(); as pm) {
+            <p [class.scan-ok]="pm.ok" [class.scan-err]="!pm.ok" role="status">{{ pm.text }}</p>
+          }
+          <p class="disclaimer">
+            ⚕️ Forgia ti aiuta a <strong>seguire</strong> il piano che ti ha dato il tuo nutrizionista o dietologo:
+            non è un dispositivo medico, non calcola calorie per te e non fornisce indicazioni nutrizionali.
+            Per obiettivi di peso, dimagrimento o condizioni di salute rivolgiti a un professionista.
+          </p>
+        }
+
+        @case ('palestra') {
           <div class="field">
             <span>Giorni di palestra</span>
             <div class="chips days">
@@ -140,14 +153,19 @@
               }
             </div>
           </div>
+          <label class="field">
+            <span>Acqua al giorno (ml)</span>
+            <input type="number" inputmode="numeric" step="250" [value]="m.waterTargetMl"
+                   (input)="patch({ waterTargetMl: num($any($event.target).value) ?? m.waterTargetMl })" />
+          </label>
         }
 
         @case ('orari') {
           <div class="times">
-            @for (t of timeSlots; track t.id) {
+            @for (t of timeSlots(); track t.id) {
               <label class="field row">
                 <span>{{ t.label }}</span>
-                <input type="time" [value]="m.times[t.id]" (change)="setTime(t.id, $any($event.target).value)" />
+                <input type="time" [value]="m.times[t.id] ?? t.def" (change)="setTime(t.id, $any($event.target).value)" />
               </label>
             }
             <label class="field row">

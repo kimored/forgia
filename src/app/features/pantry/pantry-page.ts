@@ -2,8 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { DatePipe } from '@angular/common';
 import { PantryStore, SHOPPING_DAYS } from '../../core/data/pantry.store';
 import { SettingsService } from '../../core/data/settings.service';
-import { catalog } from '../../core/domain/catalog';
-import { defaultFormat, product, productOwners } from '../../core/domain/pantry';
+import { defaultFormat, productOwners } from '../../core/domain/pantry';
 import { STORES, type Owner, type ShoppingItem, type ShoppingList, type Store } from '../../core/models/pantry';
 import { formatEur, formatQty, stepFor } from '../../shared/qty-format';
 import { BottomSheet } from '../../shared/ui/bottom-sheet';
@@ -13,7 +12,6 @@ import { ProductSheet } from './product-sheet';
 type Tab = 'dispensa' | 'spesa';
 type Filter = 'tutti' | Owner;
 
-const OWNERS = productOwners(catalog.meals.values());
 
 @Component({
   selector: 'app-pantry-page',
@@ -25,6 +23,10 @@ const OWNERS = productOwners(catalog.meals.values());
 export class PantryPage {
   protected readonly store = inject(PantryStore);
   private readonly settings = inject(SettingsService);
+  private readonly owners = computed(() => productOwners(this.store.catalog()));
+  /** La divisione della lista ha senso solo se il piano ha pasti preparati da altri. */
+  protected readonly split = computed(() => this.store.catalog().slots.some((s) => s.owner === 'other'));
+  protected readonly otherLabel = computed(() => this.settings.settings().otherLabel);
 
   protected readonly tab = signal<Tab>('dispensa');
   protected readonly filter = signal<Filter>('tutti');
@@ -40,8 +42,10 @@ export class PantryPage {
     const stock = this.store.stock();
     const forecasts = this.store.forecasts();
     const n = this.alertDays();
-    return this.store.productsList
-      .filter((p) => !p.untracked && (f === 'tutti' || OWNERS.get(p.id)?.has(f)))
+    const owners = this.owners();
+    return this.store
+      .products()
+      .filter((p) => f === 'tutti' || owners.get(p.id)?.has(f))
       .map((p) => {
         const fc = forecasts.get(p.id);
         const qty = stock.get(p.id) ?? 0;
@@ -79,23 +83,23 @@ export class PantryPage {
     const l = this.list();
     if (!l) return [];
     const rows = l.items.map((item, index) => {
-      const p = product(item.productId);
-      const f = p.formats.find((x) => x.id === item.formatId) ?? defaultFormat(p);
+      const p = this.store.product(item.productId);
+      const f = p ? (p.formats.find((x) => x.id === item.formatId) ?? defaultFormat(p)) : null;
       return {
         item,
         index,
-        name: p.name,
-        packsLabel: `${item.packs} × ${f.label}`,
-        missingLabel: formatQty(item.missing, p.unit),
+        name: p?.name ?? item.productId,
+        packsLabel: `${item.packs} × ${f?.label ?? ''}`,
+        missingLabel: formatQty(item.missing, p?.unit ?? 'g'),
         estimate: item.price !== undefined ? item.price * item.packs : this.store.estimate(item),
       };
     });
-    return (['mine', 'nonna'] as const)
+    return (['mine', 'other'] as const)
       .map((owner) => {
         const items = rows.filter((r) => r.item.owner === owner);
         return {
           owner,
-          title: owner === 'mine' ? 'La mia parte' : 'Per la nonna',
+          title: owner === 'mine' ? (this.split() ? 'La mia parte' : 'Da comprare') : this.otherLabel(),
           items,
           total: items.reduce((s, r) => s + (r.estimate ?? 0), 0),
           unknown: items.filter((r) => r.estimate === null).length,

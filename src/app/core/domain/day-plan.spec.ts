@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_TIMES } from '../models/profile';
 import type { MealSlot } from '../models/plan';
-import { catalog } from './catalog';
+import { exampleCatalog as catalog } from './catalog';
 import { addDays } from './dates';
 import { resolveDay, type DayProfile, type ResolvedDay } from './day-plan';
 
@@ -46,25 +46,25 @@ describe('resolveDay', () => {
   });
 
   it('swap sushi del sabato: pranzo libero e cena da dieta con 80 g di pane', () => {
-    const d = day(5, { options: { date: addDays(START, 5), sushiSwap: true } });
+    const d = day(5, { options: { date: addDays(START, 5), toggles: { sushi: true } } });
     expect(meal(d, 'pranzo').free).toBe(true);
-    expect(meal(d, 'cena').option?.id).toBe(catalog.plan.sushiSwapDinner);
+    expect(meal(d, 'cena').option?.id).toBe('ce-pollo-insalata-carote');
     expect(qty(d, 'cena', 'pane')).toBe(80);
   });
 
   it('lo swap sushi vale solo di sabato', () => {
-    const d = day(3, { options: { date: addDays(START, 3), sushiSwap: true } });
+    const d = day(3, { options: { date: addDays(START, 3), toggles: { sushi: true } } });
     expect(meal(d, 'pranzo').free).toBe(false);
   });
 
   it('cardio extra in un giorno di riposo: +30 g di pasta a pranzo', () => {
-    const d = day(1, { options: { date: addDays(START, 1), cardioExtra: true } });
+    const d = day(1, { options: { date: addDays(START, 1), toggles: { cardio: true } } });
     expect(qty(d, 'pranzo', 'pasta')).toBe(150);
     expect(meal(d, 'pranzo').notes.join()).toMatch(/\+30 g/);
   });
 
   it('il cardio extra non si applica nei giorni di palestra', () => {
-    const d = day(0, { options: { date: START, cardioExtra: true } });
+    const d = day(0, { options: { date: START, toggles: { cardio: true } } });
     expect(qty(d, 'pranzo', 'pasta')).toBe(120);
   });
 

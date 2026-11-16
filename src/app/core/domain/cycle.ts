@@ -2,7 +2,7 @@ import type { CycleWeek, Weekday } from '../models/plan';
 import { daysBetween, mondayOf, weekdayOf, type IsoDate } from './dates';
 
 export interface CyclePosition {
-  /** Settimana del ciclo alimentare 1 → 4 → 1 … */
+  /** Settimana del ciclo alimentare 1 → N → 1 … */
   week: CycleWeek;
   weekday: Weekday;
   /**
@@ -16,9 +16,10 @@ export interface CyclePosition {
  * Posizione di una data nel ciclo. Le settimane sono di calendario (lun → dom):
  * se la data di inizio non è un lunedì vale il lunedì della sua settimana.
  */
-export function cyclePosition(date: IsoDate, startDate: IsoDate): CyclePosition {
+export function cyclePosition(date: IsoDate, startDate: IsoDate, cycleWeeks = 4): CyclePosition {
   const weeks = Math.floor(daysBetween(mondayOf(startDate), mondayOf(date)) / 7);
-  const week = ((((weeks % 4) + 4) % 4) + 1) as CycleWeek;
+  const n = Math.max(1, cycleWeeks);
+  const week = ((((weeks % n) + n) % n) + 1) as CycleWeek;
   return { week, weekday: weekdayOf(date), programWeek: weeks >= 0 ? weeks + 1 : weeks };
 }
 

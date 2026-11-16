@@ -1,6 +1,6 @@
 import Dexie, { type Table } from 'dexie';
 import type { DayOptions, HabitLog, MealLog } from '../models/logs';
-import type { PantryItem, PriceEntry, ShoppingList } from '../models/pantry';
+import type { PantryItem, PriceEntry, ProductSettings, ShoppingList } from '../models/pantry';
 
 /** Record chiave/valore per impostazioni, profilo e metadati dell'app. */
 export interface KeyValue<T = unknown> {
@@ -38,6 +38,7 @@ export class ForgiaDb extends Dexie {
   pantry!: Table<PantryItem, string>;
   prices!: Table<PriceEntry, number>;
   shoppingLists!: Table<ShoppingList, number>;
+  productSettings!: Table<ProductSettings, string>;
 
   constructor(name = 'forgia') {
     super(name);
@@ -55,6 +56,9 @@ export class ForgiaDb extends Dexie {
       pantry: 'productId',
       prices: '++id, productId, date',
       shoppingLists: '++id, createdAt',
+    });
+    this.version(4).stores({
+      productSettings: 'productId',
     });
   }
 }

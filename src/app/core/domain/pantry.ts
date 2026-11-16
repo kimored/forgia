@@ -1,78 +1,89 @@
-import productsJson from '../../../assets/data/products.json';
-import { NONNA_SLOTS, type Portion } from '../models/plan';
-import type { Owner, PriceEntry, Product, ProductFormat, ShoppingItem, Store } from '../models/pantry';
+import type { Food, Portion, ProductFormat } from '../models/plan';
+import type { Owner, PriceEntry, Product, ProductSettings, ShoppingItem, Store } from '../models/pantry';
+import type { Catalog } from './catalog';
 import { addDays, daysBetween, type IsoDate } from './dates';
 import type { ResolvedDay, ResolvedMeal } from './day-plan';
 import type { DayResolver } from './rules';
 
-export const products: Product[] = productsJson as Product[];
-const productById = new Map(products.map((p) => [p.id, p]));
-const productByFood = new Map(products.flatMap((p) => p.foods.map((f) => [f, p] as const)));
+/**
+ * Dispensa generata dal piano: ogni alimento del piano (tranne quelli "non contati")
+ * è un prodotto. Marca e confezioni arrivano dal piano o dalle impostazioni dell'utente.
+ */
 
-export const CREATINE_G = 5;
 export const FORECAST_HORIZON_DAYS = 90;
 
-export function product(id: string): Product {
-  const p = productById.get(id);
-  if (!p) throw new Error(`Prodotto sconosciuto: ${id}`);
-  return p;
+/** Confezione di default quando il piano non la indica. */
+export function defaultFormatFor(food: Pick<Food, 'unit'>): ProductFormat {
+  if (food.unit === 'pz') return { id: 'conf', label: '1 pz', qty: 1, price: null };
+  return food.unit === 'ml'
+    ? { id: 'conf', label: '1 L', qty: 1000, price: null }
+    : { id: 'conf', label: '500 g', qty: 500, price: null };
 }
 
-export function productForFood(foodId: string): Product | undefined {
-  return productByFood.get(foodId);
+export function productFromFood(food: Food, settings?: ProductSettings): Product {
+  const formats = settings?.formats?.length ? settings.formats : food.formats?.length ? food.formats : [defaultFormatFor(food)];
+  return { id: food.id, name: food.name, brand: settings?.brand ?? food.brand, unit: food.unit, formats, aliases: food.aliases };
+}
+
+/** Prodotti della dispensa per un piano. */
+export function productsFor(catalog: Catalog, settings: ReadonlyMap<string, ProductSettings> = new Map()): Product[] {
+  return [...catalog.foods.values()].filter((f) => !f.untracked).map((f) => productFromFood(f, settings.get(f.id)));
 }
 
 export function defaultFormat(p: Product): ProductFormat {
   return p.formats[0];
 }
 
-export type Needs = Map<string, { mine: number; nonna: number }>;
+export type Needs = Map<string, { mine: number; other: number }>;
 
 function add(needs: Needs, productId: string, owner: Owner, qty: number): void {
-  const n = needs.get(productId) ?? { mine: 0, nonna: 0 };
+  if (!qty) return;
+  const n = needs.get(productId) ?? { mine: 0, other: 0 };
   n[owner] += qty;
   needs.set(productId, n);
 }
 
-/** Quantità di prodotti consumate da un pasto (per lo scalo automatico della dispensa). */
-export function mealConsumption(meal: ResolvedMeal): { productId: string; qty: number }[] {
-  return portionsToProducts(meal.portions);
+/** Quantità di prodotti consumate da un pasto ("quanto basta" e cibi non contati esclusi). */
+export function mealConsumption(catalog: Catalog, meal: ResolvedMeal): { productId: string; qty: number }[] {
+  return meal.portions
+    .filter((p: Portion) => p.qty > 0 && catalog.foods.has(p.food) && !catalog.foods.get(p.food)!.untracked)
+    .map((p) => ({ productId: p.food, qty: p.qty }));
 }
 
-function portionsToProducts(portions: Portion[]): { productId: string; qty: number }[] {
-  const out: { productId: string; qty: number }[] = [];
-  for (const p of portions) {
-    const prod = productForFood(p.food);
-    if (prod && !prod.untracked) out.push({ productId: prod.id, qty: p.qty });
-  }
-  return out;
+export interface NeedsOptions {
+  /** Conta solo i pasti non ancora fatti né saltati (oggi, con lo scalo automatico attivo). */
+  pendingOnly?: boolean;
+  /** Abitudini già spuntate oggi (non vanno ricontate). */
+  habitsDone?: Record<string, boolean>;
 }
 
-/**
- * Fabbisogno di un giorno. `pendingOnly`: conta solo i pasti non ancora fatti né saltati
- * (per oggi, quando i pasti fatti sono già stati scalati).
- */
-export function dayNeeds(day: ResolvedDay, opts: { pendingOnly?: boolean; creatineTaken?: boolean } = {}): Needs {
+/** Fabbisogno di un giorno: pasti del piano + abitudini con un alimento (es. creatina). */
+export function dayNeeds(catalog: Catalog, day: ResolvedDay, opts: NeedsOptions = {}): Needs {
   const needs: Needs = new Map();
   for (const m of day.meals) {
     if (m.free) continue;
     const status = m.log?.status ?? 'todo';
     if (status === 'skipped' || (opts.pendingOnly && status === 'done')) continue;
-    const owner: Owner = NONNA_SLOTS.includes(m.slot) ? 'nonna' : 'mine';
-    for (const c of mealConsumption(m)) add(needs, c.productId, owner, c.qty);
+    const owner: Owner = catalog.slot(m.slot)?.owner === 'other' ? 'other' : 'mine';
+    for (const c of mealConsumption(catalog, m)) add(needs, c.productId, owner, c.qty);
   }
-  // Nei giorni senza palestra la creatina si prende a parte (nei giorni palestra è nello shake).
-  if (!day.gym && !(opts.pendingOnly && opts.creatineTaken)) add(needs, 'creatina', 'mine', CREATINE_G);
+  for (const h of catalog.habits) {
+    if (!h.food || !h.qty || (day.gym && h.includedOnGymDays)) continue;
+    if (opts.pendingOnly && opts.habitsDone?.[h.id]) continue;
+    add(needs, h.food, 'mine', h.qty);
+  }
   return needs;
 }
 
 export interface ForecastInput {
+  catalog: Catalog;
+  products: Product[];
   resolve: DayResolver;
   from: IsoDate;
   stock: ReadonlyMap<string, number>;
   /** Se true, i pasti di oggi già fatti sono già stati scalati dalla dispensa. */
   autoDeduct: boolean;
-  creatineTakenToday?: boolean;
+  habitsDoneToday?: Record<string, boolean>;
   horizon?: number;
 }
 
@@ -86,21 +97,22 @@ export interface Forecast {
   runOut: IsoDate | null;
 }
 
+const optsFor = (input: ForecastInput, i: number): NeedsOptions => ({
+  pendingOnly: i === 0 && input.autoDeduct,
+  habitsDone: i === 0 ? input.habitsDoneToday : undefined,
+});
+
 /** Simula i prossimi giorni sul piano effettivo e stima quando finisce ogni prodotto. */
 export function forecast(input: ForecastInput): Forecast[] {
   const horizon = input.horizon ?? FORECAST_HORIZON_DAYS;
-  const remaining = new Map(products.map((p) => [p.id, input.stock.get(p.id) ?? 0]));
+  const remaining = new Map(input.products.map((p) => [p.id, input.stock.get(p.id) ?? 0]));
   const total = new Map<string, number>();
   const runOut = new Map<string, number>();
 
   for (let i = 0; i < horizon; i++) {
-    const date = addDays(input.from, i);
-    const needs = dayNeeds(input.resolve(date), {
-      pendingOnly: i === 0 && input.autoDeduct,
-      creatineTaken: i === 0 && input.creatineTakenToday,
-    });
+    const needs = dayNeeds(input.catalog, input.resolve(addDays(input.from, i)), optsFor(input, i));
     for (const [id, n] of needs) {
-      const qty = n.mine + n.nonna;
+      const qty = n.mine + n.other;
       total.set(id, (total.get(id) ?? 0) + qty);
       const left = (remaining.get(id) ?? 0) - qty;
       remaining.set(id, left);
@@ -108,42 +120,36 @@ export function forecast(input: ForecastInput): Forecast[] {
     }
   }
 
-  return products
-    .filter((p) => !p.untracked)
-    .map((p) => {
-      const days = runOut.get(p.id);
-      return {
-        productId: p.id,
-        stock: input.stock.get(p.id) ?? 0,
-        dailyAvg: (total.get(p.id) ?? 0) / horizon,
-        daysLeft: days ?? null,
-        runOut: days === undefined ? null : addDays(input.from, days),
-      };
-    });
+  return input.products.map((p) => {
+    const days = runOut.get(p.id);
+    return {
+      productId: p.id,
+      stock: input.stock.get(p.id) ?? 0,
+      dailyAvg: (total.get(p.id) ?? 0) / horizon,
+      daysLeft: days ?? null,
+      runOut: days === undefined ? null : addDays(input.from, days),
+    };
+  });
 }
 
 /** Lista spesa: quanto manca per coprire i prossimi `days` giorni, in confezioni. */
 export function shoppingList(input: ForecastInput & { days: number }): ShoppingItem[] {
   const needs: Needs = new Map();
   for (let i = 0; i < input.days; i++) {
-    const day = input.resolve(addDays(input.from, i));
-    const n = dayNeeds(day, {
-      pendingOnly: i === 0 && input.autoDeduct,
-      creatineTaken: i === 0 && input.creatineTakenToday,
-    });
-    for (const [id, q] of n) {
+    for (const [id, q] of dayNeeds(input.catalog, input.resolve(addDays(input.from, i)), optsFor(input, i))) {
       add(needs, id, 'mine', q.mine);
-      add(needs, id, 'nonna', q.nonna);
+      add(needs, id, 'other', q.other);
     }
   }
-
+  const byId = new Map(input.products.map((p) => [p.id, p]));
   const items: ShoppingItem[] = [];
   for (const [productId, need] of needs) {
-    const prod = product(productId);
+    const prod = byId.get(productId);
+    if (!prod) continue;
     const format = defaultFormat(prod);
-    // La scorta copre prima "la mia parte", poi quella della nonna.
+    // La scorta copre prima "la mia parte", poi l'altra.
     let stock = input.stock.get(productId) ?? 0;
-    for (const owner of ['mine', 'nonna'] as const) {
+    for (const owner of ['mine', 'other'] as const) {
       const missing = need[owner] - stock;
       stock = Math.max(0, -missing);
       if (missing > 0) {
@@ -151,7 +157,25 @@ export function shoppingList(input: ForecastInput & { days: number }): ShoppingI
       }
     }
   }
-  return items.sort((a, b) => product(a.productId).name.localeCompare(product(b.productId).name, 'it'));
+  return items.sort((a, b) => byId.get(a.productId)!.name.localeCompare(byId.get(b.productId)!.name, 'it'));
+}
+
+/** A chi serve un prodotto, in base agli slot dei pasti che lo usano. */
+export function productOwners(catalog: Catalog): Map<string, Set<Owner>> {
+  const out = new Map<string, Set<Owner>>();
+  const mark = (id: string, owner: Owner) => {
+    const set = out.get(id) ?? new Set<Owner>();
+    set.add(owner);
+    out.set(id, set);
+  };
+  for (const m of catalog.meals.values()) {
+    for (const slot of m.slots) {
+      const owner: Owner = catalog.slot(slot)?.owner === 'other' ? 'other' : 'mine';
+      for (const p of m.portions) mark(p.food, owner);
+    }
+  }
+  for (const h of catalog.habits) if (h.food) mark(h.food, 'mine');
+  return out;
 }
 
 // ---------- Prezzi ----------
@@ -190,7 +214,7 @@ export function latestByStore(p: Product, format: ProductFormat, history: PriceE
   return out;
 }
 
-/** Prezzo di riferimento: ultimo pagato (in qualunque negozio, non in offerta), altrimenti quello del catalogo. */
+/** Prezzo di riferimento: ultimo pagato (in qualunque negozio, non in offerta), altrimenti quello del piano. */
 export function referencePrice(p: Product, format: ProductFormat, history: PriceEntry[]): PriceInfo | null {
   const latest = [...latestByStore(p, format, history).values()].sort((a, b) => (b.date ?? '').localeCompare(a.date ?? ''))[0];
   if (latest) return latest;
@@ -228,24 +252,4 @@ export function comparePrice(
     isBest: paid <= best.unitPrice,
     ageDays: best.date ? daysBetween(best.date, today) : 0,
   };
-}
-
-/** A chi serve un prodotto, in base agli slot dei pasti che lo usano (statico, dal catalogo). */
-export function productOwners(meals: Iterable<{ slots: string[]; portions: Portion[] }>): Map<string, Set<Owner>> {
-  const out = new Map<string, Set<Owner>>();
-  for (const m of meals) {
-    for (const slot of m.slots) {
-      const owner: Owner = (NONNA_SLOTS as readonly string[]).includes(slot) ? 'nonna' : 'mine';
-      for (const p of m.portions) {
-        const prod = productForFood(p.food);
-        if (!prod) continue;
-        const set = out.get(prod.id) ?? new Set<Owner>();
-        set.add(owner);
-        out.set(prod.id, set);
-      }
-    }
-  }
-  // La creatina dei giorni di riposo non è in nessun pasto.
-  out.set('creatina', new Set(['mine']));
-  return out;
 }

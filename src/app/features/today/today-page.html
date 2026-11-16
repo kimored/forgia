@@ -28,14 +28,14 @@
             <ul>
               @for (t of tips(); track t) { <li>{{ t }}</li> }
             </ul>
-            @if (d.weekday === 5) {
-              <button type="button" class="btn toggle" [class.primary]="d.options.sushiSwap" (click)="toggleSushi()">
-                🍣 Sushi a pranzo{{ d.options.sushiSwap ? ': attivo' : '' }}
-              </button>
-            } @else if (!d.gym) {
-              <button type="button" class="btn toggle" [class.primary]="d.options.cardioExtra" (click)="toggleCardio()">
-                🏃 Cardio extra{{ d.options.cardioExtra ? ': attivo' : '' }}
-              </button>
+            @if (toggles().length) {
+              <div class="toggles">
+                @for (o of toggles(); track o.id) {
+                  <button type="button" class="btn toggle" [class.primary]="o.on" [attr.aria-pressed]="o.on" (click)="toggleOption(o.id)">
+                    {{ o.label }}{{ o.on ? ': attivo' : '' }}
+                  </button>
+                }
+              </div>
             }
           </section>
         }
@@ -74,16 +74,18 @@
         </ol>
 
         <section class="card habits">
-          <div class="habit">
-            <div>
-              <strong>Creatina 5 g</strong>
-              <span class="muted">
-                {{ d.gym ? 'Nello shake post-allenamento' : 'Nello yogurt o in acqua' }}
-                @if (creatineStreak() > 1) { · 🔥 {{ creatineStreak() }} giorni di fila }
-              </span>
+          @for (h of planHabits(); track h.id) {
+            <div class="habit">
+              <div>
+                <strong>{{ h.label }}</strong>
+                <span class="muted">
+                  {{ h.hintNow }}
+                  @if (h.streak > 1) { · 🔥 {{ h.streak }} giorni di fila }
+                </span>
+              </div>
+              <app-check [checked]="h.done" [label]="h.label + ': fatto'" (toggle)="store.toggleHabit(date(), h.id)" />
             </div>
-            <app-check [checked]="!!habits().creatine" label="Creatina presa" (toggle)="store.toggleCreatine(date())" />
-          </div>
+          }
 
           <div class="habit water">
             <div>

@@ -1,16 +1,16 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { liveQuery } from 'dexie';
-import type { PantryItem, PriceEntry, ShoppingItem, ShoppingList, Store } from '../models/pantry';
+import type { PantryItem, PriceEntry, Product, ProductSettings, ShoppingItem, ShoppingList, Store } from '../models/pantry';
 import { today, type IsoDate } from '../domain/dates';
 import {
   defaultFormat,
   forecast,
   latestByStore,
-  product,
-  products,
+  productsFor,
   referencePrice,
   shoppingList,
   type Forecast,
+  type ForecastInput,
 } from '../domain/pantry';
 import { db } from './db';
 import { DayStore } from './day.store';
@@ -27,8 +27,20 @@ export class PantryStore {
   private readonly items = signal<PantryItem[]>([]);
   readonly prices = signal<PriceEntry[]>([]);
   private readonly lists = signal<ShoppingList[]>([]);
+  private readonly settingsRows = signal<ProductSettings[]>([]);
+  readonly catalog = this.days.catalog;
 
   readonly stock = computed(() => new Map(this.items().map((i) => [i.productId, i.qty])));
+
+  /** Prodotti = alimenti del piano attivo, con le personalizzazioni dell'utente. */
+  readonly products = computed<Product[]>(() =>
+    productsFor(this.days.catalog(), new Map(this.settingsRows().map((s) => [s.productId, s]))),
+  );
+  private readonly byId = computed(() => new Map(this.products().map((p) => [p.id, p])));
+
+  product(id: string): Product | undefined {
+    return this.byId().get(id);
+  }
   /** La data cambia a mezzanotte: si ricalcola alla riapertura dell'app. */
   private readonly date = signal<IsoDate>(today());
 
@@ -36,20 +48,28 @@ export class PantryStore {
     liveQuery(() => db.pantry.toArray()).subscribe((v) => this.items.set(v));
     liveQuery(() => db.prices.toArray()).subscribe((v) => this.prices.set(v));
     liveQuery(() => db.shoppingLists.orderBy('createdAt').toArray()).subscribe((v) => this.lists.set(v));
+    liveQuery(() => db.productSettings.toArray()).subscribe((v) => this.settingsRows.set(v));
     document.addEventListener('visibilitychange', () => {
       if (!document.hidden) this.date.set(today());
     });
   }
 
-  private forecastInput() {
+  private forecastInput(): ForecastInput {
     const date = this.date();
     return {
+      catalog: this.days.catalog(),
+      products: this.products(),
       resolve: this.days.resolver(),
       from: date,
       stock: this.stock(),
       autoDeduct: this.settingsService.settings().pantryAutoDeduct,
-      creatineTakenToday: !!this.days.habits(date).creatine,
+      habitsDoneToday: this.days.habits(date).done,
     };
+  }
+
+  /** Personalizza marca e confezioni di un prodotto. */
+  async saveProductSettings(settings: ProductSettings): Promise<void> {
+    await db.productSettings.put(settings);
   }
 
   readonly forecasts = computed(() => new Map(forecast(this.forecastInput()).map((f) => [f.productId, f])));
@@ -86,7 +106,8 @@ export class PantryStore {
     packs: number,
     paid?: { store: Store; price: number; offer?: boolean },
   ): Promise<void> {
-    const p = product(productId);
+    const p = this.product(productId);
+    if (!p) return;
     const format = p.formats.find((f) => f.id === formatId) ?? defaultFormat(p);
     await adjustStock([{ productId, qty: format.qty * packs }], 1);
     if (paid) await this.addPrice({ productId, formatId: format.id, ...paid, date: today(), source: 'spesa' });
@@ -130,10 +151,11 @@ export class PantryStore {
     const date = today();
     const bought = list.items.filter((i) => i.checked);
     await adjustStock(
-      bought.map((i) => {
-        const p = product(i.productId);
+      bought.flatMap((i) => {
+        const p = this.product(i.productId);
+        if (!p) return [];
         const f = p.formats.find((x) => x.id === i.formatId) ?? defaultFormat(p);
-        return { productId: i.productId, qty: f.qty * i.packs };
+        return [{ productId: i.productId, qty: f.qty * i.packs }];
       }),
       1,
     );
@@ -147,12 +169,12 @@ export class PantryStore {
 
   /** Prezzo stimato di una riga (ultimo pagato nel negozio, altrimenti riferimento). */
   estimate(item: ShoppingItem, store?: Store): number | null {
-    const p = product(item.productId);
+    const p = this.product(item.productId);
+    if (!p) return null;
     const f = p.formats.find((x) => x.id === item.formatId) ?? defaultFormat(p);
     const history = this.prices();
     const info = (store && latestByStore(p, f, history).get(store)) || referencePrice(p, f, history);
     return info ? info.price * item.packs : null;
   }
 
-  readonly productsList = products;
 }

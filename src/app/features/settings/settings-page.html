@@ -3,10 +3,42 @@
 <a class="card link" routerLink="profilo">
   <span>
     <strong>I miei dati</strong>
-    <span class="muted">Profilo, obiettivi, giorni di palestra, orari e promemoria</span>
+    <span class="muted">Profilo, punto di partenza, giorni di palestra, orari e promemoria</span>
   </span>
   <span class="chev" aria-hidden="true">›</span>
 </a>
+
+<section class="card">
+  @let meta = plans.plan().meta;
+  <h2>Il mio piano</h2>
+  <div class="plan-info">
+    <strong>{{ meta.title }}</strong>
+    @if (meta.author) { <span class="muted">di {{ meta.author }}@if (meta.date) { · {{ meta.date }}}</span> }
+    @if (meta.kcal || meta.proteinG) {
+      <span class="muted">
+        Indicati dal piano:
+        @if (meta.kcal) { {{ meta.kcal | number }} kcal }
+        @if (meta.kcal && meta.proteinG) { · }
+        @if (meta.proteinG) { {{ meta.proteinG }} g di proteine }
+      </span>
+    }
+    <span class="muted">{{ plans.catalog().slots.length }} pasti al giorno · {{ plans.catalog().meals.size }} piatti · {{ plans.catalog().foods.size }} alimenti · {{ plans.catalog().rules.length }} regole</span>
+  </div>
+  <div class="row">
+    <label class="btn primary">
+      📄 Carica piano (.json)
+      <input type="file" accept="application/json,.json" hidden #planFile (change)="importPlan(planFile)" />
+    </label>
+    <button type="button" class="btn" (click)="plans.download()">Esporta</button>
+    @if (!plans.isExample()) {
+      <button type="button" class="btn ghost" (click)="useExample()">Usa il piano di esempio</button>
+    }
+  </div>
+  @if (planMessage(); as pm) {
+    <p class="msg" [class.err]="!pm.ok" role="status">{{ pm.text }}</p>
+  }
+  <p class="muted small">Presto: importazione da PDF, Word, scansione o foto del piano del nutrizionista.</p>
+</section>
 
 <section class="card">
   <h2>Tema</h2>
@@ -38,6 +70,16 @@
     <input class="days" type="number" inputmode="numeric" min="1" max="30" [value]="app.settings().alertDays"
            (change)="setAlertDays($any($event.target).value)" />
   </label>
+  @if (hasOtherPart()) {
+    <label class="toggle-row">
+      <span>
+        <strong>Nome della seconda parte della spesa</strong>
+        <span class="muted">Per i pasti che prepara qualcun altro (es. "Per la nonna")</span>
+      </span>
+      <input class="label-input" type="text" [value]="app.settings().otherLabel"
+             (change)="app.update({ otherLabel: $any($event.target).value.trim() || 'Per chi cucina' })" />
+    </label>
+  }
 </section>
 
 @if (!install.standalone()) {
@@ -97,4 +139,9 @@
 <section class="card">
   <h2>Info</h2>
   <p class="muted">Forgia · PWA personale, offline, senza server.</p>
+  <p class="disclaimer">
+    ⚕️ Forgia ti aiuta a seguire il piano alimentare che ti ha dato il tuo nutrizionista o dietologo.
+    Non è un dispositivo medico, non calcola fabbisogni né prescrive diete e non sostituisce il parere
+    di un professionista. Regole, grammature e calorie mostrate sono quelle scritte nel piano caricato.
+  </p>
 </section>

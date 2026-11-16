@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { PantryStore } from '../../core/data/pantry.store';
-import { comparePrice, defaultFormat, latestByStore, product, unitLabel } from '../../core/domain/pantry';
+import { comparePrice, defaultFormat, latestByStore, unitLabel } from '../../core/domain/pantry';
 import { today } from '../../core/domain/dates';
 import { STORES, type Store } from '../../core/models/pantry';
 import { formatEur, formatQty, stepFor } from '../../shared/qty-format';
@@ -22,7 +22,7 @@ export class ProductSheet {
   protected readonly fmtQty = formatQty;
   protected readonly eur = formatEur;
 
-  protected readonly p = computed(() => product(this.productId()));
+  protected readonly p = computed(() => this.store.product(this.productId())!);
   protected readonly qty = computed(() => this.store.stock().get(this.productId()) ?? 0);
   protected readonly forecast = computed(() => this.store.forecasts().get(this.productId()));
   protected readonly step = computed(() => stepFor(this.p().unit, defaultFormat(this.p()).qty));

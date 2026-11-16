@@ -1,0 +1,2537 @@
+{
+  "format": "forgia-plan",
+  "version": 1,
+  "meta": {
+    "title": "Piano di esempio · massa ~2.800 kcal",
+    "notes": "Piano di esempio fornito con l’app: mediterraneo, senza lattosio, ciclo di 4 settimane. Sostituiscilo con il piano del tuo nutrizionista o dietologo.",
+    "kcal": 2800,
+    "proteinG": 150,
+    "example": true,
+    "projections": [
+      {
+        "label": "Dieta al 100%",
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            1.8
+          ],
+          [
+            3,
+            2.8
+          ],
+          [
+            6,
+            4
+          ],
+          [
+            12,
+            6
+          ]
+        ]
+      },
+      {
+        "label": "Dieta all’80%",
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            1.4
+          ],
+          [
+            3,
+            2.1
+          ],
+          [
+            6,
+            2.9
+          ],
+          [
+            12,
+            4.2
+          ]
+        ]
+      }
+    ],
+    "seasons": [
+      {
+        "name": "Autunno / Inverno",
+        "months": [
+          10,
+          11,
+          12,
+          1,
+          2
+        ],
+        "fruits": [
+          "mele",
+          "pere",
+          "arance",
+          "mandarini",
+          "kiwi",
+          "cachi",
+          "banana"
+        ]
+      },
+      {
+        "name": "Primavera",
+        "months": [
+          3,
+          4,
+          5
+        ],
+        "fruits": [
+          "fragole",
+          "nespole",
+          "banana"
+        ]
+      },
+      {
+        "name": "Estate",
+        "months": [
+          6,
+          7,
+          8,
+          9
+        ],
+        "fruits": [
+          "pesche",
+          "albicocche",
+          "melone",
+          "anguria",
+          "prugne",
+          "fichi",
+          "uva",
+          "banana"
+        ]
+      }
+    ]
+  },
+  "slots": [
+    {
+      "id": "colazione",
+      "label": "Colazione",
+      "time": "09:30",
+      "emoji": "☕",
+      "color": "colazione",
+      "owner": "mine"
+    },
+    {
+      "id": "spuntino1",
+      "label": "Spuntino",
+      "time": "11:30",
+      "emoji": "🥪",
+      "color": "spuntino",
+      "owner": "mine"
+    },
+    {
+      "id": "pranzo",
+      "label": "Pranzo",
+      "time": "13:30",
+      "emoji": "🍝",
+      "color": "pranzo",
+      "owner": "other"
+    },
+    {
+      "id": "spuntino2",
+      "label": "Spuntino",
+      "time": "17:00",
+      "emoji": "🥣",
+      "color": "spuntino",
+      "owner": "mine"
+    },
+    {
+      "id": "cena",
+      "label": "Cena",
+      "time": "20:15",
+      "emoji": "🍽️",
+      "color": "cena",
+      "owner": "other"
+    },
+    {
+      "id": "post",
+      "label": "Post-allenamento",
+      "time": "23:45",
+      "emoji": "🥤",
+      "color": "post",
+      "owner": "mine",
+      "gymOnly": true
+    }
+  ],
+  "foods": [
+    {
+      "id": "latte",
+      "name": "Latte Zymil parzialmente scremato",
+      "unit": "ml",
+      "brand": "Zymil",
+      "formats": [
+        {
+          "id": "1l",
+          "label": "1 L",
+          "qty": 1000,
+          "price": 1.9
+        }
+      ],
+      "aliases": [
+        "zymil",
+        "latte"
+      ]
+    },
+    {
+      "id": "muesli",
+      "name": "Più Pro Muesli croccante cioccolato",
+      "unit": "g",
+      "brand": "Più Pro",
+      "formats": [
+        {
+          "id": "300g",
+          "label": "300 g",
+          "qty": 300,
+          "price": 3.28
+        }
+      ],
+      "aliases": [
+        "muesli",
+        "piu pro"
+      ]
+    },
+    {
+      "id": "fette-biscottate",
+      "name": "Fette biscottate integrali",
+      "unit": "g",
+      "brand": "SLX",
+      "formats": [
+        {
+          "id": "320g",
+          "label": "320 g",
+          "qty": 320,
+          "price": 1.52
+        }
+      ],
+      "aliases": [
+        "fette bisc",
+        "fette biscottate"
+      ]
+    },
+    {
+      "id": "biscotti",
+      "name": "Biscotti secchi (Oro Saiwa)",
+      "unit": "g",
+      "brand": "Saiwa",
+      "formats": [
+        {
+          "id": "500g",
+          "label": "500 g",
+          "qty": 500,
+          "price": 2.73
+        }
+      ],
+      "aliases": [
+        "oro saiwa",
+        "saiwa"
+      ]
+    },
+    {
+      "id": "marmellata",
+      "name": "Marmellata",
+      "unit": "g",
+      "brand": "Santa Rosa",
+      "formats": [
+        {
+          "id": "350g",
+          "label": "350 g",
+          "qty": 350,
+          "price": 2.51
+        }
+      ],
+      "aliases": [
+        "marmellata",
+        "confettura",
+        "santa rosa"
+      ]
+    },
+    {
+      "id": "banana",
+      "name": "Banana",
+      "unit": "g",
+      "brand": "SLX",
+      "formats": [
+        {
+          "id": "700g",
+          "label": "vassoio 700 g",
+          "qty": 700,
+          "price": 2.51
+        }
+      ],
+      "aliases": [
+        "banane",
+        "banana"
+      ]
+    },
+    {
+      "id": "frutta",
+      "name": "Frutta di stagione",
+      "unit": "g",
+      "formats": [
+        {
+          "id": "1kg",
+          "label": "1 kg",
+          "qty": 1000,
+          "price": 2
+        }
+      ],
+      "aliases": [
+        "mele",
+        "pere",
+        "arance",
+        "mandarini",
+        "kiwi",
+        "cachi",
+        "fragole",
+        "pesche",
+        "albicocche",
+        "prugne",
+        "uva"
+      ]
+    },
+    {
+      "id": "yogurt-greco",
+      "name": "Yogurt greco senza lattosio",
+      "unit": "g",
+      "brand": "Milk Kefir",
+      "formats": [
+        {
+          "id": "500g",
+          "label": "500 g",
+          "qty": 500,
+          "price": 3.69
+        },
+        {
+          "id": "150g",
+          "label": "150 g",
+          "qty": 150,
+          "price": 1.6
+        }
+      ],
+      "aliases": [
+        "yogurt greco",
+        "yog greco",
+        "kefir"
+      ]
+    },
+    {
+      "id": "mandorle",
+      "name": "Mandorle sgusciate",
+      "unit": "g",
+      "brand": "SLX",
+      "formats": [
+        {
+          "id": "250g",
+          "label": "250 g",
+          "qty": 250,
+          "price": 3.72
+        }
+      ],
+      "aliases": [
+        "mandorle"
+      ]
+    },
+    {
+      "id": "noci",
+      "name": "Noci sgusciate",
+      "unit": "g",
+      "formats": [
+        {
+          "id": "200g",
+          "label": "200 g",
+          "qty": 200,
+          "price": null
+        }
+      ],
+      "aliases": [
+        "noci"
+      ]
+    },
+    {
+      "id": "nocciole",
+      "name": "Nocciole di Giffoni IGP",
+      "unit": "g",
+      "brand": "SDS",
+      "formats": [
+        {
+          "id": "100g",
+          "label": "100 g",
+          "qty": 100,
+          "price": 4.16
+        }
+      ],
+      "aliases": [
+        "nocciole"
+      ]
+    },
+    {
+      "id": "frutta-secca-mista",
+      "name": "Frutta secca mista",
+      "unit": "g",
+      "formats": [
+        {
+          "id": "200g",
+          "label": "200 g",
+          "qty": 200,
+          "price": null
+        }
+      ],
+      "aliases": [
+        "frutta secca",
+        "mix frutta"
+      ]
+    },
+    {
+      "id": "pane",
+      "name": "Pane",
+      "unit": "g",
+      "formats": [
+        {
+          "id": "1kg",
+          "label": "1 kg",
+          "qty": 1000,
+          "price": 3
+        }
+      ],
+      "aliases": [
+        "pane"
+      ]
+    },
+    {
+      "id": "uova",
+      "name": "Uova allevate a terra M",
+      "unit": "pz",
+      "tags": [
+        "uova"
+      ],
+      "brand": "SLX",
+      "formats": [
+        {
+          "id": "10pz",
+          "label": "10 uova",
+          "qty": 10,
+          "price": 3.17
+        }
+      ],
+      "aliases": [
+        "uova"
+      ]
+    },
+    {
+      "id": "affettato",
+      "name": "Affettato (prosciutto, fesa di tacchino, bresaola)",
+      "unit": "g",
+      "tags": [
+        "affettato"
+      ],
+      "formats": [
+        {
+          "id": "100g",
+          "label": "100 g",
+          "qty": 100,
+          "price": 2
+        }
+      ],
+      "aliases": [
+        "prosciutto",
+        "fesa",
+        "bresaola",
+        "salame",
+        "mortadella",
+        "cotto",
+        "crudo"
+      ]
+    },
+    {
+      "id": "proteine",
+      "name": "Proteine isolate del latte",
+      "unit": "g",
+      "brand": "Myprotein",
+      "formats": [
+        {
+          "id": "1kg",
+          "label": "1 kg",
+          "qty": 1000,
+          "price": null
+        }
+      ]
+    },
+    {
+      "id": "creatina",
+      "name": "Creatina monoidrato",
+      "unit": "g",
+      "brand": "Myprotein",
+      "formats": [
+        {
+          "id": "250g",
+          "label": "250 g",
+          "qty": 250,
+          "price": null
+        }
+      ]
+    },
+    {
+      "id": "acqua",
+      "name": "Acqua",
+      "unit": "ml",
+      "untracked": true
+    },
+    {
+      "id": "pasta",
+      "name": "Pasta",
+      "unit": "g",
+      "formats": [
+        {
+          "id": "500g",
+          "label": "500 g",
+          "qty": 500,
+          "price": null
+        }
+      ],
+      "aliases": [
+        "pasta",
+        "spaghetti",
+        "penne",
+        "fusilli",
+        "rigatoni"
+      ]
+    },
+    {
+      "id": "riso",
+      "name": "Riso",
+      "unit": "g",
+      "formats": [
+        {
+          "id": "1kg",
+          "label": "1 kg",
+          "qty": 1000,
+          "price": null
+        }
+      ],
+      "aliases": [
+        "riso"
+      ]
+    },
+    {
+      "id": "tortellini",
+      "name": "Tortellini freschi",
+      "unit": "g",
+      "formats": [
+        {
+          "id": "250g",
+          "label": "250 g",
+          "qty": 250,
+          "price": null
+        }
+      ],
+      "aliases": [
+        "tortellini"
+      ]
+    },
+    {
+      "id": "tagliolini",
+      "name": "Tagliolini all'uovo",
+      "unit": "g",
+      "formats": [
+        {
+          "id": "250g",
+          "label": "250 g",
+          "qty": 250,
+          "price": null
+        }
+      ],
+      "aliases": [
+        "tagliolini"
+      ]
+    },
+    {
+      "id": "pastina",
+      "name": "Pastina",
+      "unit": "g",
+      "formats": [
+        {
+          "id": "500g",
+          "label": "500 g",
+          "qty": 500,
+          "price": null
+        }
+      ],
+      "aliases": [
+        "pastina"
+      ]
+    },
+    {
+      "id": "brodo",
+      "name": "Brodo di carne",
+      "unit": "ml",
+      "tags": [
+        "brodo"
+      ],
+      "formats": [
+        {
+          "id": "1l",
+          "label": "1 L",
+          "qty": 1000,
+          "price": null
+        }
+      ],
+      "untracked": true
+    },
+    {
+      "id": "passata",
+      "name": "Passata di pomodoro",
+      "unit": "g",
+      "formats": [
+        {
+          "id": "700g",
+          "label": "700 g",
+          "qty": 700,
+          "price": null
+        }
+      ],
+      "aliases": [
+        "passata",
+        "pomodoro"
+      ]
+    },
+    {
+      "id": "olio",
+      "name": "Olio extravergine d'oliva",
+      "unit": "g",
+      "formats": [
+        {
+          "id": "1l",
+          "label": "1 L",
+          "qty": 920,
+          "price": null
+        }
+      ],
+      "aliases": [
+        "olio",
+        "evo"
+      ]
+    },
+    {
+      "id": "parmigiano",
+      "name": "Parmigiano",
+      "unit": "g",
+      "formats": [
+        {
+          "id": "200g",
+          "label": "200 g",
+          "qty": 200,
+          "price": null
+        }
+      ],
+      "aliases": [
+        "parmigiano",
+        "grana"
+      ]
+    },
+    {
+      "id": "tonno",
+      "name": "Tonno in scatola",
+      "unit": "g",
+      "formats": [
+        {
+          "id": "3x80",
+          "label": "3 × 80 g",
+          "qty": 240,
+          "price": null
+        }
+      ],
+      "aliases": [
+        "tonno"
+      ]
+    },
+    {
+      "id": "lenticchie",
+      "name": "Lenticchie in scatola",
+      "unit": "g",
+      "tags": [
+        "legume"
+      ],
+      "formats": [
+        {
+          "id": "240g",
+          "label": "240 g sgocciolate",
+          "qty": 240,
+          "price": null
+        }
+      ],
+      "aliases": [
+        "lenticchie"
+      ]
+    },
+    {
+      "id": "fagioli",
+      "name": "Fagioli in scatola",
+      "unit": "g",
+      "tags": [
+        "legume"
+      ],
+      "formats": [
+        {
+          "id": "240g",
+          "label": "240 g sgocciolati",
+          "qty": 240,
+          "price": null
+        }
+      ],
+      "aliases": [
+        "fagioli",
+        "borlotti",
+        "cannellini"
+      ]
+    },
+    {
+      "id": "ceci",
+      "name": "Ceci in scatola",
+      "unit": "g",
+      "tags": [
+        "legume"
+      ],
+      "formats": [
+        {
+          "id": "240g",
+          "label": "240 g sgocciolati",
+          "qty": 240,
+          "price": null
+        }
+      ],
+      "aliases": [
+        "ceci"
+      ]
+    },
+    {
+      "id": "lupini",
+      "name": "Lupini (vongole lupino)",
+      "unit": "g",
+      "tags": [
+        "pesce"
+      ],
+      "formats": [
+        {
+          "id": "500g",
+          "label": "500 g",
+          "qty": 500,
+          "price": null
+        }
+      ],
+      "aliases": [
+        "lupini",
+        "vongole"
+      ]
+    },
+    {
+      "id": "pancetta",
+      "name": "Pancetta",
+      "unit": "g",
+      "formats": [
+        {
+          "id": "100g",
+          "label": "100 g",
+          "qty": 100,
+          "price": null
+        }
+      ],
+      "aliases": [
+        "pancetta"
+      ]
+    },
+    {
+      "id": "macinato",
+      "name": "Carne macinata magra",
+      "unit": "g",
+      "tags": [
+        "carne-rossa"
+      ],
+      "formats": [
+        {
+          "id": "400g",
+          "label": "400 g",
+          "qty": 400,
+          "price": null
+        }
+      ],
+      "aliases": [
+        "macinato",
+        "macinata"
+      ]
+    },
+    {
+      "id": "petto-pollo",
+      "name": "Petto di pollo",
+      "unit": "g",
+      "formats": [
+        {
+          "id": "500g",
+          "label": "500 g",
+          "qty": 500,
+          "price": null
+        }
+      ],
+      "aliases": [
+        "pollo",
+        "petto pollo"
+      ]
+    },
+    {
+      "id": "petto-tacchino",
+      "name": "Petto di tacchino",
+      "unit": "g",
+      "formats": [
+        {
+          "id": "500g",
+          "label": "500 g",
+          "qty": 500,
+          "price": null
+        }
+      ],
+      "aliases": [
+        "tacchino"
+      ]
+    },
+    {
+      "id": "cotoletta-pollo",
+      "name": "Cotoletta di pollo",
+      "unit": "g",
+      "formats": [
+        {
+          "id": "400g",
+          "label": "400 g",
+          "qty": 400,
+          "price": null
+        }
+      ],
+      "aliases": [
+        "cotoletta",
+        "cotolette"
+      ]
+    },
+    {
+      "id": "hamburger-manzo",
+      "name": "Hamburger di manzo",
+      "unit": "g",
+      "tags": [
+        "carne-rossa"
+      ],
+      "formats": [
+        {
+          "id": "400g",
+          "label": "2 × 200 g",
+          "qty": 400,
+          "price": null
+        }
+      ],
+      "aliases": [
+        "hamburger",
+        "burger"
+      ]
+    },
+    {
+      "id": "fettina-vitello",
+      "name": "Fettina di vitello",
+      "unit": "g",
+      "tags": [
+        "carne-rossa"
+      ],
+      "formats": [
+        {
+          "id": "400g",
+          "label": "400 g",
+          "qty": 400,
+          "price": null
+        }
+      ],
+      "aliases": [
+        "vitello",
+        "fettine"
+      ]
+    },
+    {
+      "id": "salsiccia",
+      "name": "Salsiccia",
+      "unit": "g",
+      "tags": [
+        "carne-rossa",
+        "salsiccia"
+      ],
+      "formats": [
+        {
+          "id": "500g",
+          "label": "500 g",
+          "qty": 500,
+          "price": null
+        }
+      ],
+      "aliases": [
+        "salsiccia",
+        "salsicce"
+      ]
+    },
+    {
+      "id": "lesso-manzo",
+      "name": "Lesso di manzo o vitello",
+      "unit": "g",
+      "tags": [
+        "carne-rossa"
+      ],
+      "formats": [
+        {
+          "id": "500g",
+          "label": "500 g",
+          "qty": 500,
+          "price": null
+        }
+      ],
+      "aliases": [
+        "lesso",
+        "bollito",
+        "manzo"
+      ]
+    },
+    {
+      "id": "lesso-pollo",
+      "name": "Lesso di pollo",
+      "unit": "g",
+      "formats": [
+        {
+          "id": "500g",
+          "label": "500 g",
+          "qty": 500,
+          "price": null
+        }
+      ],
+      "aliases": [
+        "pollo",
+        "petto pollo"
+      ]
+    },
+    {
+      "id": "orata",
+      "name": "Orata o spigola",
+      "unit": "g",
+      "tags": [
+        "pesce"
+      ],
+      "formats": [
+        {
+          "id": "400g",
+          "label": "400 g",
+          "qty": 400,
+          "price": null
+        }
+      ],
+      "aliases": [
+        "orata",
+        "spigola",
+        "branzino"
+      ]
+    },
+    {
+      "id": "salmone",
+      "name": "Salmone",
+      "unit": "g",
+      "tags": [
+        "pesce"
+      ],
+      "formats": [
+        {
+          "id": "400g",
+          "label": "400 g",
+          "qty": 400,
+          "price": null
+        }
+      ],
+      "aliases": [
+        "salmone"
+      ]
+    },
+    {
+      "id": "merluzzo",
+      "name": "Merluzzo",
+      "unit": "g",
+      "tags": [
+        "pesce"
+      ],
+      "formats": [
+        {
+          "id": "400g",
+          "label": "400 g",
+          "qty": 400,
+          "price": null
+        }
+      ],
+      "aliases": [
+        "merluzzo",
+        "nasello"
+      ]
+    },
+    {
+      "id": "patate",
+      "name": "Patate",
+      "unit": "g",
+      "formats": [
+        {
+          "id": "1500g",
+          "label": "1,5 kg",
+          "qty": 1500,
+          "price": null
+        }
+      ],
+      "aliases": [
+        "patate"
+      ]
+    },
+    {
+      "id": "insalata",
+      "name": "Insalata",
+      "unit": "g",
+      "formats": [
+        {
+          "id": "250g",
+          "label": "busta 250 g",
+          "qty": 250,
+          "price": null
+        }
+      ],
+      "aliases": [
+        "insalata",
+        "lattuga",
+        "misticanza",
+        "iceberg"
+      ]
+    },
+    {
+      "id": "carote",
+      "name": "Carote",
+      "unit": "g",
+      "formats": [
+        {
+          "id": "1kg",
+          "label": "1 kg",
+          "qty": 1000,
+          "price": null
+        }
+      ],
+      "aliases": [
+        "carote"
+      ]
+    },
+    {
+      "id": "spinaci",
+      "name": "Spinaci",
+      "unit": "g",
+      "formats": [
+        {
+          "id": "1kg",
+          "label": "1 kg (surgelati)",
+          "qty": 1000,
+          "price": null
+        }
+      ],
+      "aliases": [
+        "spinaci"
+      ]
+    },
+    {
+      "id": "verza",
+      "name": "Verza",
+      "unit": "g",
+      "tags": [
+        "cavolo"
+      ],
+      "formats": [
+        {
+          "id": "1kg",
+          "label": "1 kg",
+          "qty": 1000,
+          "price": null
+        }
+      ],
+      "aliases": [
+        "verza",
+        "cavolo"
+      ]
+    },
+    {
+      "id": "friarielli",
+      "name": "Friarielli",
+      "unit": "g",
+      "formats": [
+        {
+          "id": "500g",
+          "label": "500 g",
+          "qty": 500,
+          "price": null
+        }
+      ],
+      "aliases": [
+        "friarielli",
+        "cime di rapa"
+      ]
+    },
+    {
+      "id": "minestrone",
+      "name": "Minestrone di verdure",
+      "unit": "g",
+      "formats": [
+        {
+          "id": "1kg",
+          "label": "1 kg (surgelato)",
+          "qty": 1000,
+          "price": null
+        }
+      ],
+      "aliases": [
+        "minestrone"
+      ]
+    }
+  ],
+  "meals": [
+    {
+      "id": "col-lm",
+      "slots": [
+        "colazione"
+      ],
+      "title": "Latte e muesli",
+      "portions": [
+        {
+          "food": "latte",
+          "qty": 250
+        },
+        {
+          "food": "muesli",
+          "qty": 50
+        },
+        {
+          "food": "banana",
+          "qty": 120,
+          "note": "1 banana"
+        }
+      ]
+    },
+    {
+      "id": "col-cf",
+      "slots": [
+        "colazione"
+      ],
+      "title": "Caffellatte e fette biscottate",
+      "portions": [
+        {
+          "food": "latte",
+          "qty": 250
+        },
+        {
+          "food": "fette-biscottate",
+          "qty": 40,
+          "note": "4 fette"
+        },
+        {
+          "food": "marmellata",
+          "qty": 25
+        }
+      ]
+    },
+    {
+      "id": "col-cb",
+      "slots": [
+        "colazione"
+      ],
+      "title": "Caffellatte e biscotti",
+      "portions": [
+        {
+          "food": "latte",
+          "qty": 250
+        },
+        {
+          "food": "biscotti",
+          "qty": 50,
+          "note": "circa 6"
+        }
+      ]
+    },
+    {
+      "id": "sp1-uova",
+      "slots": [
+        "spuntino1"
+      ],
+      "title": "Panino con uova sode",
+      "portions": [
+        {
+          "food": "pane",
+          "qty": 90
+        },
+        {
+          "food": "uova",
+          "qty": 2,
+          "note": "sode"
+        },
+        {
+          "food": "frutta",
+          "qty": 150
+        }
+      ]
+    },
+    {
+      "id": "sp1-affettato",
+      "slots": [
+        "spuntino1"
+      ],
+      "title": "Panino con affettato",
+      "portions": [
+        {
+          "food": "pane",
+          "qty": 90
+        },
+        {
+          "food": "affettato",
+          "qty": 80,
+          "note": "o 50 g di salame / mortadella"
+        },
+        {
+          "food": "frutta",
+          "qty": 150
+        }
+      ]
+    },
+    {
+      "id": "sp2-mandorle",
+      "slots": [
+        "spuntino2"
+      ],
+      "title": "Yogurt greco, muesli e mandorle",
+      "portions": [
+        {
+          "food": "yogurt-greco",
+          "qty": 150
+        },
+        {
+          "food": "muesli",
+          "qty": 20
+        },
+        {
+          "food": "mandorle",
+          "qty": 30
+        }
+      ]
+    },
+    {
+      "id": "sp2-noci",
+      "slots": [
+        "spuntino2"
+      ],
+      "title": "Yogurt greco, muesli e noci",
+      "portions": [
+        {
+          "food": "yogurt-greco",
+          "qty": 150
+        },
+        {
+          "food": "muesli",
+          "qty": 20
+        },
+        {
+          "food": "noci",
+          "qty": 30
+        }
+      ]
+    },
+    {
+      "id": "sp2-nocciole",
+      "slots": [
+        "spuntino2"
+      ],
+      "title": "Yogurt greco, muesli e nocciole",
+      "portions": [
+        {
+          "food": "yogurt-greco",
+          "qty": 150
+        },
+        {
+          "food": "muesli",
+          "qty": 20
+        },
+        {
+          "food": "nocciole",
+          "qty": 30
+        }
+      ]
+    },
+    {
+      "id": "sp2-mista",
+      "slots": [
+        "spuntino2"
+      ],
+      "title": "Yogurt greco, muesli e frutta secca",
+      "portions": [
+        {
+          "food": "yogurt-greco",
+          "qty": 150
+        },
+        {
+          "food": "muesli",
+          "qty": 20
+        },
+        {
+          "food": "frutta-secca-mista",
+          "qty": 30
+        }
+      ]
+    },
+    {
+      "id": "post-shake",
+      "slots": [
+        "post"
+      ],
+      "title": "Shake post-allenamento",
+      "portions": [
+        {
+          "food": "acqua",
+          "qty": 300,
+          "note": "o latte Zymil"
+        },
+        {
+          "food": "proteine",
+          "qty": 30
+        },
+        {
+          "food": "creatina",
+          "qty": 5
+        },
+        {
+          "food": "banana",
+          "qty": 120,
+          "note": "1 banana"
+        }
+      ]
+    },
+    {
+      "id": "pr-pasta-tonno",
+      "slots": [
+        "pranzo"
+      ],
+      "title": "Pasta al pomodoro con tonno",
+      "portions": [
+        {
+          "food": "pasta",
+          "qty": 120
+        },
+        {
+          "food": "passata",
+          "qty": 100
+        },
+        {
+          "food": "tonno",
+          "qty": 80,
+          "note": "sgocciolato"
+        },
+        {
+          "food": "olio",
+          "qty": 10
+        }
+      ]
+    },
+    {
+      "id": "pr-pasta-lenticchie",
+      "slots": [
+        "pranzo"
+      ],
+      "title": "Pasta e lenticchie",
+      "portions": [
+        {
+          "food": "pasta",
+          "qty": 120
+        },
+        {
+          "food": "lenticchie",
+          "qty": 100,
+          "note": "cotte"
+        },
+        {
+          "food": "olio",
+          "qty": 10
+        }
+      ]
+    },
+    {
+      "id": "pr-riso-pomodoro",
+      "slots": [
+        "pranzo"
+      ],
+      "title": "Riso al pomodoro",
+      "portions": [
+        {
+          "food": "riso",
+          "qty": 110
+        },
+        {
+          "food": "passata",
+          "qty": 100
+        },
+        {
+          "food": "olio",
+          "qty": 10
+        }
+      ]
+    },
+    {
+      "id": "pr-pasta-patate",
+      "slots": [
+        "pranzo"
+      ],
+      "title": "Pasta e patate",
+      "portions": [
+        {
+          "food": "pasta",
+          "qty": 120
+        },
+        {
+          "food": "patate",
+          "qty": 150
+        },
+        {
+          "food": "olio",
+          "qty": 10
+        }
+      ],
+      "notes": [
+        "Senza formaggio."
+      ]
+    },
+    {
+      "id": "pr-pasta-uova-pancetta",
+      "slots": [
+        "pranzo"
+      ],
+      "title": "Pasta con uova e pancetta",
+      "portions": [
+        {
+          "food": "pasta",
+          "qty": 120
+        },
+        {
+          "food": "uova",
+          "qty": 2
+        },
+        {
+          "food": "pancetta",
+          "qty": 30
+        }
+      ]
+    },
+    {
+      "id": "pr-spaghetti-lupini",
+      "slots": [
+        "pranzo"
+      ],
+      "title": "Spaghetti con lupini",
+      "portions": [
+        {
+          "food": "pasta",
+          "qty": 120,
+          "note": "spaghetti"
+        },
+        {
+          "food": "lupini",
+          "qty": 250,
+          "note": "con guscio"
+        },
+        {
+          "food": "olio",
+          "qty": 10
+        }
+      ],
+      "notes": [
+        "In bianco o rosé.",
+        "I lupini sono le vongole lupino: contano come pesce."
+      ]
+    },
+    {
+      "id": "pr-riso-spinaci",
+      "slots": [
+        "pranzo"
+      ],
+      "title": "Riso e spinaci",
+      "portions": [
+        {
+          "food": "riso",
+          "qty": 110
+        },
+        {
+          "food": "spinaci",
+          "qty": 200
+        },
+        {
+          "food": "olio",
+          "qty": 10
+        }
+      ]
+    },
+    {
+      "id": "pr-pasta-fagioli",
+      "slots": [
+        "pranzo"
+      ],
+      "title": "Pasta e fagioli",
+      "portions": [
+        {
+          "food": "pasta",
+          "qty": 120
+        },
+        {
+          "food": "fagioli",
+          "qty": 100,
+          "note": "cotti"
+        },
+        {
+          "food": "olio",
+          "qty": 10
+        }
+      ]
+    },
+    {
+      "id": "pr-riso-verza",
+      "slots": [
+        "pranzo"
+      ],
+      "title": "Riso e verza",
+      "portions": [
+        {
+          "food": "riso",
+          "qty": 110
+        },
+        {
+          "food": "verza",
+          "qty": 200
+        },
+        {
+          "food": "olio",
+          "qty": 10
+        }
+      ]
+    },
+    {
+      "id": "pr-pasta-macinato",
+      "slots": [
+        "pranzo"
+      ],
+      "title": "Pasta al sugo con carne macinata",
+      "portions": [
+        {
+          "food": "pasta",
+          "qty": 120
+        },
+        {
+          "food": "passata",
+          "qty": 100
+        },
+        {
+          "food": "macinato",
+          "qty": 100
+        },
+        {
+          "food": "olio",
+          "qty": 10
+        }
+      ]
+    },
+    {
+      "id": "pr-pasta-ceci",
+      "slots": [
+        "pranzo"
+      ],
+      "title": "Pasta e ceci",
+      "portions": [
+        {
+          "food": "pasta",
+          "qty": 120
+        },
+        {
+          "food": "ceci",
+          "qty": 100,
+          "note": "cotti"
+        },
+        {
+          "food": "olio",
+          "qty": 10
+        }
+      ]
+    },
+    {
+      "id": "pr-brodo-tortellini",
+      "slots": [
+        "pranzo"
+      ],
+      "extra": true,
+      "title": "Tortellini in brodo di carne",
+      "portions": [
+        {
+          "food": "tortellini",
+          "qty": 130,
+          "note": "freschi"
+        },
+        {
+          "food": "brodo",
+          "qty": 400
+        }
+      ],
+      "notes": [
+        "Sconsigliato nei giorni con legumi."
+      ]
+    },
+    {
+      "id": "pr-brodo-tagliolini",
+      "slots": [
+        "pranzo"
+      ],
+      "extra": true,
+      "title": "Tagliolini in brodo di carne",
+      "portions": [
+        {
+          "food": "tagliolini",
+          "qty": 110
+        },
+        {
+          "food": "brodo",
+          "qty": 400
+        }
+      ]
+    },
+    {
+      "id": "pr-minestrone",
+      "slots": [
+        "pranzo"
+      ],
+      "extra": true,
+      "title": "Minestrone di verdure",
+      "portions": [
+        {
+          "food": "minestrone",
+          "qty": 375,
+          "note": "350–400 g"
+        },
+        {
+          "food": "pasta",
+          "qty": 70,
+          "note": "o riso"
+        },
+        {
+          "food": "parmigiano",
+          "qty": 20
+        },
+        {
+          "food": "olio",
+          "qty": 10
+        }
+      ],
+      "notes": [
+        "Il Parmigiano è naturalmente senza lattosio."
+      ]
+    },
+    {
+      "id": "pr-minestrone-legumi",
+      "slots": [
+        "pranzo"
+      ],
+      "extra": true,
+      "title": "Minestrone con legumi",
+      "tags": [
+        "legume"
+      ],
+      "portions": [
+        {
+          "food": "minestrone",
+          "qty": 375,
+          "note": "350–400 g, con legumi"
+        },
+        {
+          "food": "pasta",
+          "qty": 70,
+          "note": "o riso"
+        },
+        {
+          "food": "parmigiano",
+          "qty": 20
+        },
+        {
+          "food": "olio",
+          "qty": 10
+        }
+      ],
+      "notes": [
+        "Con legumi o cavolo vale la regola dei legumi."
+      ]
+    },
+    {
+      "id": "ce-pollo-insalata-carote",
+      "slots": [
+        "cena"
+      ],
+      "title": "Petto di pollo, insalata e carote",
+      "portions": [
+        {
+          "food": "petto-pollo",
+          "qty": 200
+        },
+        {
+          "food": "insalata",
+          "qty": 80
+        },
+        {
+          "food": "carote",
+          "qty": 150
+        },
+        {
+          "food": "pane",
+          "qty": 80
+        },
+        {
+          "food": "olio",
+          "qty": 10
+        }
+      ]
+    },
+    {
+      "id": "ce-pollo-spinaci-carote",
+      "slots": [
+        "cena"
+      ],
+      "title": "Petto di pollo, spinaci e carote",
+      "portions": [
+        {
+          "food": "petto-pollo",
+          "qty": 200
+        },
+        {
+          "food": "spinaci",
+          "qty": 200
+        },
+        {
+          "food": "carote",
+          "qty": 150
+        },
+        {
+          "food": "pane",
+          "qty": 80
+        },
+        {
+          "food": "olio",
+          "qty": 10
+        }
+      ]
+    },
+    {
+      "id": "ce-tacchino-insalata-carote",
+      "slots": [
+        "cena"
+      ],
+      "title": "Petto di tacchino, insalata e carote",
+      "portions": [
+        {
+          "food": "petto-tacchino",
+          "qty": 200
+        },
+        {
+          "food": "insalata",
+          "qty": 80
+        },
+        {
+          "food": "carote",
+          "qty": 150
+        },
+        {
+          "food": "pane",
+          "qty": 80
+        },
+        {
+          "food": "olio",
+          "qty": 10
+        }
+      ]
+    },
+    {
+      "id": "ce-cotoletta-insalata-carote",
+      "slots": [
+        "cena"
+      ],
+      "title": "Cotoletta di pollo al forno, insalata e carote",
+      "portions": [
+        {
+          "food": "cotoletta-pollo",
+          "qty": 180,
+          "note": "al forno"
+        },
+        {
+          "food": "insalata",
+          "qty": 80
+        },
+        {
+          "food": "carote",
+          "qty": 150
+        },
+        {
+          "food": "pane",
+          "qty": 80
+        },
+        {
+          "food": "olio",
+          "qty": 10
+        }
+      ]
+    },
+    {
+      "id": "ce-hamburger-insalata-carote",
+      "slots": [
+        "cena"
+      ],
+      "title": "Hamburger di manzo, insalata e carote",
+      "portions": [
+        {
+          "food": "hamburger-manzo",
+          "qty": 200
+        },
+        {
+          "food": "insalata",
+          "qty": 80
+        },
+        {
+          "food": "carote",
+          "qty": 150
+        },
+        {
+          "food": "pane",
+          "qty": 80
+        },
+        {
+          "food": "olio",
+          "qty": 10
+        }
+      ]
+    },
+    {
+      "id": "ce-vitello-spinaci-carote",
+      "slots": [
+        "cena"
+      ],
+      "title": "Fettina di vitello, spinaci e carote",
+      "portions": [
+        {
+          "food": "fettina-vitello",
+          "qty": 200
+        },
+        {
+          "food": "spinaci",
+          "qty": 200
+        },
+        {
+          "food": "carote",
+          "qty": 150
+        },
+        {
+          "food": "pane",
+          "qty": 80
+        },
+        {
+          "food": "olio",
+          "qty": 10
+        }
+      ]
+    },
+    {
+      "id": "ce-salsicce-friarielli",
+      "slots": [
+        "cena"
+      ],
+      "title": "Salsicce e friarielli",
+      "portions": [
+        {
+          "food": "salsiccia",
+          "qty": 150,
+          "note": "2 salsicce, in padella senza olio"
+        },
+        {
+          "food": "friarielli",
+          "qty": 250
+        },
+        {
+          "food": "olio",
+          "qty": 10,
+          "note": "1 cucchiaio"
+        },
+        {
+          "food": "pane",
+          "qty": 80
+        }
+      ]
+    },
+    {
+      "id": "ce-frittata-insalata-carote",
+      "slots": [
+        "cena"
+      ],
+      "title": "Frittata, insalata e carote",
+      "portions": [
+        {
+          "food": "uova",
+          "qty": 3
+        },
+        {
+          "food": "insalata",
+          "qty": 80
+        },
+        {
+          "food": "carote",
+          "qty": 150
+        },
+        {
+          "food": "pane",
+          "qty": 80
+        },
+        {
+          "food": "olio",
+          "qty": 10
+        }
+      ]
+    },
+    {
+      "id": "ce-orata-patate-insalata",
+      "slots": [
+        "cena"
+      ],
+      "title": "Orata o spigola, patate e insalata",
+      "portions": [
+        {
+          "food": "orata",
+          "qty": 200
+        },
+        {
+          "food": "patate",
+          "qty": 250
+        },
+        {
+          "food": "insalata",
+          "qty": 80
+        },
+        {
+          "food": "olio",
+          "qty": 10
+        }
+      ]
+    },
+    {
+      "id": "ce-merluzzo-patate-insalata",
+      "slots": [
+        "cena"
+      ],
+      "title": "Merluzzo, patate e insalata",
+      "portions": [
+        {
+          "food": "merluzzo",
+          "qty": 200
+        },
+        {
+          "food": "patate",
+          "qty": 250
+        },
+        {
+          "food": "insalata",
+          "qty": 80
+        },
+        {
+          "food": "olio",
+          "qty": 10
+        }
+      ]
+    },
+    {
+      "id": "ce-merluzzo-patate-spinaci",
+      "slots": [
+        "cena"
+      ],
+      "title": "Merluzzo, patate e spinaci",
+      "portions": [
+        {
+          "food": "merluzzo",
+          "qty": 200
+        },
+        {
+          "food": "patate",
+          "qty": 250
+        },
+        {
+          "food": "spinaci",
+          "qty": 200
+        },
+        {
+          "food": "olio",
+          "qty": 10
+        }
+      ]
+    },
+    {
+      "id": "ce-salmone-spinaci",
+      "slots": [
+        "cena"
+      ],
+      "title": "Salmone e spinaci",
+      "portions": [
+        {
+          "food": "salmone",
+          "qty": 200
+        },
+        {
+          "food": "spinaci",
+          "qty": 200
+        },
+        {
+          "food": "pane",
+          "qty": 80
+        },
+        {
+          "food": "olio",
+          "qty": 10
+        }
+      ]
+    },
+    {
+      "id": "ce-salmone-insalata-carote",
+      "slots": [
+        "cena"
+      ],
+      "title": "Salmone, insalata e carote",
+      "portions": [
+        {
+          "food": "salmone",
+          "qty": 200
+        },
+        {
+          "food": "insalata",
+          "qty": 80
+        },
+        {
+          "food": "carote",
+          "qty": 150
+        },
+        {
+          "food": "pane",
+          "qty": 80
+        },
+        {
+          "food": "olio",
+          "qty": 10
+        }
+      ]
+    },
+    {
+      "id": "ce-lesso-manzo",
+      "slots": [
+        "cena"
+      ],
+      "extra": true,
+      "title": "Lesso di manzo con 2 contorni",
+      "portions": [
+        {
+          "food": "lesso-manzo",
+          "qty": 200
+        },
+        {
+          "food": "insalata",
+          "qty": 80
+        },
+        {
+          "food": "carote",
+          "qty": 150
+        },
+        {
+          "food": "pane",
+          "qty": 80
+        },
+        {
+          "food": "olio",
+          "qty": 10
+        }
+      ],
+      "notes": [
+        "Oppure 30 g di pastina in brodo al posto del pane.",
+        "Ideale lo stesso giorno del brodo o il giorno dopo."
+      ]
+    },
+    {
+      "id": "ce-lesso-pollo",
+      "slots": [
+        "cena"
+      ],
+      "extra": true,
+      "title": "Lesso di pollo con 2 contorni",
+      "portions": [
+        {
+          "food": "lesso-pollo",
+          "qty": 200
+        },
+        {
+          "food": "insalata",
+          "qty": 80
+        },
+        {
+          "food": "carote",
+          "qty": 150
+        },
+        {
+          "food": "pane",
+          "qty": 80
+        },
+        {
+          "food": "olio",
+          "qty": 10
+        }
+      ],
+      "notes": [
+        "Oppure 30 g di pastina in brodo al posto del pane.",
+        "Ideale lo stesso giorno del brodo o il giorno dopo."
+      ]
+    }
+  ],
+  "schedule": {
+    "type": "cycle",
+    "weeks": [
+      [
+        {
+          "meals": {
+            "colazione": "col-lm",
+            "spuntino1": "sp1-uova",
+            "pranzo": "pr-pasta-tonno",
+            "spuntino2": "sp2-mandorle",
+            "cena": "ce-pollo-insalata-carote",
+            "post": "post-shake"
+          }
+        },
+        {
+          "meals": {
+            "colazione": "col-cf",
+            "spuntino1": "sp1-uova",
+            "pranzo": "pr-pasta-lenticchie",
+            "spuntino2": "sp2-noci",
+            "cena": "ce-orata-patate-insalata",
+            "post": "post-shake"
+          }
+        },
+        {
+          "meals": {
+            "colazione": "col-cb",
+            "spuntino1": "sp1-uova",
+            "pranzo": "pr-riso-pomodoro",
+            "spuntino2": "sp2-mista",
+            "cena": "ce-hamburger-insalata-carote",
+            "post": "post-shake"
+          }
+        },
+        {
+          "meals": {
+            "colazione": "col-lm",
+            "spuntino1": "sp1-uova",
+            "pranzo": "pr-pasta-patate",
+            "spuntino2": "sp2-mandorle",
+            "cena": "ce-salmone-spinaci",
+            "post": "post-shake"
+          }
+        },
+        {
+          "meals": {
+            "colazione": "col-cf",
+            "spuntino1": "sp1-uova",
+            "pranzo": "pr-pasta-uova-pancetta",
+            "spuntino2": "sp2-noci",
+            "cena": "ce-tacchino-insalata-carote",
+            "post": "post-shake"
+          },
+          "alternatives": {
+            "pranzo": [
+              "pr-spaghetti-lupini"
+            ]
+          }
+        },
+        {
+          "meals": {
+            "colazione": "col-cb",
+            "spuntino1": "sp1-uova",
+            "pranzo": "pr-riso-spinaci",
+            "spuntino2": "sp2-mandorle",
+            "cena": "libero",
+            "post": "post-shake"
+          }
+        },
+        {
+          "meals": {
+            "colazione": "col-lm",
+            "spuntino1": "sp1-uova",
+            "pranzo": "libero",
+            "spuntino2": "sp2-mista",
+            "cena": "libero",
+            "post": "post-shake"
+          }
+        }
+      ],
+      [
+        {
+          "meals": {
+            "colazione": "col-cf",
+            "spuntino1": "sp1-uova",
+            "pranzo": "pr-pasta-fagioli",
+            "spuntino2": "sp2-noci",
+            "cena": "ce-pollo-spinaci-carote",
+            "post": "post-shake"
+          }
+        },
+        {
+          "meals": {
+            "colazione": "col-lm",
+            "spuntino1": "sp1-uova",
+            "pranzo": "pr-riso-verza",
+            "spuntino2": "sp2-mandorle",
+            "cena": "ce-merluzzo-patate-insalata",
+            "post": "post-shake"
+          }
+        },
+        {
+          "meals": {
+            "colazione": "col-cb",
+            "spuntino1": "sp1-uova",
+            "pranzo": "pr-pasta-macinato",
+            "spuntino2": "sp2-mista",
+            "cena": "ce-cotoletta-insalata-carote",
+            "post": "post-shake"
+          }
+        },
+        {
+          "meals": {
+            "colazione": "col-lm",
+            "spuntino1": "sp1-uova",
+            "pranzo": "pr-pasta-ceci",
+            "spuntino2": "sp2-noci",
+            "cena": "ce-salmone-spinaci",
+            "post": "post-shake"
+          }
+        },
+        {
+          "meals": {
+            "colazione": "col-cf",
+            "spuntino1": "sp1-uova",
+            "pranzo": "pr-pasta-tonno",
+            "spuntino2": "sp2-mandorle",
+            "cena": "ce-salsicce-friarielli",
+            "post": "post-shake"
+          },
+          "alternatives": {
+            "pranzo": [
+              "pr-spaghetti-lupini"
+            ]
+          }
+        },
+        {
+          "meals": {
+            "colazione": "col-cb",
+            "spuntino1": "sp1-uova",
+            "pranzo": "pr-pasta-patate",
+            "spuntino2": "sp2-noci",
+            "cena": "libero",
+            "post": "post-shake"
+          }
+        },
+        {
+          "meals": {
+            "colazione": "col-lm",
+            "spuntino1": "sp1-uova",
+            "pranzo": "libero",
+            "spuntino2": "sp2-mista",
+            "cena": "libero",
+            "post": "post-shake"
+          }
+        }
+      ],
+      [
+        {
+          "meals": {
+            "colazione": "col-cb",
+            "spuntino1": "sp1-uova",
+            "pranzo": "pr-riso-spinaci",
+            "spuntino2": "sp2-mandorle",
+            "cena": "ce-tacchino-insalata-carote",
+            "post": "post-shake"
+          }
+        },
+        {
+          "meals": {
+            "colazione": "col-lm",
+            "spuntino1": "sp1-uova",
+            "pranzo": "pr-pasta-lenticchie",
+            "spuntino2": "sp2-noci",
+            "cena": "ce-orata-patate-insalata",
+            "post": "post-shake"
+          }
+        },
+        {
+          "meals": {
+            "colazione": "col-cf",
+            "spuntino1": "sp1-uova",
+            "pranzo": "pr-pasta-tonno",
+            "spuntino2": "sp2-mista",
+            "cena": "ce-vitello-spinaci-carote",
+            "post": "post-shake"
+          }
+        },
+        {
+          "meals": {
+            "colazione": "col-lm",
+            "spuntino1": "sp1-uova",
+            "pranzo": "pr-pasta-patate",
+            "spuntino2": "sp2-mandorle",
+            "cena": "ce-frittata-insalata-carote",
+            "post": "post-shake"
+          }
+        },
+        {
+          "meals": {
+            "colazione": "col-cb",
+            "spuntino1": "sp1-uova",
+            "pranzo": "pr-pasta-ceci",
+            "spuntino2": "sp2-noci",
+            "cena": "ce-salmone-insalata-carote",
+            "post": "post-shake"
+          },
+          "alternatives": {
+            "pranzo": [
+              "pr-spaghetti-lupini"
+            ]
+          }
+        },
+        {
+          "meals": {
+            "colazione": "col-cf",
+            "spuntino1": "sp1-uova",
+            "pranzo": "pr-riso-pomodoro",
+            "spuntino2": "sp2-mandorle",
+            "cena": "libero",
+            "post": "post-shake"
+          }
+        },
+        {
+          "meals": {
+            "colazione": "col-lm",
+            "spuntino1": "sp1-uova",
+            "pranzo": "libero",
+            "spuntino2": "sp2-mista",
+            "cena": "libero",
+            "post": "post-shake"
+          }
+        }
+      ],
+      [
+        {
+          "meals": {
+            "colazione": "col-lm",
+            "spuntino1": "sp1-uova",
+            "pranzo": "pr-pasta-fagioli",
+            "spuntino2": "sp2-mandorle",
+            "cena": "ce-pollo-insalata-carote",
+            "post": "post-shake"
+          }
+        },
+        {
+          "meals": {
+            "colazione": "col-cb",
+            "spuntino1": "sp1-uova",
+            "pranzo": "pr-riso-verza",
+            "spuntino2": "sp2-noci",
+            "cena": "ce-merluzzo-patate-spinaci",
+            "post": "post-shake"
+          }
+        },
+        {
+          "meals": {
+            "colazione": "col-lm",
+            "spuntino1": "sp1-uova",
+            "pranzo": "pr-pasta-macinato",
+            "spuntino2": "sp2-mista",
+            "cena": "ce-tacchino-insalata-carote",
+            "post": "post-shake"
+          }
+        },
+        {
+          "meals": {
+            "colazione": "col-cf",
+            "spuntino1": "sp1-uova",
+            "pranzo": "pr-pasta-tonno",
+            "spuntino2": "sp2-mandorle",
+            "cena": "ce-salsicce-friarielli",
+            "post": "post-shake"
+          }
+        },
+        {
+          "meals": {
+            "colazione": "col-cb",
+            "spuntino1": "sp1-uova",
+            "pranzo": "pr-pasta-uova-pancetta",
+            "spuntino2": "sp2-noci",
+            "cena": "ce-salmone-insalata-carote",
+            "post": "post-shake"
+          },
+          "alternatives": {
+            "pranzo": [
+              "pr-spaghetti-lupini"
+            ]
+          }
+        },
+        {
+          "meals": {
+            "colazione": "col-lm",
+            "spuntino1": "sp1-uova",
+            "pranzo": "pr-pasta-lenticchie",
+            "spuntino2": "sp2-mandorle",
+            "cena": "libero",
+            "post": "post-shake"
+          }
+        },
+        {
+          "meals": {
+            "colazione": "col-cf",
+            "spuntino1": "sp1-uova",
+            "pranzo": "libero",
+            "spuntino2": "sp2-mista",
+            "cena": "libero",
+            "post": "post-shake"
+          }
+        }
+      ]
+    ]
+  },
+  "rules": [
+    {
+      "type": "no-consecutive",
+      "tag": "legume"
+    },
+    {
+      "type": "max-per-week",
+      "tag": "cavolo",
+      "max": 1
+    },
+    {
+      "type": "max-per-week",
+      "tag": "carne-rossa",
+      "max": 2
+    },
+    {
+      "type": "min-per-week",
+      "tag": "pesce",
+      "min": 2
+    },
+    {
+      "type": "min-gap-days",
+      "tag": "salsiccia",
+      "days": 14
+    },
+    {
+      "type": "swap-if-tag",
+      "slot": "spuntino1",
+      "tag": "uova",
+      "inSlots": [
+        "pranzo",
+        "cena"
+      ],
+      "option": "sp1-affettato",
+      "text": "nel panino va l'affettato"
+    },
+    {
+      "type": "gym-day-portion",
+      "slot": "cena",
+      "food": "pane",
+      "qty": 40,
+      "restQty": 80,
+      "remove": [
+        "patate"
+      ],
+      "text": "Giorno palestra: niente patate, 40 g di pane"
+    },
+    {
+      "type": "day-swap",
+      "id": "sushi",
+      "label": "🍣 Sushi a pranzo",
+      "weekday": 5,
+      "free": [
+        "pranzo"
+      ],
+      "diet": {
+        "cena": "ce-pollo-insalata-carote"
+      }
+    },
+    {
+      "type": "day-extra",
+      "id": "cardio",
+      "label": "🏃 Cardio extra",
+      "slot": "pranzo",
+      "foods": [
+        "pasta",
+        "riso",
+        "tagliolini",
+        "tortellini"
+      ],
+      "add": 30,
+      "restDaysOnly": true
+    },
+    {
+      "type": "weight-stall",
+      "weeks": 3,
+      "direction": "up",
+      "text": "Il peso non sale da 3 settimane: il piano prevede +30 g di pasta a pranzo."
+    }
+  ],
+  "habits": [
+    {
+      "id": "creatina",
+      "label": "Creatina 5 g",
+      "food": "creatina",
+      "qty": 5,
+      "hint": "Nello yogurt o in acqua",
+      "hintGym": "Nello shake post-allenamento",
+      "includedOnGymDays": true
+    }
+  ],
+  "tips": [
+    {
+      "weekday": 0,
+      "text": "Pesati a digiuno, prima della colazione."
+    },
+    {
+      "gym": true,
+      "text": "Giorno palestra: cena con metà carboidrati (40 g di pane, niente patate)."
+    },
+    {
+      "gym": true,
+      "text": "Proteine e creatina nello shake appena torni a casa."
+    },
+    {
+      "gym": false,
+      "text": "Creatina 5 g nello yogurt delle 17:00 o in acqua."
+    },
+    {
+      "weekday": 5,
+      "text": "Cena libera. Sushi a pranzo? Attiva lo swap: la cena diventa da dieta."
+    },
+    {
+      "weekday": 6,
+      "text": "Pranzo e cena liberi: colazione e spuntini restano da dieta."
+    }
+  ]
+}

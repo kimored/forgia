@@ -11,7 +11,7 @@ import { ProfileForm } from './profile-form';
     <header>
       <img src="icons/icon.svg" alt="" width="56" height="56" />
       <h1>Benvenuto in {{ name }}</h1>
-      <p class="muted">{{ tagline }} · Configuriamo il tuo piano in 4 passaggi.</p>
+      <p class="muted">{{ tagline }} · Configuriamo tutto in 5 passaggi.</p>
     </header>
     <app-profile-form mode="wizard" (saved)="done()" />
   `,

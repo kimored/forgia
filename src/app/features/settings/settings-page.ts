@@ -1,16 +1,17 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ThemeService, type ThemePref } from '../../core/platform/theme.service';
 import { InstallService } from '../../core/platform/install.service';
 import { StorageService } from '../../core/platform/storage.service';
 import { BackupService } from '../../core/data/backup.service';
 import { SettingsService } from '../../core/data/settings.service';
+import { PlanImportError, PlanService } from '../../core/data/plan.service';
 import { Icon } from '../../shared/ui/icon';
 
 @Component({
   selector: 'app-settings-page',
-  imports: [DatePipe, RouterLink, Icon],
+  imports: [DatePipe, DecimalPipe, RouterLink, Icon],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './settings-page.html',
   styleUrl: './settings-page.scss',
@@ -21,6 +22,28 @@ export class SettingsPage {
   protected readonly storage = inject(StorageService);
   protected readonly backup = inject(BackupService);
   protected readonly app = inject(SettingsService);
+  protected readonly plans = inject(PlanService);
+  protected readonly planMessage = signal<{ ok: boolean; text: string } | null>(null);
+  protected readonly hasOtherPart = computed(() => this.plans.catalog().slots.some((s) => s.owner === 'other'));
+
+  protected async importPlan(input: HTMLInputElement): Promise<void> {
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file) return;
+    try {
+      const doc = await this.plans.importFile(file);
+      this.planMessage.set({ ok: true, text: 'Piano caricato: ' + doc.meta.title });
+    } catch (e) {
+      const errors = e instanceof PlanImportError ? e.errors : [String(e)];
+      this.planMessage.set({ ok: false, text: errors.slice(0, 3).join(' ') });
+    }
+  }
+
+  protected async useExample(): Promise<void> {
+    if (!confirm('Tornare al piano di esempio? Il piano attuale verrà sostituito (esportalo prima se ti serve).')) return;
+    await this.plans.useExample();
+    this.planMessage.set({ ok: true, text: 'Piano di esempio attivo.' });
+  }
 
   protected setAlertDays(value: string): void {
     const n = parseInt(value, 10);

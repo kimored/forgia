@@ -2,12 +2,11 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { DayStore } from '../../core/data/day.store';
-import { catalog } from '../../core/domain/catalog';
 import { addDays, mondayOf, parseIsoDate, today, WEEKDAY_SHORT, type IsoDate } from '../../core/domain/dates';
 import type { ResolvedMeal } from '../../core/domain/day-plan';
 import { weekSummary, weekWarnings } from '../../core/domain/rules';
-import { MEAL_SLOTS, type MealSlot } from '../../core/models/plan';
-import { SLOT_META } from '../../shared/meal-format';
+import type { MealSlot } from '../../core/models/plan';
+import { slotMeta } from '../../shared/meal-format';
 
 interface Cell {
   meal: ResolvedMeal | null;
@@ -26,12 +25,16 @@ interface Cell {
 })
 export class WeekPage {
   private readonly store = inject(DayStore);
+  protected meta(slot: MealSlot) {
+    return slotMeta(this.catalog(), slot);
+  }
   private readonly router = inject(Router);
 
   protected readonly monday = signal<IsoDate>(mondayOf(today()));
   protected readonly todayDate = today();
-  protected readonly slots = MEAL_SLOTS;
-  protected readonly meta = SLOT_META;
+  protected readonly catalog = this.store.catalog;
+  /** Slot del piano (righe della griglia), con etichetta e colore. */
+  protected readonly slots = computed(() => this.catalog().slots.map((s) => ({ id: s.id, ...slotMeta(this.catalog(), s.id) })));
 
   protected readonly days = computed(() =>
     Array.from({ length: 7 }, (_, i) => {
@@ -45,15 +48,18 @@ export class WeekPage {
     from: this.days()[0].jsDate,
     to: this.days()[6].jsDate,
   }));
-  protected readonly summary = computed(() => weekSummary(catalog, this.store.resolver(), this.monday()));
-  protected readonly warnings = computed(() => weekWarnings(catalog, this.store.resolver(), this.monday()));
+  protected readonly summary = computed(() => weekSummary(this.catalog(), this.store.resolver(), this.monday()));
+  protected readonly warnings = computed(() => weekWarnings(this.catalog(), this.store.resolver(), this.monday()));
 
   /** Griglia: righe = slot, colonne = giorni. */
   protected readonly grid = computed(() =>
-    MEAL_SLOTS.map((slot) => ({
-      slot,
-      cells: this.days().map((d) => this.cell(d.day.meals.find((m) => m.slot === slot) ?? null)),
-    })),
+    this.slots()
+      .map((s) => ({
+        slot: s.id,
+        meta: s,
+        cells: this.days().map((d) => this.cell(d.day.meals.find((m) => m.slot === s.id) ?? null)),
+      }))
+      .filter((row) => row.cells.some((c) => c.meal)),
   );
 
   /** Per il telefono: un elenco per giorno. */
@@ -67,6 +73,7 @@ export class WeekPage {
   private cell(meal: ResolvedMeal | null): Cell {
     if (!meal) return { meal: null, title: '', status: 'todo', replaced: false, tags: [] };
     const tags: string[] = [];
+    const catalog = this.catalog();
     if (meal.option) {
       if (catalog.hasTag(meal.option, 'pesce')) tags.push('🐟');
       if (catalog.hasTag(meal.option, 'carne-rossa')) tags.push('🥩');

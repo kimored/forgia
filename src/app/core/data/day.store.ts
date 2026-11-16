@@ -2,15 +2,15 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { liveQuery } from 'dexie';
 import type { DayOptions, HabitLog, MealLog, MealStatus } from '../models/logs';
 import type { MealSlot } from '../models/plan';
-import { catalog } from '../domain/catalog';
 import { addDays, type IsoDate } from '../domain/dates';
 import { resolveDay, type ResolvedDay } from '../domain/day-plan';
 import { variantsFor, type DayResolver, type Variant } from '../domain/rules';
-import { CREATINE_G, mealConsumption } from '../domain/pantry';
+import { mealConsumption } from '../domain/pantry';
 import { db } from './db';
 import { adjustStock } from './pantry.repo';
-import { SettingsService } from './settings.service';
+import { PlanService } from './plan.service';
 import { ProfileService } from './profile.service';
+import { SettingsService } from './settings.service';
 
 /**
  * Stato giornaliero reattivo: log dei pasti, opzioni del giorno e abitudini (IndexedDB → signals).
@@ -20,6 +20,8 @@ import { ProfileService } from './profile.service';
 export class DayStore {
   private readonly profiles = inject(ProfileService);
   private readonly settings = inject(SettingsService);
+  private readonly plans = inject(PlanService);
+  readonly catalog = this.plans.catalog;
 
   private readonly logs = signal<MealLog[]>([]);
   private readonly options = signal<DayOptions[]>([]);
@@ -29,15 +31,29 @@ export class DayStore {
   private readonly optionsByDate = computed(() => new Map(this.options().map((o) => [o.date, o])));
   readonly habitsByDate = computed(() => new Map(this.habitRows().map((h) => [h.date, h])));
 
+  /** Orari: quelli del profilo, altrimenti quelli del piano. */
+  private readonly times = computed(() => {
+    const own = this.profiles.effective().times;
+    const out: Record<string, string> = {};
+    for (const s of this.catalog().slots) if (s.time) out[s.id] = s.time;
+    return { ...out, ...own };
+  });
+
   constructor() {
     liveQuery(() => db.mealLogs.toArray()).subscribe((v) => this.logs.set(v));
     liveQuery(() => db.dayOptions.toArray()).subscribe((v) => this.options.set(v));
     liveQuery(() => db.habits.toArray()).subscribe((v) => this.habitRows.set(v));
   }
 
-  /** Resolver memoizzato: si ricrea quando cambiano log, opzioni o profilo. */
+  private dayProfile() {
+    const p = this.profiles.effective();
+    return { startDate: p.startDate, gymDays: p.gymDays, times: this.times() };
+  }
+
+  /** Resolver memoizzato: si ricrea quando cambiano piano, log, opzioni o profilo. */
   readonly resolver = computed<DayResolver>(() => {
-    const profile = this.profiles.effective();
+    const catalog = this.catalog();
+    const profile = this.dayProfile();
     const logs = this.logsByDate();
     const options = this.optionsByDate();
     const cache = new Map<IsoDate, ResolvedDay>();
@@ -56,19 +72,20 @@ export class DayStore {
   }
 
   variants(date: IsoDate, slot: MealSlot): Variant[] {
-    return variantsFor(catalog, this.resolver(), date, slot);
+    return variantsFor(this.catalog(), this.resolver(), date, slot);
   }
 
   habits(date: IsoDate): HabitLog {
     return this.habitsByDate().get(date) ?? { date };
   }
 
-  /** Giorni consecutivi con la creatina presa, fino a oggi (oggi escluso se non ancora presa). */
-  creatineStreak(date: IsoDate): number {
+  /** Giorni consecutivi con l'abitudine spuntata, fino a oggi (oggi escluso se non ancora fatta). */
+  habitStreak(date: IsoDate, habitId: string): number {
     const map = this.habitsByDate();
-    let d = map.get(date)?.creatine ? date : addDays(date, -1);
+    const done = (d: IsoDate) => !!map.get(d)?.done?.[habitId];
+    let d = done(date) ? date : addDays(date, -1);
     let n = 0;
-    while (map.get(d)?.creatine) {
+    while (done(d)) {
       n++;
       d = addDays(d, -1);
     }
@@ -85,18 +102,13 @@ export class DayStore {
   private mealWith(date: IsoDate, slot: MealSlot, optionId: string | undefined) {
     const others = (this.logsByDate().get(date) ?? []).filter((l) => l.slot !== slot);
     const logs: MealLog[] = optionId ? [...others, { date, slot, status: 'todo', optionId, at: '' }] : others;
-    const day = resolveDay(catalog, {
-      date,
-      profile: this.profiles.effective(),
-      logs,
-      options: this.optionsByDate().get(date),
-    });
+    const day = resolveDay(this.catalog(), { date, profile: this.dayProfile(), logs, options: this.optionsByDate().get(date) });
     return day.meals.find((m) => m.slot === slot);
   }
 
   private async consume(date: IsoDate, slot: MealSlot, optionId: string | undefined, sign: 1 | -1): Promise<void> {
     const meal = this.mealWith(date, slot, optionId);
-    if (meal && !meal.free) await adjustStock(mealConsumption(meal), sign);
+    if (meal && !meal.free) await adjustStock(mealConsumption(this.catalog(), meal), sign);
   }
 
   async setStatus(date: IsoDate, slot: MealSlot, status: MealStatus): Promise<void> {
@@ -138,11 +150,12 @@ export class DayStore {
     if (this.autoDeduct && current?.status === 'done') await this.consume(date, slot, current.optionId, 1);
   }
 
-  // ---------- Opzioni del giorno ----------
+  // ---------- Opzioni del giorno (previste dal piano) ----------
 
-  async setOption(date: IsoDate, patch: Partial<Omit<DayOptions, 'date'>>): Promise<void> {
+  async toggleOption(date: IsoDate, id: string): Promise<void> {
     const current = (await db.dayOptions.get(date)) ?? { date };
-    await db.dayOptions.put({ ...current, ...patch });
+    const toggles = { ...current.toggles, [id]: !current.toggles?.[id] };
+    await db.dayOptions.put({ ...current, toggles });
   }
 
   // ---------- Abitudini ----------
@@ -154,12 +167,13 @@ export class DayStore {
     });
   }
 
-  async toggleCreatine(date: IsoDate): Promise<void> {
-    const taken = !this.habits(date).creatine;
-    await this.patchHabits(date, (h) => ({ ...h, creatine: taken }));
-    // Nei giorni palestra la creatina è già nello shake post-allenamento.
-    if (this.autoDeduct && !this.day(date).gym) {
-      await adjustStock([{ productId: 'creatina', qty: CREATINE_G }], taken ? -1 : 1);
+  async toggleHabit(date: IsoDate, habitId: string): Promise<void> {
+    const habit = this.catalog().habits.find((h) => h.id === habitId);
+    const taken = !this.habits(date).done?.[habitId];
+    await this.patchHabits(date, (h) => ({ ...h, done: { ...h.done, [habitId]: taken } }));
+    // Se nei giorni di palestra è già in un pasto, non si scala due volte.
+    if (this.autoDeduct && habit?.food && habit.qty && !(habit.includedOnGymDays && this.day(date).gym)) {
+      await adjustStock([{ productId: habit.food, qty: habit.qty }], taken ? -1 : 1);
     }
   }
 
